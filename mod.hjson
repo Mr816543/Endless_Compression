@@ -1,23 +1,23 @@
-#the mod name as displayed in-game
-displayName: "Java Mod Template"
+#游戏中显示的mod名称
+displayName: "无尽压缩"
 
-#the internal name of your mod
-name: "example-java-mod"
+#mod的内部名称
+name: "ec"
 
-#your name
-author: "You"
+#作者名字
+author: "816543"
 
-#the fully qualified main class of the mod
-main: "example.ExampleJavaMod"
+#MOD的完全合格的主类
+main: "EC"
 
-#the mod description as seen in the mod dialog
-description: "A Mindustry Java mod template."
+#MOD描述如“ mod”对话框中看到的
+description: "压就完事了"
 
-#the mod version
-version: 1.0
+#mod版本
+version: 2.0
 
-#the minimum game build required to run this mod
-minGameVersion: 145
+#运行此mod所需的最低游戏构建
+minGameVersion: 146
 
-#this is a java mod
+#这是Java Mod
 java: true
