@@ -69,7 +69,7 @@ task jarAndroid{
 }
 
 jar{
-    archiveFileName = "${base.archivesBaseName}无尽压缩.jar"
+    archiveFileName = "${base.archivesBaseName}Desktop.jar"
 
     from{
         configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
