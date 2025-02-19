@@ -304,7 +304,6 @@ public class MultiCrafter extends Block {
                 }
             }
 
-            //TODO 单位
             for (UnitStack input : inputUnits) {
                 if (input.amount != 1) regions.add(Integer.toString(input.amount));
                 regions.add(input.unitType.uiIcon);
