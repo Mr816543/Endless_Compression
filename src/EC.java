@@ -50,6 +50,7 @@ public class EC extends Mod {
         try {
             ECItems.load();
             ECLiquids.load();
+            ECCrafter.load();
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +126,6 @@ public class EC extends Mod {
 
         }};
 
-        ECCrafter.load();
 
 
         //Log.info(Items.copper.uiIcon.texture.getTextureData().getPixmap());

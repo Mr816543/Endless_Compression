@@ -37,7 +37,8 @@ public class ECLiquids {
 
 
             Liquid ECLiquid = new Liquid("c"+finalI+" "+L.name) {{
-                localizedName = finalI + Core.bundle.get("Compression.localizedName") + L.localizedName;
+                localizedName = finalI + Core.bundle.get("num-Compression.localizedName") + L.localizedName;
+                description = L.description;
                 details = L.details;
 
                 alwaysUnlocked = true;
@@ -62,6 +63,8 @@ public class ECLiquids {
             compress(L,ECLiquid,finalI,intV,floatV);
 
             ECLiquids.get(L).add(ECLiquid);
+
+            ECLiquid.color = Tool.Color(ECLiquid.color,finalI,true);
         }
 
     }

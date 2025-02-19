@@ -1,6 +1,8 @@
 package ECType;
 
+import ECContent.ECItems;
 import arc.Core;
+import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
 import arc.graphics.TextureData;
@@ -12,9 +14,13 @@ import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.ctype.UnlockableContent;
 import mindustry.type.CellLiquid;
+import mindustry.type.Item;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+
+import static ECContent.ECItems.*;
+import static ECContent.ECLiquids.*;
 
 import static ECType.ECSetting.LINEAR_MULTIPLIER;
 import static ECType.ECSetting.SCALE_MULTIPLIER;
@@ -22,16 +28,29 @@ import static ECType.ECSetting.SCALE_MULTIPLIER;
 public class Tool {
 
 
-    public static  <T extends UnlockableContent> void compress(T from, T to, int num, ObjectMap<String,Float> intValue,ObjectMap<String,Float> floatValue,Seq<String> jump) throws IllegalAccessException {
+    public static  <T extends UnlockableContent> void compress(T from, T to, int num, ObjectMap<String,Float> intValue,ObjectMap<String,Float> floatValue,Seq<String> jump,Class<?> clazz) throws IllegalAccessException {
+
+        if (intValue==null) intValue = new ObjectMap<>();
+        if (floatValue==null) floatValue = new ObjectMap<>();
+
         String fClass = from.getClass().getSuperclass().getSimpleName();
         String tClass = to.getClass().getSuperclass().getSimpleName();
+        Seq<Field> fields;
+        if (clazz == null){
+            if (!fClass.equals(tClass)) {
+                Log.err("A and B haven't the same class\n" + "A : " + fClass + "\n" + "B : " + tClass);
+            }
+            fields = getFields(
+                    to.getClass()
+            );
+            //Log.info (to.getClass().getSimpleName().isEmpty() ? "isEmpty":"isn'tEmpty");
+        }else {
+            fields = getFields(clazz);
+            //Log.info(clazz.getSimpleName().isEmpty()?"isEmpty":"isn'tEmpty");
+        }
         //Log.info(from.localizedName+" : "+fClass+" -> "+tClass);
 
-        if (!fClass.equals(tClass)) {
-             Log.err("A and B haven't the same class\n" + "A : " + fClass + "\n" + "B : " + tClass);
-        }
 
-        Seq<Field> fields = getFields(to.getClass());
 
 
         //遍历全部属性
@@ -91,6 +110,20 @@ public class Tool {
 
 
     }
+
+    public static  <T extends UnlockableContent> void compress(T from, T to, int num, ObjectMap<String,Float> intValue,ObjectMap<String,Float> floatValue,Seq<String> jump) throws IllegalAccessException {
+        compress( from,  to,  num,  intValue, floatValue,jump,null);
+    }
+
+    public static  <T extends UnlockableContent> void compress(T from, T to, Class<?> clazz) throws IllegalAccessException {
+        compress(from,to,1,null,null,null,clazz);
+    }
+
+    public static  <T extends UnlockableContent> void compress(T from, T to) throws IllegalAccessException {
+        compress(from,to,1,null,null,null,null);
+    }
+
+
 
     public static  <T extends UnlockableContent> void compress(T from, T to, int num, ObjectMap<String,Float> intValue,ObjectMap<String,Float> floatValue) throws IllegalAccessException {
         compress(from,to,num,intValue,floatValue,new Seq<>());
@@ -285,6 +318,18 @@ public class Tool {
         }
     }
 
+
+    public static Color Color(Color color, int num, boolean deepen) {
+
+        Color color0 = Color.rgb(255, 255, 255);
+
+        if (deepen) {
+            color0 = Color.rgb(0, 0, 0);
+        }
+
+        return color.cpy().lerp(color0, 0.035f * num);
+
+    }
 
 
 }

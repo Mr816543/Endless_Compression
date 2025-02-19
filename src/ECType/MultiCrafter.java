@@ -11,7 +11,6 @@ import arc.scene.ui.layout.Table;
 import arc.struct.IntSet;
 import arc.struct.OrderedMap;
 import arc.struct.Seq;
-import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
@@ -27,16 +26,18 @@ import mindustry.ui.dialogs.BaseDialog;
 import mindustry.world.Block;
 import mindustry.world.blocks.heat.HeatBlock;
 import mindustry.world.blocks.heat.HeatConsumer;
-import mindustry.world.blocks.units.UnitFactory;
 import mindustry.world.consumers.ConsumePower;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawDefault;
-import mindustry.world.draw.DrawHeatOutput;
-import mindustry.world.draw.DrawMulti;
 import mindustry.world.meta.BlockStatus;
 import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
+import mindustry.world.meta.StatValues;
+
+import static ECType.Tool.*;
 
 public class MultiCrafter extends Block {
+    public boolean multiDrawer = false;
     public Seq<Recipe> recipes = new Seq<>();//配方
     public DrawBlock drawer = new DrawDefault();//绘制器
     public boolean splitHeat = true;//热分裂
@@ -46,6 +47,9 @@ public class MultiCrafter extends Block {
     public MultiCrafter(String name) {
         super(name);
         //基础设置
+
+
+
         update = true;//需要更新
         solid = true;//固体方块
         hasItems = true;//容纳物品
@@ -73,42 +77,91 @@ public class MultiCrafter extends Block {
     }
 
     @Override
+    public void init() {
+        super.init();
+        int i = 1;
+        for (Recipe r:recipes){
+
+            drawer.load(this);
+
+            r.name = r.name+i;
+            i++;
+        }
+    }
+
+    @Override
     public void setBars() {
     }
 
     @Override
     public void setStats() {
-        super.setStats();
 
-        stats.add(Stat.output, table -> {
-            table.row();
-            // 创建滚动面板
-            ScrollPane pane = new ScrollPane(new Table(t -> {
-                for (Recipe r : recipes) {
-                    t.add(getRecipeDisplay(r)).growX().left();
-                    t.row();
-                }
-            }));
+        stats.add(Stat.size, "@x@", size, size);
 
-            table.add(pane).grow().height(200f);
-        });
+        if(synthetic()){
+            stats.add(Stat.health, health, StatUnit.none);
+            if(armor > 0){
+                stats.add(Stat.armor, armor, StatUnit.none);
+            }
+        }
+
+        if(canBeBuilt() && requirements.length > 0){
+            stats.add(Stat.buildTime, buildCost / 60, StatUnit.seconds);
+            stats.add(Stat.buildCost, StatValues.items(false, requirements));
+        }
+
+        if(instantTransfer){
+            stats.add(Stat.maxConsecutive, 2, StatUnit.none);
+        }
+
+        if(hasLiquids) stats.add(Stat.liquidCapacity, liquidCapacity, StatUnit.liquidUnits);
+        if(hasItems && itemCapacity > 0) stats.add(Stat.itemCapacity, itemCapacity, StatUnit.items);
+
+        setRecipesStats();
+    }
+
+    //设置配方信息
+    public void setRecipesStats(){
+            stats.add(Stat.output, table -> {
+                table.row();
+                // 创建滚动面板
+                ScrollPane pane = new ScrollPane(new Table(t -> {
+                    for (Recipe r : recipes) {
+                        t.add(getRecipeDisplay(r)).growX().left();
+                        t.row();
+                    }
+                }));
+
+                table.add(pane).grow().height(200f);
+            });
     }
 
     // 配方可视化工具方法
-    private Table getRecipeDisplay(Recipe r) {
+    public Table getRecipeDisplay(Recipe r) {
         Table t = new Table().left();
 
 
+        t.add(r.name + " : ");
+
         //*/
+        for (Object o : imageForRecipes(r)) {
+            if (o instanceof TextureRegion textureRegion) {
+                t.add(new Image(textureRegion)).size(32f);
+            } else if (o instanceof String string) {
+                t.add(string).fontScale(0.8f);
+            } else t.add(new Image(Core.atlas.find("error")));
+        }
+        //*/
+        /*/
         // 输入部分
-        addRecipeComponents(t, r.inputItems, r.inputLiquids, r.inputPower);
+        addRecipeComponents(t, r.inputItems, r.inputLiquids,r.inputUnits,r.inputHeat , r.inputPower);
 
         // 箭头分隔符
         //noinspection SpellCheckingInspection
         t.add("[lightgray]->[]").pad(10f);
 
         // 输出部分
-        addRecipeComponents(t, r.outputItems, r.outputLiquids, r.outputPower);
+        addRecipeComponents(t, r.outputItems, r.outputLiquids,r.outputUnits,r.outputHeat, r.outputPower);
 
         //*/
 
@@ -116,7 +169,8 @@ public class MultiCrafter extends Block {
     }
 
     // 通用组件添加方法
-    private void addRecipeComponents(Table t, ItemStack[] items, LiquidStack[] liquids, float power) {
+    /*/
+    private void addRecipeComponents(Table t, ItemStack[] items, LiquidStack[] liquids,UnitStack[] units,float heat,float power) {
 
         for (int i = 0; i < items.length; i++) {
             ItemStack stack = items[i];
@@ -141,6 +195,78 @@ public class MultiCrafter extends Block {
             t.add(" " + power + "\u26A1" + "/s").color(Pal.power);
         }
     }
+    //*/
+
+    public Seq<Object> imageForRecipes(Recipe r) {
+        Seq<Object> regions = new Seq<>();
+
+        imageForRecipes(regions, r.inputItems, r.inputLiquids, r.inputUnits, r.inputHeat, r.inputPower);
+
+        regions.add(" -("+r.crafterTime/60f+"s)-> ");
+
+        imageForRecipes(regions, r.outputItems, r.outputLiquids, r.outputUnits, r.outputHeat, r.outputPower);
+
+        return regions;
+    }
+
+    public void imageForRecipes(Seq<Object> regions, ItemStack[] inputItems, LiquidStack[] inputLiquids, UnitStack[] inputUnits, float inputHeat, float inputPower) {
+        //确认加号个数
+        int num1 = 0;
+        num1 += inputItems.length + inputLiquids.length + inputUnits.length + (inputHeat > 0 ? 1 : 0) + (inputPower > 0 ? 1 : 0) - 1;
+        num1 = Math.max(num1, 0);
+
+        for (ItemStack input : inputItems) {
+            if (input.amount != 1) regions.add(Integer.toString(input.amount));
+            regions.add(input.item.uiIcon);
+            if (num1 > 0) {
+                regions.add(" + ");
+                num1 -= 1;
+            }
+        }
+
+        for (LiquidStack input : inputLiquids) {
+            boolean isInt = input.amount - (int) input.amount < 0.01F || input.amount - (int) input.amount > 0.99F;
+            if (isInt) {
+                if ((int) input.amount != 1) regions.add(Integer.toString((int) input.amount));
+            } else regions.add(Float.toString(input.amount));
+            regions.add(input.liquid.uiIcon);
+            if (num1 > 0) {
+                regions.add(" + ");
+                num1 -= 1;
+            }
+        }
+
+        for (UnitStack input : inputUnits) {
+            if (input.amount != 1) regions.add(Integer.toString(input.amount));
+            regions.add(input.unitType.uiIcon);
+            if (num1 > 0) {
+                regions.add(" + ");
+                num1 -= 1;
+            }
+        }
+
+        if (inputHeat > 0) {
+            boolean isInt = inputHeat - (int) inputHeat < 0.01F || inputHeat - (int) inputHeat > 0.99F;
+            if (isInt) {
+                regions.add(Integer.toString((int) inputHeat));
+            } else regions.add(Float.toString(inputHeat));
+            regions.add(Icon.waves.getRegion());
+            if (num1 > 0) {
+                regions.add(" + ");
+                num1 -= 1;
+            }
+        }
+
+        if (inputPower > 0) {
+            boolean isInt = inputPower - (int) inputPower < 0.01F || inputPower - (int) inputPower > 0.99F;
+            if (isInt) {
+                regions.add(Integer.toString((int) inputPower));
+            } else regions.add(Float.toString(inputPower));
+            regions.add(Icon.power.getRegion());
+        }
+
+    }
+
 
     //配方类
     public static class Recipe {
@@ -152,6 +278,7 @@ public class MultiCrafter extends Block {
         public float inputPower, outputPower;//每秒
         public float crafterTime;//帧
         public float warmupRate;//热量升高时间
+        public DrawBlock drawer;
 
         public Recipe() {
             name = Core.bundle.get("ECType.Recipe.name");
@@ -162,6 +289,7 @@ public class MultiCrafter extends Block {
             inputPower = outputPower = 0f;
             crafterTime = 60f;
             warmupRate = 0.15f;
+            drawer = new DrawDefault();
         }
 
     }
@@ -196,7 +324,8 @@ public class MultiCrafter extends Block {
             ScrollPane pane = new ScrollPane(table);
 
             pane.setScrollingDisabled(true, false);
-            int buttonsPerRow = 5; // 每行显示的按钮数量
+            int buttonsPerRow=Vars.android?3:5; // 每行显示的按钮数量
+
             int count = 0;
 
             for (int i = 0; i < recipes.size; i++) {
@@ -558,7 +687,7 @@ public class MultiCrafter extends Block {
                     return r.outputPower / 60f;
                 }
                 if (r.inputPower > 0) {
-                    return -r.inputPower / 60f;
+                    return (0.001f-r.inputPower / 60f);
                 }
             }
             return 0f;
@@ -684,14 +813,23 @@ public class MultiCrafter extends Block {
 
         @Override
         public void draw() {
-            drawer.draw(this);
+            if (!((MultiCrafter)block).multiDrawer) {
+                drawer.draw(this);
+                return;
+            }
+            recipes.get(index).drawer.draw(this);
         }
 
         @Override
         public void drawLight() {
             super.drawLight();
-            drawer.drawLight(this);
+            if (!((MultiCrafter)block).multiDrawer) {
+                drawer.draw(this);
+                return;
+            }
+            recipes.get(index).drawer.drawLight(this);
         }
+
 
         //*/
         @Override

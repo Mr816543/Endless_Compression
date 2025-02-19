@@ -12,6 +12,7 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
+import mindustry.ctype.UnlockableContent;
 import mindustry.type.Item;
 
 import static ECType.ECSetting.*;
@@ -27,7 +28,7 @@ public class ECItems {
             if (!item.isVanilla()) continue;
             if (item.isHidden()) continue;
             createCompressionItem(item);
-            Log.info(item.localizedName);
+            //Log.info(item.localizedName);
         }
     }
 
@@ -58,10 +59,11 @@ public class ECItems {
                 hiddenOnPlanets = I.hiddenOnPlanets;
 
                 //*/
-                localizedName = finalI +Core.bundle.get("Compression.localizedName") + I.localizedName;
+                localizedName = finalI +Core.bundle.get("num-Compression.localizedName") + I.localizedName;
+                description = I.description;
                 details = I.details;
 
-                alwaysUnlocked = true;
+                //alwaysUnlocked = true;
                 setCompressionIcon(I,this,finalI);
             }};
 
@@ -81,9 +83,11 @@ public class ECItems {
             putAllTo(intV,SI,SCALE_MULTIPLIER);
             putAllTo(floatV,SF,SCALE_MULTIPLIER);
 
-            compress(I,ECItem,finalI,intV,floatV);
+            compress((UnlockableContent) I,ECItem,finalI,intV,floatV);
 
             ECItems.get(I).add(ECItem);
+
+            ECItem.color = Tool.Color(ECItem.color,finalI,true);
         }
 
     }
