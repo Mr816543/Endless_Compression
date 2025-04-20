@@ -11,7 +11,7 @@ author: "816543"
 main: "EC"
 
 #mod版本
-version: 2.0
+version: 2.0.0.beta.1
 
 #运行此mod所需的最低游戏构建
 minGameVersion: 147
@@ -30,7 +30,7 @@ description: "支持语言 | Language
 
 更新日志
 
-v2.0.0-beta.01
+v2.0.0.beta.01
 1.完全重写了本mod所有代码
 2.现在无尽压缩的内容将在图标右上角绘制标识以供分辨
 3.更换为自主编写的多合成工厂,更换了新的配置面板和信息面板
