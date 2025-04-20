@@ -1,10 +1,12 @@
-import ECContent.ECCrafter;
+import ECContent.ECBlocks;
 import ECContent.ECItems;
 import ECContent.ECLiquids;
-import ECType.MultiCrafter;
-import ECType.Tool;
+import ECConfig.ECTool;
+import ECContent.ECUnitTypes;
+import ECType.ECMultiCrafter;
 import arc.Core;
-import arc.files.Fi;
+import arc.util.Log;
+import arc.util.Time;
 import mindustry.content.Items;
 import mindustry.mod.Mod;
 import mindustry.type.Category;
@@ -43,19 +45,32 @@ public class EC extends Mod {
         }
     }
 
-
     @Override
     public void loadContent() {
+        StartTime();
+
+        ECTool.loadNumberPixmap();
+        loadTime("NumberPixmap");
 
         try {
             ECItems.load();
+            loadTime("ECItems");
+
             ECLiquids.load();
-            ECCrafter.load();
+            loadTime("ECLiquids");
+
+            ECUnitTypes.load();
+            loadTime("ECUnitTypes");
+
+            ECBlocks.load();
+            loadTime("ECBlocks");
+
+            //ECPlanet.load();
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-        new MultiCrafter("test"){{
+        new ECMultiCrafter("test"){{
             requirements(Category.crafting, with(Items.titanium, 100, Items.silicon, 25, Items.lead, 100, Items.graphite, 50));
             alwaysUnlocked = true;
             size = 2;
@@ -128,8 +143,26 @@ public class EC extends Mod {
 
 
 
+
         //Log.info(Items.copper.uiIcon.texture.getTextureData().getPixmap());
 
 
     }
+
+    public long StartTime;
+
+    public void StartTime(){
+        StartTime = System.nanoTime();
+    }
+
+    public void loadTime(String s){
+        long NowTime = System.nanoTime();
+        long time = (NowTime-StartTime) / 1000000;
+        float msTime = ((float) ((int)(time*1000))) / 1000;
+        Log.info(s + " : " + msTime +" ms");
+        StartTime();
+    }
+
+
+
 }

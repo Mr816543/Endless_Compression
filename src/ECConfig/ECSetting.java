@@ -1,6 +1,4 @@
-package ECType;
-
-import arc.math.Mathf;
+package ECConfig;
 
 public class ECSetting {
 
