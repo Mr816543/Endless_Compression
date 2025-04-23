@@ -1,6 +1,7 @@
 package ECType;
 
 import ECConfig.Config;
+import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
@@ -12,7 +13,7 @@ public class ECLiquid extends Liquid {
 
     public int level;
 
-    public static Config config = new Config().linearConfig("heatCapacity").scaleConfig("flammability","temperature","viscosity","explosiveness");
+    public Config config = new Config().linearConfig("heatCapacity").scaleConfig("flammability","viscosity","explosiveness");
 
     public ECLiquid(Liquid root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
@@ -20,10 +21,15 @@ public class ECLiquid extends Liquid {
         this.level = level;
         ECTool.compress(this.root,this,config,level);
         ECTool.setIcon(root,this,level);
+        if (root.temperature > 0.5){
+            config.scaleConfig("temperature");
+        }else {
+            config.addConfigSimple(1/ECSetting.SCALE_MULTIPLIER,"temperature");
+        }
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
         color = ECTool.Color(root.color,level,true);
-
+        ECData.register(root,this,level);
     }
 }

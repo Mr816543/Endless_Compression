@@ -1,9 +1,8 @@
 package ECConfig;
 
 
-import ECContent.ECItems;
-import ECContent.ECLiquids;
 import ECType.ECLiquid;
+import ECType.ECUnitType;
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
@@ -15,24 +14,39 @@ import arc.math.Mathf;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.Vars;
+import mindustry.content.TechTree;
+import mindustry.ctype.Content;
 import mindustry.ctype.UnlockableContent;
+import mindustry.entities.bullet.BulletType;
+import mindustry.entities.bullet.LiquidBulletType;
+import mindustry.gen.Building;
+import mindustry.type.Item;
 import mindustry.type.ItemStack;
+import mindustry.type.Liquid;
 import mindustry.type.LiquidStack;
 import mindustry.world.Block;
+import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import static mindustry.content.Liquids.water;
-
 public class ECTool {
 
     public static Pixmap[][] numberPixmap = new Pixmap[9][10];
+    public static Config bulletConfig = new Config().
+            addConfigSimple(null, "fragBullet", "intervalBullet", "lightningType", "spawnBullets", "spawnUnit", "despawnUnit", "puddleLiquid").
+            linearConfig("damage", "splashDamage", "healAmount", "lifesteal", "lightningDamage").
+            scaleConfig("recoil", "healPercent", "fragBullets", "intervalBullets",
+                    "despawnUnitCount", "splashDamageRadius", "incendAmount", "lightning",
+                    "lightningLength", "lightningLengthRand", "puddles", "puddleRange",
+                    "puddleAmount", "lightRadius", "speed", "width", "height", "length",
+                    "puddleSize", "orbSize"
+            );
 
-    public static void compress(Object root , Object child , Class<?> clazz , Config c , int level) throws IllegalAccessException {
+    public static void compress(Object root, Object child, Class<?> fromClazz, Class<?> toClazz, Config c, int level) throws IllegalAccessException {
         //遍历全部属性
-        for (Field field : getField(root,clazz)) {
+        for (Field field : getField(fromClazz, toClazz)) {
             //允许通过反射访问私有变量
             //field.setAccessible(true);
             //获取属性名
@@ -45,17 +59,15 @@ public class ECTool {
 
             boolean needContinue = false;
 
-            for (String s : c.config.keys()){
+            for (String s : c.config.keys()) {
                 if (name.equals(s)) {
                     if (value instanceof Integer) {
                         field.set(child, (int) ((int) value * Mathf.pow(c.config.get(name), level)));
                         needContinue = true;
-                    }
-                    else if (value instanceof Float){
-                        field.set(child, (float)value *  Mathf.pow(c.config.get(name),level));
+                    } else if (value instanceof Float) {
+                        field.set(child, (float) value * Mathf.pow(c.config.get(name), level));
                         needContinue = true;
-                    }
-                    else if (c.config.get(name)==null){
+                    } else if (c.config.get(name) == null) {
                         needContinue = true;
                     }
                 }
@@ -83,13 +95,86 @@ public class ECTool {
         }
     }
 
-    public static <T extends UnlockableContent> void compress(T root , T child , Config c , int level) throws IllegalAccessException {
-        compress(root,child, UnlockableContent.class,c,level);
+    public static void compress(Object root, Object child, Class<?> toClazz, Config c, int level) throws IllegalAccessException {
+        compress(root, child, root.getClass(), toClazz, c, level);
     }
 
-    public static Seq<Field> getField(Object root,Class<?> clas){
+    public static <T extends UnlockableContent> void compress(T root, T child, Config c, int level) throws IllegalAccessException {
+        compress(root, child, UnlockableContent.class, c, level);
+    }
+
+    //子弹强化
+    public static BulletType compressBulletType(BulletType root, int level) throws IllegalAccessException {
+        var child = root.copy();
+        ECTool.compress(root, child, Content.class, bulletConfig, level);
+
+        if (child instanceof LiquidBulletType c) {
+            c.liquid = ECData.get(c.liquid, level);
+        }
+
+
+        if (root.fragBullet != null) {
+            child.fragBullet = compressBulletType(child.fragBullet, level);
+        }
+        if (root.intervalBullet != null) {
+            child.intervalBullet = compressBulletType(root.intervalBullet, level);
+        }
+        if (root.lightningType != null) {
+            child.lightningType = compressBulletType(root.lightningType, level);
+        }
+
+        child.spawnBullets = new Seq<>();
+        if (!root.spawnBullets.isEmpty()) {
+            for (BulletType b : root.spawnBullets) {
+                child.spawnBullets.add(compressBulletType(b, level));
+            }
+        }
+
+
+        if (root.spawnUnit != null) {
+            if (!ECData.hasECContent(root.spawnUnit)) {
+                for (int i = 1; i <= ECSetting.MAX_LEVEL; i++) {
+                    new ECUnitType(root.spawnUnit, i);
+                }
+            }
+            child.spawnUnit = ECData.get(root.spawnUnit, level);
+
+
+        }
+        if (root.despawnUnit != null) {
+
+            if (!ECData.hasECContent(root.despawnUnit)) {
+                for (int i = 1; i <= ECSetting.MAX_LEVEL; i++) {
+                    new ECUnitType(root.despawnUnit, i);
+                }
+            }
+            child.despawnUnit = ECData.get(root.despawnUnit, level);
+        }
+
+
+        if (root.puddleLiquid != null) {
+            if (!ECData.hasECContent(root.puddleLiquid)) {
+                for (int i = 1; i <= ECSetting.MAX_LEVEL; i++) {
+                    new ECLiquid(root.puddleLiquid, i);
+                }
+            }
+            child.puddleLiquid = ECData.get(root.puddleLiquid, level);
+        }
+
+
+        child.shootEffect = ECData.get(child.shootEffect, level);
+
+
+        //别太短
+        child.scaleLife = false;
+
+
+        return child;
+    }
+
+
+    public static Seq<Field> getField(Class<?> clazz, Class<?> clas) {
         Seq<Field> fields = new Seq<>();
-        Class<?> clazz = root.getClass();
         while (!clazz.getSimpleName().equals(clas.getSimpleName())) {
             if (clazz.getSimpleName().isEmpty()) {
                 clazz = clazz.getSuperclass();
@@ -103,12 +188,12 @@ public class ECTool {
     }
 
     public static <T extends UnlockableContent> Seq<Field> getField(T root) {
-        return getField(root, UnlockableContent.class);
+        return getField(root.getClass(), UnlockableContent.class);
     }
 
-    public static String fieldsToString(Field[] fields){
+    public static String fieldsToString(Field[] fields) {
         StringBuilder string = new StringBuilder("[");
-        for (Field f:fields){
+        for (Field f : fields) {
             string.append(f.getName()).append(",");
         }
         string.append("]");
@@ -129,44 +214,42 @@ public class ECTool {
     }
 
     //设置图标
-    public static void setIcon(UnlockableContent root, UnlockableContent child, int num){
-        if (root.uiIcon!=null){
-            child.uiIcon = child.fullIcon = mergeRegions(root.uiIcon,num);
-        }else {
-            Core.app.post(() -> setIcon(root,child,num));
+    public static void setIcon(UnlockableContent root, UnlockableContent child, int num) {
+        if (root.uiIcon != null) {
+            child.uiIcon = child.fullIcon = mergeRegions(root.uiIcon, num);
+        } else {
+            Core.app.post(() -> setIcon(root, child, num));
         }
     }
 
 
     //加载数字角标贴图
-    public static void loadNumberPixmap(){
-        for (int i = 0 ; i < 10 ; i++){
-            numberPixmap[0][i] = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("number").child("num-"+i+".png")).getTextureData().getPixmap();
+    public static void loadNumberPixmap() {
+        for (int i = 0; i < 10; i++) {
+            numberPixmap[0][i] = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("number").child("num-" + i + ".png")).getTextureData().getPixmap();
         }
-        for (int j = 2 ; j <= 9 ; j ++){
-            int size = 32 * j ;
-            for (int i = 0 ; i < 10;i++){
-                Pixmap num = new Pixmap(size,size);
-                num.draw(numberPixmap[0][i],0,0,size,size);
-                numberPixmap[j-1][i] = num;
+        for (int j = 2; j <= 9; j++) {
+            int size = 32 * j;
+            for (int i = 0; i < 10; i++) {
+                Pixmap num = new Pixmap(size, size);
+                num.draw(numberPixmap[0][i], 0, 0, size, size);
+                numberPixmap[j - 1][i] = num;
             }
         }
 
     }
 
-    public static TextureRegion mergeRegions(Pixmap pixmapA, Pixmap pixmapB , int size){
+    public static TextureRegion mergeRegions(Pixmap pixmapA, Pixmap pixmapB, int size) {
         // 创建新Pixmap并绘制叠加效果
-        Pixmap result = new Pixmap(size,size);
+        Pixmap result = new Pixmap(size, size);
         result.draw(pixmapA, 0, 0); // 绘制A
         //result.setBlending(Pixmap.Blending.SourceOver); // 启用Alpha混合
         //result.draw(pixmapB, 3 , -3 ,true); // 叠加B
-        result.draw(pixmapB, result.getWidth()-pixmapB.getWidth() , 0 ,true); // 叠加B
+        result.draw(pixmapB, result.getWidth() - pixmapB.getWidth(), 0, true); // 叠加B
         //result.setBlending(Pixmap.Blending.None); // 恢复默认
 
 
-        result.draw(pixmapB,1,1,1,1);
-
-
+        result.draw(pixmapB, 1, 1, 1, 1);
 
 
         // 生成纹理并清理资源
@@ -181,17 +264,17 @@ public class ECTool {
         return combinedRegion;
     }
 
-    public static TextureRegion mergeRegions(Pixmap pixmapA, Pixmap pixmapB){
-        int sizeA = Math.max(pixmapA.getHeight(),pixmapA.getWidth());
-        int sizeB = Math.max(pixmapB.getHeight(),pixmapB.getWidth());
-        return mergeRegions(pixmapA,pixmapB,Math.max(sizeA,sizeB));
+    //为贴图绘制数字角标
+    public static TextureRegion mergeRegions(Pixmap pixmapA, Pixmap pixmapB) {
+        int sizeA = Math.max(pixmapA.getHeight(), pixmapA.getWidth());
+        int sizeB = Math.max(pixmapB.getHeight(), pixmapB.getWidth());
+        return mergeRegions(pixmapA, pixmapB, Math.max(sizeA, sizeB));
     }
 
-    //为贴图绘制数字角标
-    public static TextureRegion mergeRegions(TextureRegion A, int num){
-        int sizeA = Math.max(A.width,A.height);
-        int size = Math.max(sizeA / 32,1);
-        return mergeRegions(extractRegionPixmap(A),numberPixmap[size-1][num]);
+    public static TextureRegion mergeRegions(TextureRegion A, int num) {
+        int sizeA = Math.max(A.width, A.height);
+        int size = Math.max(sizeA / 32, 1);
+        return mergeRegions(extractRegionPixmap(A), numberPixmap[size - 1][num]);
     }
 
 
@@ -205,7 +288,7 @@ public class ECTool {
         // 获取区域参数
         int x = region.getX(), y = region.getY();
         int width = region.width, height = region.height;
-        boolean isRotated = (region instanceof TextureAtlas.AtlasRegion) && ((TextureAtlas.AtlasRegion)region).rotate;
+        boolean isRotated = (region instanceof TextureAtlas.AtlasRegion) && ((TextureAtlas.AtlasRegion) region).rotate;
 
         // 计算实际纹理中的区域尺寸
         int srcW = isRotated ? height : width;
@@ -236,11 +319,22 @@ public class ECTool {
 
 
     //将原版贴图复制加载为压缩贴图
+    /*/
+
     public static void loadCompressContentRegion(UnlockableContent root,UnlockableContent child) throws IllegalAccessException {
         Seq<String> sprites = getSprites(root);
         loadCompressContentIcon(root,child);
         for (String sprite : sprites){
             loadCompressContentSpriteRegion(root,child,sprite);
+        }
+    }
+     */
+    //*/
+    public static void loadCompressContentRegion(UnlockableContent root, UnlockableContent child) throws IllegalAccessException {
+        Seq<String> sprites = getSprites(root);
+        loadCompressContentIcon(root, child);
+        for (String sprite : sprites) {
+            loadCompressContentSpriteRegion(root, child, sprite);
         }
     }
 
@@ -256,19 +350,19 @@ public class ECTool {
     //获取后缀
     public static Seq<String> getSprites(UnlockableContent content) throws IllegalAccessException {
         Seq<String> sprites = new Seq<>();
-        ObjectMap<String, TextureAtlas.AtlasRegion> regionmap =null;
-        for (Field field: TextureAtlas.class.getDeclaredFields()){
+        ObjectMap<String, TextureAtlas.AtlasRegion> regionmap = null;
+        for (Field field : TextureAtlas.class.getDeclaredFields()) {
             field.setAccessible(true);
             String name = field.getName();
-            if (!name.equals("regionmap"))continue;
+            if (!name.equals("regionmap")) continue;
             regionmap = (ObjectMap<String, TextureAtlas.AtlasRegion>) field.get(Core.atlas);
         }
-        if (regionmap==null) return sprites;
-        for (String s:regionmap.keys()){
+        if (regionmap == null) return sprites;
+        for (String s : regionmap.keys()) {
             if (!s.contains(content.name)) continue;
             String[] strings = s.split(content.name);
-            if (strings.length==0) sprites.add("");
-            else sprites.add(strings[strings.length-1]);
+            if (strings.length == 0) sprites.add("");
+            else sprites.add(strings[strings.length - 1]);
         }
         return sprites;
     }
@@ -284,45 +378,38 @@ public class ECTool {
 
 
     //复制并增强消耗器
-    public static Seq<Consume> consumeBuilderCopy(Block root,int level){
+    public static Seq<Consume> consumeBuilderCopy(Block root, int level) {
         Seq<Consume> consumes = new Seq<>();
         try {
             for (Consume consume : root.consumers) {
                 if (consume instanceof ConsumeLiquid) {
-                    if (ECLiquids.ECLiquids.get(((ConsumeLiquid)consume).liquid)==null) continue;
-                    ConsumeLiquid c = new ConsumeLiquid(ECLiquids.ECLiquids.get(((ConsumeLiquid)consume).liquid).get(level), 1);
+                    ConsumeLiquid c = new ConsumeLiquid(ECData.get(((ConsumeLiquid) consume).liquid, level), 1);
                     ECTool.compress(consume, c, Object.class, Config.NULL, 0);
-
-
                     consumes.add(c);
+                } else if (consume instanceof ConsumeLiquids r) {
 
-
-
-                } else if (consume instanceof ConsumeLiquids) {
-
-                    ConsumeLiquids c = new ConsumeLiquids(new LiquidStack[0]);
+                    ConsumeLiquids c = new ConsumeLiquids(new LiquidStack[r.liquids.length]);
                     ECTool.compress(consume, c, Object.class, Config.NULL, 0);
-                    for (LiquidStack liquidStack : c.liquids){
-                        if (ECLiquids.ECLiquids.get(liquidStack.liquid)==null) continue;
-                        liquidStack.liquid = ECLiquids.ECLiquids.get(liquidStack.liquid).get(level);
+                    for (int i = 0; i < c.liquids.length; i++) {
+                        c.liquids[i] = new LiquidStack(ECData.get(r.liquids[i].liquid, level), r.liquids[i].amount);
                     }
                     consumes.add(c);
 
-                } else if (consume instanceof ConsumeItems) {
-                    ConsumeItems c = new ConsumeItems(new ItemStack[0]);
-                    ECTool.compress(consume, c, Object.class, Config.NULL, 0);
-                    for (ItemStack itemStack : c.items){
+                } else if (consume instanceof ConsumeItems r) {
 
-                        if (ECItems.ECItems.get(itemStack.item)==null) continue;
-                        itemStack.item = ECItems.ECItems.get(itemStack.item).get(level);
+                    ConsumeItems c = new ConsumeItems(new ItemStack[r.items.length]);
+                    ECTool.compress(consume, c, Object.class, Config.NULL, 0);
+                    for (int i = 0; i < c.items.length; i++) {
+                        c.items[i] = new ItemStack(ECData.get(r.items[i].item, level), r.items[i].amount);
                     }
                     consumes.add(c);
+
                 } else if (consume instanceof ConsumePower) {
 
-                    ConsumePower c = new ConsumePower(0,0,false);
+                    ConsumePower c = new ConsumePower(0, 0, false);
                     ECTool.compress(consume, c, Object.class, Config.NULL, 0);
-                    if (c.usage>0){
-                        c.usage *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
+                    if (c.usage > 0) {
+                        c.usage *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                     }
                     consumes.add(c);
                 }
@@ -331,6 +418,154 @@ public class ECTool {
             throw new RuntimeException(e);
         }
         return consumes;
+    }
+
+    //构造时直接复制并增强消耗
+    public static void compressConsumes(Block root, Block child, int level) {
+
+        for (Consume c : consumeBuilderCopy(root, level)) {
+            child.consume(c);
+        }
+
+    }
+
+    //获取类名
+    public static String getClassName(Class<?> r) {
+
+        return r.getSimpleName().isEmpty() ? getClassName(r.getSuperclass()) : r.getSimpleName();
+
+
+    }
+
+
+    //通用强化抛出物品方法
+    public static boolean dump(Building build, Item item) {
+        if (build.block.hasItems && build.items.total() != 0 && build.proximity.size != 0 && (item == null || build.items.has(item))) {
+            int dump = build.cdump;
+            Seq<Item> allItems = Vars.content.items();
+            int itemSize = allItems.size;
+            Object[] itemArray = allItems.items;
+            int i;
+            Building other;
+            if (item == null) {
+                for (i = 0; i < build.proximity.size; ++i) {
+                    other = build.proximity.get((i + dump) % build.proximity.size);
+
+                    for (int ii = 0; ii < itemSize; ++ii) {
+                        if (build.items.has(ii)) {
+                            Item itemArr = (Item) itemArray[ii];
+                            if (other.acceptItem(build, itemArr) && build.canDump(other, itemArr)) {
+
+                                dump(build, other, item);
+
+
+                                build.incrementDump(build.proximity.size);
+                                return true;
+                            }
+                        }
+                    }
+
+                    build.incrementDump(build.proximity.size);
+                }
+            } else {
+                for (i = 0; i < build.proximity.size; ++i) {
+                    other = build.proximity.get((i + dump) % build.proximity.size);
+                    if (other.acceptItem(build, item) && build.canDump(other, item)) {
+
+                        dump(build, other, item);
+
+                        build.incrementDump(build.proximity.size);
+                        return true;
+                    }
+
+                    build.incrementDump(build.proximity.size);
+                }
+            }
+
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    public static void dump(Building build, Building other, Item item) {
+        if (!other.acceptItem(build, item)) return;
+
+
+        if (other instanceof ItemVoid.ItemVoidBuild) {
+            other.flowItems().add(item, build.items.get(item));
+            build.items.set(item, 0);
+            return;
+        }
+
+
+        int accepted = other.acceptStack(item, build.items.get(item), build);
+        if (accepted >0){
+            other.handleStack(item,accepted,build);
+            build.items.remove(item,accepted);
+        }
+
+
+
+        for (int i = 0; i < build.items.get(item) && i < 60; i++) {
+            if (!other.acceptItem(build, item)) return;
+            other.handleItem(build, item);
+            build.items.remove(item, 1);
+        }
+
+
+    }
+
+    //通用科技节点添加方法
+    public static void loadECTechNode(UnlockableContent root) {
+
+        //遍历根物品的全部科技节点
+        for (TechTree.TechNode rootNode : root.techNodes) {
+
+            //以根物品的科技节点作为起始父节点
+            TechTree.TechNode parent = rootNode;
+
+            //循环
+            for (int i = 1; i < ECData.getECSize(root); i++) {
+
+                //待解锁的内容
+                UnlockableContent content = ECData.getEC(root, i);
+                //创建新节点
+                TechTree.TechNode node;
+                if (root instanceof Item || root instanceof Liquid) {
+                    node = TechTree.nodeProduce(content, () -> {
+                    });
+                } else {
+                    node = TechTree.node(content, () -> {
+                    });
+                }
+
+                node.parent = parent;
+                parent.children.add(node);
+
+
+                //以新节点为父节点
+                parent = node;
+
+            }
+        }
+
+
+    }
+
+    //通用物品组增强方法
+    public static ItemStack[] compressItemStack(ItemStack[] root, int level) {
+
+        ItemStack[] child = root.clone();
+
+        for (int i = 0; i < child.length; i++) {
+            ItemStack itemStack = child[i];
+            if (!ECData.hasECContent(itemStack.item)) continue;
+            child[i] = new ItemStack(ECData.get(itemStack.item, level), itemStack.amount);
+        }
+
+        return child;
+
     }
 
 }

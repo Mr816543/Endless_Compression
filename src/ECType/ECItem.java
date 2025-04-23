@@ -1,6 +1,7 @@
 package ECType;
 
 import ECConfig.Config;
+import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
@@ -14,8 +15,8 @@ public class ECItem extends Item {
 
     public int level;
 
-    public static Config config = new Config().linearConfig("explosiveness","flammability","radioactivity","charge","hardness"
-    ).scaleConfig("cost","healthScaling");
+    public static Config config = new Config().linearConfig("cost","explosiveness","flammability","radioactivity","charge","hardness"
+    ).scaleConfig("healthScaling");
 
     public ECItem(Item root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
@@ -27,12 +28,16 @@ public class ECItem extends Item {
         description = root.description;
         details = root.details;
         color = ECTool.Color(root.color,level,true);
+        ECData.register(root,this,level);
     }
+
 
     @Override
     public void setStats() {
         super.setStats();
 
-        this.stats.addPercent(new Stat("hardness"), this.hardness);
+        stats.add(new Stat("hardness"), hardness);
+        stats.add(new Stat("cost"), cost);
+        stats.addPercent(new Stat("healthscaling"), healthScaling);
     }
 }

@@ -1,21 +1,18 @@
-package ECType;
+package ECType.ECBlockTypes;
 
 import ECConfig.Config;
+import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
-import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.Strings;
-import mindustry.Vars;
-import mindustry.gen.Building;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
-import mindustry.world.blocks.distribution.Conveyor;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.production.Drill;
-import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.ConsumeLiquidBase;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
@@ -25,12 +22,16 @@ import static mindustry.Vars.indexer;
 import static mindustry.Vars.state;
 
 public class ECDrill extends Drill {
-    public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("drillEffectChance").linearConfig("itemCapacity", "rotateSpeed")
-            ;
+
     public Drill root;
+
     public int level;
+
     public float outputMultiple;
+
+    public static Config config = new Config().addConfigSimple(null, "buildType")
+            .scaleConfig("drillEffectChance").linearConfig("itemCapacity", "rotateSpeed");
+
 
     public ECDrill(Drill root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
@@ -40,9 +41,13 @@ public class ECDrill extends Drill {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
+
+        ECData.register(root,this,level);
     }
 
     @Override
@@ -89,17 +94,14 @@ public class ECDrill extends Drill {
             //*/
 
 
-            if (timer(timerDump, dumpTime) && dominantItem != null && items.has(dominantItem)) {
-                dump(dominantItem);
-            }
-
-            if (items.get(dominantItem) * 2 >= getMaximumAccepted(dominantItem)){
-                dump(dominantItem);
-            }
-
             if (dominantItem == null) {
                 return;
             }
+
+            if (items.has(dominantItem)) {
+                dump(dominantItem);
+            }
+
 
             timeDrilled += warmup * delta();
 
@@ -136,73 +138,11 @@ public class ECDrill extends Drill {
         }
 
         //*/
-        public boolean dump(Item todump) {
-            if (block.hasItems && items.total() != 0 && proximity.size != 0 && (todump == null || items.has(todump))) {
-                int dump = cdump;
-                Seq<Item> allItems = Vars.content.items();
-                int itemSize = allItems.size;
-                Object[] itemArray = allItems.items;
-                int i;
-                Building other;
-                if (todump == null) {
-                    for(i = 0; i < proximity.size; ++i) {
-                        other = (Building)proximity.get((i + dump) % proximity.size);
-
-                        for(int ii = 0; ii < itemSize; ++ii) {
-                            if (items.has(ii)) {
-                                Item item = (Item)itemArray[ii];
-                                if (other.acceptItem(this, item) && canDump(other, item)) {
-
-                                    dump(other,todump);
-
-
-                                    incrementDump(proximity.size);
-                                    return true;
-                                }
-                            }
-                        }
-
-                        incrementDump(proximity.size);
-                    }
-                } else {
-                    for(i = 0; i < proximity.size; ++i) {
-                        other = (Building)proximity.get((i + dump) % proximity.size);
-                        if (other.acceptItem(this, todump) && canDump(other, todump)) {
-
-                            dump(other,todump);
-
-                            incrementDump(proximity.size);
-                            return true;
-                        }
-
-                        incrementDump(proximity.size);
-                    }
-                }
-
-                return false;
-            } else {
-                return false;
-            }
+        @Override
+        public boolean dump(Item item) {
+            return ECTool.dump(this,item);
         }
 
-        public void dump(Building other,Item item){
-            if (other instanceof ItemVoid.ItemVoidBuild){
-                other.flowItems().add(item,items.get(item));
-                items.set(item,0);
-                return;
-            }else if (other instanceof Conveyor.ConveyorBuild b){
-                for (int i = 0 ; i < items.get(item); i++ ){
-                    if (!b.acceptItem(this,item)) return;
-                    b.handleItem(this,item);
-                    items.remove(item,1);
-                }
-                return;
-            }
-            int amount = Math.min(other.getMaximumAccepted(item) - other.items.get(item),items.get(item));
-            amount = Math.max(0,amount);
-            items.remove(item,amount);
-            other.items.add(item,amount);
-        }
 //*/
     }
 }

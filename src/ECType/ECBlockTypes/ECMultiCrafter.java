@@ -1,5 +1,6 @@
-package ECType;
+package ECType.ECBlockTypes;
 
+import ECConfig.ECData;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -33,9 +34,6 @@ import mindustry.world.meta.BlockStatus;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValues;
-
-import static ECContent.ECItems.*;
-import static ECContent.ECLiquids.*;
 
 
 public class ECMultiCrafter extends Block {
@@ -377,17 +375,17 @@ public class ECMultiCrafter extends Block {
             Recipe r = this.copy();
 
             for (int i = 0 ; i < r.inputItems.length;i++){
-                r.inputItems[i] = new ItemStack(ECItems.get(r.inputItems[i].item).get(num),r.inputItems[i].amount);
+                r.inputItems[i] = new ItemStack(ECData.get(r.inputItems[i].item,num),r.inputItems[i].amount);
             }
 
             for (int i = 0 ; i < r.outputItems.length;i++){
-                r.outputItems[i] = new ItemStack(ECItems.get(r.outputItems[i].item).get(num),r.outputItems[i].amount);
+                r.outputItems[i] = new ItemStack(ECData.get(r.outputItems[i].item,num),r.outputItems[i].amount);
             }
             for (int i = 0 ; i < r.inputLiquids.length;i++){
-                r.inputLiquids[i] = new LiquidStack(ECLiquids.get(r.inputLiquids[i].liquid).get(num),r.inputLiquids[i].amount);
+                r.inputLiquids[i] = new LiquidStack(ECData.get(r.inputLiquids[i].liquid,num),r.inputLiquids[i].amount);
             }
             for (int i = 0 ; i < r.outputLiquids.length;i++){
-                r.outputLiquids[i] = new LiquidStack(ECLiquids.get(r.outputLiquids[i].liquid).get(num),r.outputLiquids[i].amount);
+                r.outputLiquids[i] = new LiquidStack(ECData.get(r.outputLiquids[i].liquid,num),r.outputLiquids[i].amount);
             }
 
 
@@ -430,7 +428,7 @@ public class ECMultiCrafter extends Block {
             ScrollPane pane = new ScrollPane(table);
 
             pane.setScrollingDisabled(false, false);
-            int buttonsPerRow = Vars.android ? 2 : 3; // 每行显示的按钮数量
+            int buttonsPerRow = Vars.android ? 2 : 4; // 每行显示的按钮数量
             if (recipes.size == 1 || recipes.size == 2) buttonsPerRow = recipes.size;
 
             int count = 0;
@@ -492,7 +490,7 @@ public class ECMultiCrafter extends Block {
     }
 
     //实体类
-    public class MultiCrafterBuild extends Building implements HeatBlock, HeatConsumer {
+    public class MultiCrafterBuild extends Building implements HeatBlock, HeatConsumer{
         public float[] sideHeat = new float[4];//热方向
         public float heat = 0f;//热量
         public IntSet cameFrom = new IntSet();//不知道
@@ -671,9 +669,18 @@ public class ECMultiCrafter extends Block {
         }
 
         public void unitCraft(Recipe r) {
-            float x = x() + size;
-            float y = y() + size;
-            float rotation = this.rotation;
+            float x = x();
+            float y = y();
+            int rotation = this.rotation % 4;
+
+            switch (rotation){
+                case 0 -> x+= size * 8 ;
+                case 1 -> y+= size * 8 ;
+                case 2 -> x-= size * 8 ;
+                case 3 -> y-= size * 8 ;
+            }
+
+
             for (UnitStack input : r.inputUnits) {
                 int amount = input.amount;
                 for (Unit u : Groups.unit) {
@@ -681,7 +688,7 @@ public class ECMultiCrafter extends Block {
                     if (u.team == team && u.type == input.unitType && u.isValid() && isNearly(u)) {
                         x = u.x;
                         y = u.y;
-                        rotation = u.rotation;
+                        //rotation = u.rotation;
                         u.remove();
                         amount -= 1;
                     }
@@ -882,6 +889,7 @@ public class ECMultiCrafter extends Block {
 
             return (heat / visualMaxHeat) / (splitHeat ? 3f : 1);
         }
+
     }
 
 }

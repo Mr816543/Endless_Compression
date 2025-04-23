@@ -1,5 +1,6 @@
-package ECType;
+package ECType.ECBlockTypes;
 
+import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.graphics.g2d.TextureRegion;
@@ -23,7 +24,7 @@ public class ECGenericCrafter extends ECMultiCrafter {
 
         this.root = root;
 
-        requirements(root.category, root.buildVisibility, root.requirements);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,1));
         localizedName = Core.bundle.get("Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
@@ -35,6 +36,8 @@ public class ECGenericCrafter extends ECMultiCrafter {
         ECTool.loadCompressContentRegion(root,this);
 
         ECTool.setIcon(root,this,0);
+
+        ECData.register(root,this,1);
     }
 
     @Override

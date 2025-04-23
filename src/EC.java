@@ -1,17 +1,14 @@
-import ECContent.ECBlocks;
-import ECContent.ECItems;
-import ECContent.ECLiquids;
+import ECContents.*;
 import ECConfig.ECTool;
-import ECContent.ECUnitTypes;
-import ECType.ECMultiCrafter;
+import ECType.ECBlockTypes.ECMultiCrafter;
 import arc.Core;
 import arc.util.Log;
-import arc.util.Time;
 import mindustry.content.Items;
 import mindustry.mod.Mod;
 import mindustry.type.Category;
 import mindustry.type.ItemStack;
 import mindustry.type.LiquidStack;
+import mindustry.world.blocks.defense.turrets.Turret;
 
 import static mindustry.content.Items.*;
 import static mindustry.content.Liquids.*;
@@ -59,11 +56,18 @@ public class EC extends Mod {
             ECLiquids.load();
             loadTime("ECLiquids");
 
+            ECEffects.load();
+            loadTime("ECEffects");
+
             ECUnitTypes.load();
             loadTime("ECUnitTypes");
 
             ECBlocks.load();
             loadTime("ECBlocks");
+
+            ECTechTrees.load();
+            loadTime("ECTechTree");
+
 
             //ECPlanet.load();
         } catch (IllegalAccessException e) {
