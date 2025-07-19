@@ -1,3 +1,5 @@
+import ECConfig.ECSetting;
+import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
 import ECType.ECBlockTypes.ECMultiCrafter;
@@ -26,6 +28,10 @@ public class EC extends Mod {
         });
 
         //*/
+
+        ECSettings.init();
+        if (Core.settings.getBool("Compress-Crafters")) ECBlocks.init();
+
     }
 
     private void checkIconAvailability() {
@@ -44,6 +50,7 @@ public class EC extends Mod {
 
     @Override
     public void loadContent() {
+        GradualDisplayName.load();
         StartTime();
 
         ECTool.loadNumberPixmap();
@@ -69,14 +76,14 @@ public class EC extends Mod {
             loadTime("ECTechTree");
 
 
-            //ECPlanet.load();
+
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
         new ECMultiCrafter("test"){{
             requirements(Category.crafting, with(Items.titanium, 100, Items.silicon, 25, Items.lead, 100, Items.graphite, 50));
-            alwaysUnlocked = true;
+            alwaysUnlocked = false;
             size = 2;
             recipes.addAll(
                     new Recipe(){{
@@ -163,7 +170,7 @@ public class EC extends Mod {
         long NowTime = System.nanoTime();
         long time = (NowTime-StartTime) / 1000000;
         float msTime = ((float) ((int)(time*1000))) / 1000;
-        Log.info(s + " : " + msTime +" ms");
+        ECTool.print(s + " : " + msTime +" ms");
         StartTime();
     }
 

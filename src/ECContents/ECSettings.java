@@ -1,0 +1,20 @@
+package ECContents;
+
+import arc.Core;
+import arc.Events;
+import arc.Settings;
+import mindustry.Vars;
+import mindustry.game.EventType;
+import mindustry.ui.dialogs.SettingsMenuDialog;
+
+public class ECSettings {
+
+
+
+    public static void init(){
+        Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("Compress-Waves", false));
+        Core.settings.getBool("Compress-Waves");
+        Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("Compress-Crafters", false));
+        Core.settings.getBool("Compress-Crafters");
+    }
+}

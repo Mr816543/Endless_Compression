@@ -13,6 +13,7 @@ import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.TechTree;
 import mindustry.ctype.Content;
@@ -522,6 +523,8 @@ public class ECTool {
         //遍历根物品的全部科技节点
         for (TechTree.TechNode rootNode : root.techNodes) {
 
+            //if (rootNode.planet.isVanilla()) continue;
+
             //以根物品的科技节点作为起始父节点
             TechTree.TechNode parent = rootNode;
 
@@ -566,6 +569,10 @@ public class ECTool {
 
         return child;
 
+    }
+
+    public static void print(Object o){
+        Log.info(o);
     }
 
 }

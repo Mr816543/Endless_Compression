@@ -2,6 +2,7 @@ package ECType.ECBlockTypes;
 
 import ECConfig.ECData;
 import ECConfig.ECTool;
+import ECContents.ECBlocks;
 import arc.Core;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
@@ -21,7 +22,7 @@ import static mindustry.type.ItemStack.with;
 
 public class ECCompressCrafter extends ECMultiCrafter {
 
-    int level;
+    public int level;
 
     public ECCompressCrafter(int level) {
         super("c" + level + "-Compressor");
@@ -124,6 +125,8 @@ public class ECCompressCrafter extends ECMultiCrafter {
                 };
             }});
         }
+
+
         super.init();
         initTechTree();
     }
@@ -163,5 +166,11 @@ public class ECCompressCrafter extends ECMultiCrafter {
 
         fullIcon = uiIcon = ECTool.mergeRegions(A,B);
     }
+
+
+
+
+
+
 
 }

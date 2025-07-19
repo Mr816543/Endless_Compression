@@ -15,6 +15,7 @@ import arc.struct.Seq;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
+import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.gen.Groups;
 import mindustry.gen.Icon;
@@ -25,15 +26,14 @@ import mindustry.ui.Bar;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 import mindustry.world.Block;
+import mindustry.world.Tile;
 import mindustry.world.blocks.heat.HeatBlock;
 import mindustry.world.blocks.heat.HeatConsumer;
+import mindustry.world.blocks.production.AttributeCrafter;
 import mindustry.world.consumers.ConsumePower;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawDefault;
-import mindustry.world.meta.BlockStatus;
-import mindustry.world.meta.Stat;
-import mindustry.world.meta.StatUnit;
-import mindustry.world.meta.StatValues;
+import mindustry.world.meta.*;
 
 
 public class ECMultiCrafter extends Block {
@@ -42,6 +42,16 @@ public class ECMultiCrafter extends Block {
     public DrawBlock drawer = new DrawDefault();//绘制器
     public boolean splitHeat = false;//热分裂
     public float visualMaxHeat;//视觉最大热量
+
+    // /* 环境工厂 */
+    public Attribute attribute = Attribute.heat;
+    public float baseEfficiency = 1f;
+    public float boostScale = 1f;
+    public float maxBoost = 1f;
+    public float minEfficiency = -1f;
+    public float displayEfficiencyScale = 1f;
+    public boolean displayEfficiency = true;
+    public boolean scaleLiquidConsumption = false;
 
     //构造函数
     public ECMultiCrafter(String name) {
@@ -148,6 +158,10 @@ public class ECMultiCrafter extends Block {
         if (hasLiquids) stats.add(Stat.liquidCapacity, liquidCapacity, StatUnit.liquidUnits);
         if (hasItems && itemCapacity > 0) stats.add(Stat.itemCapacity, itemCapacity, StatUnit.items);
 
+
+        stats.add(baseEfficiency <= 0.0001f ? Stat.tiles : Stat.affinities, attribute, floating, boostScale * size * size, !displayEfficiency);
+
+
         setRecipesStats();
     }
 
@@ -166,6 +180,28 @@ public class ECMultiCrafter extends Block {
             table.add(pane).grow().height(200f);
         });
     }
+
+    /* 环境工厂 */
+    @Override
+    public void drawPlace(int x, int y, int rotation, boolean valid){
+        super.drawPlace(x, y, rotation, valid);
+
+        if(!displayEfficiency) return;
+
+        drawPlaceText(Core.bundle.format("bar.efficiency",
+                (int)((baseEfficiency + Math.min(maxBoost, boostScale * sumAttribute(attribute, x, y))) * 100f)), x, y, valid);
+    }
+
+    @Override
+    public boolean canPlaceOn(Tile tile, Team team, int rotation){
+        //make sure there's enough efficiency at this location
+        return baseEfficiency + tile.getLinkedTilesAs(this, tempTiles).sumf(other -> other.floor().attributes.get(attribute)) >= minEfficiency;
+    }
+
+
+
+
+
 
     // 配方可视化工具方法
     public Table getRecipeDisplay(Recipe r) {
@@ -501,6 +537,13 @@ public class ECMultiCrafter extends Block {
         public OrderedMap<String, Func<Building, Bar>> barMap = new OrderedMap<>();
         public boolean canConsume = false;
 
+        /* 环境工厂 */
+        public float attrsum;
+
+
+
+
+
         @Override
         public void displayBars(Table table) {
             for (Func<Building, Bar> bar : barMap.values()) {
@@ -772,6 +815,18 @@ public class ECMultiCrafter extends Block {
             }
 
             needUpdateBar = false;
+
+            /*/
+            if(!displayEfficiency) return;
+
+            addBar("efficiency", (AttributeCrafter.AttributeCrafterBuild entity) ->
+                    new Bar(
+                            () -> Core.bundle.format("bar.efficiency", (int)(entity.efficiencyMultiplier() * 100 * displayEfficiencyScale)),
+                            () -> Pal.lightOrange,
+                            entity::efficiencyMultiplier));
+
+            //*/
+
         }
 
         public void setBars() {
@@ -888,6 +943,36 @@ public class ECMultiCrafter extends Block {
             if (r.outputHeat > 0) return (heat / r.outputHeat);
 
             return (heat / visualMaxHeat) / (splitHeat ? 3f : 1);
+        }
+
+
+
+
+        /* 环境工厂 */
+        @Override
+        public float getProgressIncrease(float base){
+            return super.getProgressIncrease(base) * efficiencyMultiplier();
+        }
+
+        public float efficiencyMultiplier(){
+            return baseEfficiency + Math.min(maxBoost, boostScale * attrsum) + attribute.env();
+        }
+
+        @Override
+        public float efficiencyScale(){
+            return scaleLiquidConsumption ? efficiencyMultiplier() : super.efficiencyScale();
+        }
+
+        @Override
+        public void pickedUp(){
+            attrsum = 0f;
+        }
+
+        @Override
+        public void onProximityUpdate(){
+            super.onProximityUpdate();
+
+            attrsum = sumAttribute(attribute, tile.x, tile.y);
         }
 
     }

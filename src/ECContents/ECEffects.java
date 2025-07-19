@@ -29,7 +29,7 @@ public class ECEffects {
 
         if (root == Fx.shootSmallFlame) {
             for (int i = 1 ; i <= ECSetting.MAX_LEVEL;i++){
-                float sizeBase = (float) Math.pow(ECSetting.LINEAR_MULTIPLIER, i);
+                float sizeBase = (float) Math.pow(ECSetting.SCALE_MULTIPLIER, i);
                 Effect effect = new Effect(root.lifetime,root.clip,e->{
                     color(Pal.lightFlame, Pal.darkFlame, Color.gray, e.fin());
 
@@ -42,7 +42,7 @@ public class ECEffects {
         }
         else if (root == Fx.shootPyraFlame){
             for (int i = 1 ; i <= ECSetting.MAX_LEVEL;i++){
-                float sizeBase = (float) Math.pow(ECSetting.LINEAR_MULTIPLIER, i);
+                float sizeBase = (float) Math.pow(ECSetting.SCALE_MULTIPLIER, i);
                 Effect effect = new Effect(root.lifetime,root.clip,e->{
                     color(Pal.lightPyraFlame, Pal.darkPyraFlame, Color.gray, e.fin());
 
@@ -55,7 +55,7 @@ public class ECEffects {
         }
         else if (root == UnitTypes.oxynoe.weapons.get(0).bullet.shootEffect){
             for (int i = 1 ; i <= ECSetting.MAX_LEVEL;i++){
-                float sizeBase = (float) Math.pow(ECSetting.LINEAR_MULTIPLIER, i);
+                float sizeBase = (float) Math.pow(ECSetting.SCALE_MULTIPLIER, i);
                 Effect effect = new Effect(root.lifetime,root.clip,e->{
                     color(Color.white, Pal.heal, Color.gray, e.fin());
 

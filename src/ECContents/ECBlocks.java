@@ -6,21 +6,28 @@ import ECConfig.ECTool;
 import ECType.ECBlockTypes.*;
 import ECType.ECTurretTypes.ECItemTurret;
 import ECType.ECTurretTypes.ECLiquidTurret;
+import ECType.ECTurretTypes.ECPowerTurret;
 import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
+import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
+import mindustry.type.ItemStack;
+import mindustry.type.LiquidStack;
 import mindustry.world.Block;
 import mindustry.world.Edges;
 import mindustry.world.Tile;
+import mindustry.world.blocks.defense.Wall;
 import mindustry.world.blocks.defense.turrets.BaseTurret;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
+import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.distribution.Conveyor;
 import mindustry.world.blocks.distribution.StackConveyor;
+import mindustry.world.blocks.production.AttributeCrafter;
 import mindustry.world.blocks.production.BurstDrill;
 import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.GenericCrafter;
@@ -34,13 +41,18 @@ public class ECBlocks {
 
     public static Seq<Block> blocks;
 
+    public static Seq<ECCompressCrafter> ecCompressCrafters = new Seq<>();
+
     public static void load() throws IllegalAccessException {
 
         blocks = Vars.content.blocks().copy();
 
+
         for (int i = 1; i <= MAX_LEVEL; i++) {
-            new ECCompressCrafter(i);
+            ECCompressCrafter compressCrafter = new ECCompressCrafter(i);
+            ecCompressCrafters.add(compressCrafter);
         }
+
 
         for (Block root : blocks) {
             if (root.buildVisibility == BuildVisibility.debugOnly) continue;
@@ -61,6 +73,9 @@ public class ECBlocks {
                 }
                 case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
                 case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
+                case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
+
+
                 case "Conveyor" -> {
                     for (int i = 1 ; i <= MAX_LEVEL;i++) new ECConveyor((Conveyor) root, i);
                 }
@@ -94,12 +109,47 @@ public class ECBlocks {
                         }
                     };
                 }
+                case "Wall" -> {
+                    for (int i = 1 ; i <= MAX_LEVEL;i++) new ECWall((Wall) root, i);
+                }
                 case "" -> {}
             }
 
 
 
         }
+
+
+    }
+
+    public static void init(){
+
+        int speed = 0;
+        for (ECCompressCrafter crafter:ecCompressCrafters){
+            if (crafter.unlocked()){
+                speed += 1;
+            }
+        }
+
+        for (ECCompressCrafter crafter:ecCompressCrafters){
+            int speedPow = (int) Math.pow(9,speed- crafter.level);
+            for (ECMultiCrafter.Recipe r : crafter.recipes){
+                for (ItemStack itemStack : r.inputItems){
+                    itemStack.amount *= speedPow;
+                }
+                for (ItemStack itemStack : r.outputItems){
+                    itemStack.amount *= speedPow;
+                }
+                for (LiquidStack liquidStack : r.inputLiquids){
+                    liquidStack.amount *= speedPow;
+                }
+                for (LiquidStack liquidStack : r.outputLiquids){
+                    liquidStack.amount *= speedPow;
+                }
+            }
+            crafter.initCapacity();
+        }
+
 
 
     }
