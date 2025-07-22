@@ -1,18 +1,17 @@
 package ECContents;
 
-import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import ECType.ECBlockTypes.*;
 import ECType.ECTurretTypes.ECItemTurret;
 import ECType.ECTurretTypes.ECLiquidTurret;
 import ECType.ECTurretTypes.ECPowerTurret;
+import arc.Events;
 import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
-import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.content.Blocks;
+import mindustry.game.EventType;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
@@ -21,18 +20,23 @@ import mindustry.world.Block;
 import mindustry.world.Edges;
 import mindustry.world.Tile;
 import mindustry.world.blocks.defense.Wall;
-import mindustry.world.blocks.defense.turrets.BaseTurret;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.distribution.Conveyor;
 import mindustry.world.blocks.distribution.StackConveyor;
-import mindustry.world.blocks.production.AttributeCrafter;
-import mindustry.world.blocks.production.BurstDrill;
+import mindustry.world.blocks.liquid.ArmoredConduit;
+import mindustry.world.blocks.liquid.Conduit;
+import mindustry.world.blocks.liquid.LiquidRouter;
+import mindustry.world.blocks.power.ConsumeGenerator;
 import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.GenericCrafter;
+import mindustry.world.blocks.production.Pump;
+import mindustry.world.blocks.production.SolidPump;
 import mindustry.world.blocks.units.Reconstructor;
 import mindustry.world.blocks.units.UnitFactory;
+import mindustry.world.consumers.Consume;
+import mindustry.world.consumers.ConsumeItemFilter;
 import mindustry.world.meta.BuildVisibility;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
@@ -62,20 +66,59 @@ public class ECBlocks {
             String cn = ECTool.getClassName(root.getClass());
 
             switch (cn){
+                //工厂
                 case "GenericCrafter" -> new ECGenericCrafter((GenericCrafter) root);
+                //消耗类发电厂
+                case "ConsumeGenerator" -> {
+                    Seq<String> CGNames = new Seq<>(new String[]{
+                            "differential-generator","chemical-combustion-chamber","pyrolysis-generator"
+                    });
+                    if (CGNames.indexOf(root.name)!=-1){
+                        new ECConsumeGenerator((ConsumeGenerator)root);
+                    }else {
+                        new ECConsumeItemFilterGenerator((ConsumeGenerator) root);
+                    }
+                }
 
+
+                //钻头
                 case "Drill" -> {
                     for (int i = 1; i <= 9; i++) new ECDrill((Drill) root, i);
                 }
+
+                //泵
+                case "Pump" -> {
+                    for(int i = 1;i <= 9;i++) new ECPump((Pump) root,i);
+                }
+                //产液工厂\
+                case "SolidPump" , "Fracker" -> {
+                    for (int i = 1 ; i <= 9 ; i++) new ECSolidPump((SolidPump) root,i);
+                }
+                case "Conduit" ->{
+                    for (int i = 1 ; i <= 9 ; i++) new ECConduit((Conduit) root,i);
+                }
+                case "ArmoredConduit"-> {
+                    for (int i = 1 ; i <= 9 ; i++) new ECArmoredConduit((ArmoredConduit) root,i);
+                }
+                case "LiquidRouter" -> {
+                    for (int i = 1 ; i <= 9 ; i++) new ECLiquidRouter((LiquidRouter) root,i);
+                }
+
+                //单位工厂
                 case "UnitFactory" -> new ECUnitFactory((UnitFactory) root);
+                //单位重构工厂
                 case "Reconstructor" -> {
                     for (int i = 1 ; i <=MAX_LEVEL;i++) new ECReconstructor((Reconstructor) root,i);
                 }
+
+
+
+                //炮台
                 case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
                 case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
 
-
+                //传送带
                 case "Conveyor" -> {
                     for (int i = 1 ; i <= MAX_LEVEL;i++) new ECConveyor((Conveyor) root, i);
                 }
@@ -109,9 +152,14 @@ public class ECBlocks {
                         }
                     };
                 }
+
+                //城墙
                 case "Wall" -> {
                     for (int i = 1 ; i <= MAX_LEVEL;i++) new ECWall((Wall) root, i);
                 }
+
+
+
                 case "" -> {}
             }
 
@@ -153,6 +201,8 @@ public class ECBlocks {
 
 
     }
+
+
 
 
 }

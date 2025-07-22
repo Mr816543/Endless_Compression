@@ -15,8 +15,8 @@ public class ECItem extends Item {
 
     public int level;
 
-    public static Config config = new Config().linearConfig("cost","explosiveness","flammability","radioactivity","charge","hardness"
-    ).scaleConfig("healthScaling");
+    public static Config config = new Config().linearConfig("cost","radioactivity","charge","hardness"
+    ).scaleConfig("healthScaling").addConfigSimple(9f,"explosiveness","flammability");
 
     public ECItem(Item root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);

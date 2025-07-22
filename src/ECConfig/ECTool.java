@@ -379,7 +379,7 @@ public class ECTool {
 
 
     //复制并增强消耗器
-    public static Seq<Consume> consumeBuilderCopy(Block root, int level) {
+    public static Seq<Consume> consumeBuilderCopy(Block root, int level,boolean copyAll) {
         Seq<Consume> consumes = new Seq<>();
         try {
             for (Consume consume : root.consumers) {
@@ -413,12 +413,18 @@ public class ECTool {
                         c.usage *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                     }
                     consumes.add(c);
+                } else if (copyAll){
+                    consumes.add(consume);
                 }
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         return consumes;
+    }
+
+    public static Seq<Consume> consumeBuilderCopy(Block root, int level){
+        return consumeBuilderCopy( root,  level,false);
     }
 
     //构造时直接复制并增强消耗
@@ -515,6 +521,36 @@ public class ECTool {
         }
 
 
+    }
+
+
+    public static void dumpLiquids(Liquid liquid, float scaling, int outputDir, Building thiz) {
+        int dump = thiz.cdump;
+        if (!(thiz.liquids.get(liquid) <= 1.0E-4F)) {
+            if (!Vars.net.client() && Vars.state.isCampaign() && thiz.team == Vars.state.rules.defaultTeam) {
+                liquid.unlock();
+            }
+
+            for(int i = 0; i < thiz.proximity.size; ++i) {
+                thiz.incrementDump(thiz.proximity.size);
+                Building other = thiz.proximity.get((i + dump) % thiz.proximity.size);
+                if (outputDir == -1 || (outputDir + thiz.rotation) % 4 == thiz.relativeTo(other)) {
+                    other = other.getLiquidDestination(thiz, liquid);
+                    if (other != null && other.block.hasLiquids && thiz.canDumpLiquid(other, liquid) && other.liquids != null) {
+                        float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
+                        float fract = thiz.liquids.get(liquid) / thiz.block.liquidCapacity;
+                        if (ofract < fract) {
+
+
+                            float max = Math.min(other.block.liquidCapacity-other.liquids.get(liquid) ,thiz.liquids.get(liquid));
+                            max = Math.min((fract - ofract) * thiz.block.liquidCapacity / scaling,max);
+                            thiz.transferLiquid(other, max, liquid);
+                        }
+                    }
+                }
+            }
+
+        }
     }
 
     //通用科技节点添加方法

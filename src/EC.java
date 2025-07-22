@@ -32,6 +32,11 @@ public class EC extends Mod {
         ECSettings.init();
         if (Core.settings.getBool("Compress-Crafters")) ECBlocks.init();
 
+
+
+
+
+
     }
 
     private void checkIconAvailability() {
@@ -80,11 +85,12 @@ public class EC extends Mod {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-
+        /*/
         new ECMultiCrafter("test"){{
             requirements(Category.crafting, with(Items.titanium, 100, Items.silicon, 25, Items.lead, 100, Items.graphite, 50));
             alwaysUnlocked = false;
             size = 2;
+            aiRecipe = true;
             recipes.addAll(
                     new Recipe(){{
                         inputItems = new ItemStack[]{
@@ -151,7 +157,7 @@ public class EC extends Mod {
 
 
         }};
-
+        //*/
 
 
 

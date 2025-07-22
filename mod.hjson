@@ -1,5 +1,6 @@
 #游戏中显示的mod名称
-displayName: "无尽压缩"
+displayName: "无尽压缩
+Endless Compression"
 
 #mod的内部名称
 name: "ec"
@@ -11,7 +12,7 @@ author: "816543"
 main: "EC"
 
 #mod版本
-version: 2.0.1
+version: 2.0.2
 
 #运行此mod所需的最低游戏构建
 minGameVersion: 149
@@ -29,6 +30,10 @@ description: "支持语言 | Language
 无尽压缩Mod交流群(QQ):708031203
 
 更新日志
+
+v2.0.2
+1.新增了压缩电能生产设施
+2.新增了压缩液体生产、运输设施
 
 v2.0.1
 1.新增了波次中是否出现压缩敌人的设置,开启后,第2^(i+1)波次到第2^(i+2)波次的敌对单位将变成i重压缩单位
