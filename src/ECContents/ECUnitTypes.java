@@ -27,7 +27,7 @@ public class ECUnitTypes {
         }
 
         Events.on(EventType.WorldLoadEvent.class,e->{
-            ECTool.print("WorldLoadEvent");
+            //ECTool.print("WorldLoadEvent");
             Seq<SpawnGroup> spawns = Vars.state.rules.spawns.copy();
             Seq<SpawnGroup> newSpawns = new Seq<>();
             for (SpawnGroup spawn : spawns){
@@ -46,7 +46,7 @@ public class ECUnitTypes {
         if (!Core.settings.getBool("Compress-Waves")||root.max < 5 || (root.end - root.begin + root.spawn) < 5 || !ECData.hasECContent(root.type)) {
             spawnGroups.add(root.copy());
             out.append(root).append("\n no change");
-            ECTool.print(out.toString());
+            //ECTool.print(out.toString());
             return spawnGroups;
         }
 
@@ -67,7 +67,7 @@ public class ECUnitTypes {
             out.append(ecSpawnGroup).append("\n");
 
         }
-        ECTool.print(out.toString());
+        //ECTool.print(out.toString());
 
         return spawnGroups;
 

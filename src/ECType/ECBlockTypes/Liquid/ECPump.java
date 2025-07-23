@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Liquid;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -10,7 +10,6 @@ import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.util.Time;
-import mindustry.Vars;
 import mindustry.gen.Building;
 import mindustry.type.Liquid;
 import mindustry.ui.Bar;
@@ -55,6 +54,7 @@ public class ECPump extends Pump{
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        health = root.health * Mathf.pow(5,level);
         super.init();
     }
 

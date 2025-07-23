@@ -1,8 +1,8 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Item;
 
 import ECConfig.ECData;
 import ECConfig.ECTool;
-import ECContents.ECBlocks;
+import ECType.ECBlockTypes.Crafter.ECMultiCrafter;
 import arc.Core;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;

@@ -1,4 +1,4 @@
-package ECType.ECTurretTypes;
+package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -8,22 +8,17 @@ import arc.Core;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.ctype.UnlockableContent;
-import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BulletType;
 import mindustry.type.Item;
 import mindustry.type.Liquid;
-import mindustry.type.LiquidStack;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
-import mindustry.world.blocks.payloads.PayloadBlock;
 import mindustry.world.consumers.*;
-
-import static mindustry.content.Blocks.*;
 
 public class ECItemTurret extends ItemTurret {
 
     public ItemTurret root;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","ammoTypes");
+    public static Config config = new Config().addConfigSimple(null,"buildType","ammoTypes").linearConfig("health");
 
     public ECItemTurret(ItemTurret root) throws IllegalAccessException {
         super("compression-"+root.name);

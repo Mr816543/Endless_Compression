@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Liquid;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -6,20 +6,20 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
-import mindustry.world.blocks.distribution.StackConveyor;
-import mindustry.world.blocks.production.Drill;
+import mindustry.world.blocks.liquid.ArmoredConduit;
 
-public class ECStackConveyor extends StackConveyor {
-    public StackConveyor root;
+public class ECArmoredConduit extends ArmoredConduit{
+
+    public ArmoredConduit root;
 
     public int level;
 
     public float outputMultiple;
 
-    public static Config config = new Config().addConfigSimple(null, "buildType");
+    public static Config config = new Config().addConfigSimple(null, "buildType")
+            .scaleConfig().linearConfig("liquidCapacity","liquidPressure");
 
-
-    public ECStackConveyor(StackConveyor root, int level) throws IllegalAccessException {
+    public ECArmoredConduit(ArmoredConduit root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
@@ -33,12 +33,12 @@ public class ECStackConveyor extends StackConveyor {
         description = root.description;
         details = root.details;
 
-        float m = (level+1f)/2f;
-        speed *= m;
-        itemCapacity *= (int) (Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level)/m);
-
-
-
         ECData.register(root,this,level);
+    }
+
+    @Override
+    public void init() {
+        health = root.health * Mathf.pow(5,level);
+        super.init();
     }
 }

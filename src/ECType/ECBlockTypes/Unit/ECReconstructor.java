@@ -1,21 +1,14 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Unit;
 
 import ECConfig.Config;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.math.Mathf;
 import arc.struct.Seq;
-import arc.util.Log;
 import mindustry.ai.UnitCommand;
 import mindustry.ctype.UnlockableContent;
 import mindustry.type.UnitType;
-import mindustry.world.blocks.payloads.PayloadBlock;
 import mindustry.world.blocks.units.Reconstructor;
-import mindustry.world.consumers.Consume;
-import mindustry.world.consumers.ConsumeItems;
-import mindustry.world.consumers.ConsumePower;
 
 public class ECReconstructor extends Reconstructor {
 
@@ -23,7 +16,8 @@ public class ECReconstructor extends Reconstructor {
 
     public int level;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","configurations","upgrades");
+    public static Config config = new Config().addConfigSimple(null,"buildType","configurations","upgrades").
+            linearConfig("health");
 
     public ECReconstructor(Reconstructor root,int level) throws IllegalAccessException {
         super("c"+level+"-" + root.name);

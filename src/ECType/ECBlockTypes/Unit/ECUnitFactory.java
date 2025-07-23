@@ -1,27 +1,16 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Unit;
 
 import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.Events;
-import arc.math.Mathf;
 import arc.struct.Seq;
-import arc.util.Log;
-import mindustry.Vars;
 import mindustry.ai.UnitCommand;
 import mindustry.ctype.UnlockableContent;
-import mindustry.game.EventType;
-import mindustry.gen.Unit;
 import mindustry.type.ItemStack;
-import mindustry.type.LiquidStack;
 import mindustry.type.UnitType;
-import mindustry.world.Block;
 import mindustry.world.blocks.payloads.PayloadBlock;
-import mindustry.world.blocks.payloads.UnitPayload;
-import mindustry.world.blocks.production.Drill;
-import mindustry.world.blocks.production.HeatCrafter;
 import mindustry.world.blocks.units.UnitFactory;
 import mindustry.world.consumers.*;
 
@@ -30,7 +19,8 @@ public class ECUnitFactory extends UnitFactory {
 
     public UnitFactory root;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","configurations");
+    public static Config config = new Config().addConfigSimple(null,"buildType","configurations")
+            .linearConfig("health");
 
 
     public ECUnitFactory(UnitFactory root) throws IllegalAccessException {

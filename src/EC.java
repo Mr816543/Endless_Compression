@@ -1,21 +1,9 @@
-import ECConfig.ECSetting;
 import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
-import ECType.ECBlockTypes.ECMultiCrafter;
 import arc.Core;
-import arc.util.Log;
 import mindustry.content.Items;
 import mindustry.mod.Mod;
-import mindustry.type.Category;
-import mindustry.type.ItemStack;
-import mindustry.type.LiquidStack;
-import mindustry.world.blocks.defense.turrets.Turret;
-
-import static mindustry.content.Items.*;
-import static mindustry.content.Liquids.*;
-import static mindustry.content.UnitTypes.*;
-import static mindustry.type.ItemStack.with;
 
 public class EC extends Mod {
 

@@ -1,30 +1,26 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Crafter;
 
-import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.graphics.g2d.TextureRegion;
-import mindustry.ctype.UnlockableContent;
 import mindustry.type.ItemStack;
 import mindustry.type.LiquidStack;
 import mindustry.world.Block;
 import mindustry.world.blocks.heat.HeatProducer;
-import mindustry.world.blocks.power.ConsumeGenerator;
+import mindustry.world.blocks.production.GenericCrafter;
 import mindustry.world.blocks.production.HeatCrafter;
 import mindustry.world.consumers.*;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawLiquidOutputs;
 import mindustry.world.draw.DrawMulti;
 
-public class ECConsumeGenerator extends ECMultiCrafter{
+public class ECGenericCrafter extends ECMultiCrafter {
 
-    public ConsumeGenerator root;
+    public GenericCrafter root;
 
-
-    public ECConsumeGenerator(ConsumeGenerator root) throws IllegalAccessException {
-        super("compress-"+root.name);
-
+    public ECGenericCrafter(GenericCrafter root) throws IllegalAccessException {
+        super("compression-"+root.name);
 
         this.root = root;
 
@@ -37,12 +33,12 @@ public class ECConsumeGenerator extends ECMultiCrafter{
         health = root.health;
         multiDrawer = true;
 
+        ECTool.loadCompressContentRegion(root,this);
 
-        ECTool.loadCompressContentRegion(root, this);
-        ECTool.setIcon(root, this, 0);
+        ECTool.setIcon(root,this,0);
+
         ECData.register(root,this,1);
     }
-
 
     @Override
     public void init() {
@@ -50,11 +46,10 @@ public class ECConsumeGenerator extends ECMultiCrafter{
         super.init();
     }
 
-
     public void createRecipe() {
         Recipe recipe = new Recipe() {{
 
-            crafterTime = root.itemDuration;
+            crafterTime = root.craftTime;
 
 
             //绘制方法套用
@@ -98,14 +93,29 @@ public class ECConsumeGenerator extends ECMultiCrafter{
             }
 
 
-            if (root.outputLiquid != null) {
+
+            if (root.outputItems != null) {
+                outputItems = root.outputItems;
+            } else if (root.outputItem != null) {
+                outputItems = new ItemStack[]{root.outputItem};
+            }
+
+            if (root.outputLiquids != null) {
+                outputLiquids = new LiquidStack[root.outputLiquids.length];
+                for (int i = 0 ; i < outputLiquids.length;i++){
+                    outputLiquids[i] = new LiquidStack(root.outputLiquids[i].liquid,root.outputLiquids[i].amount*crafterTime);
+                }
+            } else if (root.outputLiquid != null) {
                 outputLiquids = new LiquidStack[]{new LiquidStack(root.outputLiquid.liquid,root.outputLiquid.amount*crafterTime)};
             }
 
-
-            if (root.powerProduction > 0){
-                outputPower = root.powerProduction * 1.5f;
+            if (root instanceof HeatProducer h){
+                outputHeat = h.heatOutput;
             }
+
+
+
+
 
             for (Consume cons : root.consumers) {
                 if (cons instanceof ConsumeItems consumer) {
@@ -123,6 +133,10 @@ public class ECConsumeGenerator extends ECMultiCrafter{
                 if (cons instanceof ConsumePower consumer) {
                     inputPower = consumer.usage;
                 }
+            }
+
+            if (root instanceof HeatCrafter h){
+                inputHeat = h.heatRequirement;
             }
 
 

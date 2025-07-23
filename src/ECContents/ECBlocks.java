@@ -2,16 +2,28 @@ package ECContents;
 
 import ECConfig.ECTool;
 import ECType.ECBlockTypes.*;
-import ECType.ECTurretTypes.ECItemTurret;
-import ECType.ECTurretTypes.ECLiquidTurret;
-import ECType.ECTurretTypes.ECPowerTurret;
-import arc.Events;
+import ECType.ECBlockTypes.Crafter.ECDrill;
+import ECType.ECBlockTypes.Crafter.ECGenericCrafter;
+import ECType.ECBlockTypes.Crafter.ECMultiCrafter;
+import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
+import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
+import ECType.ECBlockTypes.Item.ECCompressCrafter;
+import ECType.ECBlockTypes.Item.ECConveyor;
+import ECType.ECBlockTypes.Item.ECStackConveyor;
+import ECType.ECBlockTypes.Item.ECStorageBlock;
+import ECType.ECBlockTypes.Liquid.*;
+import ECType.ECBlockTypes.Power.ECBattery;
+import ECType.ECBlockTypes.Power.ECPowerNode;
+import ECType.ECBlockTypes.Turret.ECItemTurret;
+import ECType.ECBlockTypes.Turret.ECLiquidTurret;
+import ECType.ECBlockTypes.Turret.ECPowerTurret;
+import ECType.ECBlockTypes.Unit.ECReconstructor;
+import ECType.ECBlockTypes.Unit.ECUnitFactory;
 import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.content.Blocks;
-import mindustry.game.EventType;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
@@ -28,15 +40,16 @@ import mindustry.world.blocks.distribution.StackConveyor;
 import mindustry.world.blocks.liquid.ArmoredConduit;
 import mindustry.world.blocks.liquid.Conduit;
 import mindustry.world.blocks.liquid.LiquidRouter;
+import mindustry.world.blocks.power.Battery;
 import mindustry.world.blocks.power.ConsumeGenerator;
+import mindustry.world.blocks.power.PowerNode;
 import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.GenericCrafter;
 import mindustry.world.blocks.production.Pump;
 import mindustry.world.blocks.production.SolidPump;
+import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.blocks.units.Reconstructor;
 import mindustry.world.blocks.units.UnitFactory;
-import mindustry.world.consumers.Consume;
-import mindustry.world.consumers.ConsumeItemFilter;
 import mindustry.world.meta.BuildVisibility;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
@@ -80,6 +93,15 @@ public class ECBlocks {
                     }
                 }
 
+                //电力节点
+                case "PowerNode" -> {
+                    for (int i = 1 ; i <= 9 ; i++) new ECPowerNode((PowerNode) root,i);
+                }
+                //电池
+                case "Battery" -> {
+                    for (int i = 1 ; i <=9;i++) new ECBattery((Battery) root,i);
+                }
+
 
                 //钻头
                 case "Drill" -> {
@@ -90,19 +112,29 @@ public class ECBlocks {
                 case "Pump" -> {
                     for(int i = 1;i <= 9;i++) new ECPump((Pump) root,i);
                 }
-                //产液工厂\
+                //产液工厂
                 case "SolidPump" , "Fracker" -> {
                     for (int i = 1 ; i <= 9 ; i++) new ECSolidPump((SolidPump) root,i);
                 }
+                //导管
                 case "Conduit" ->{
                     for (int i = 1 ; i <= 9 ; i++) new ECConduit((Conduit) root,i);
                 }
                 case "ArmoredConduit"-> {
                     for (int i = 1 ; i <= 9 ; i++) new ECArmoredConduit((ArmoredConduit) root,i);
                 }
+                //液体路由器
                 case "LiquidRouter" -> {
                     for (int i = 1 ; i <= 9 ; i++) new ECLiquidRouter((LiquidRouter) root,i);
                 }
+
+                //物品仓库
+                case "StorageBlock" -> {
+                    for (int i = 1 ; i <= 9 ; i++) new ECStorageBlock((StorageBlock) root,i);
+                }
+
+
+
 
                 //单位工厂
                 case "UnitFactory" -> new ECUnitFactory((UnitFactory) root);

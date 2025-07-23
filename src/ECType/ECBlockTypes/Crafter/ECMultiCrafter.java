@@ -1,7 +1,6 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Crafter;
 
 import ECConfig.ECData;
-import ECConfig.ECTool;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -30,7 +29,6 @@ import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.heat.HeatBlock;
 import mindustry.world.blocks.heat.HeatConsumer;
-import mindustry.world.blocks.production.AttributeCrafter;
 import mindustry.world.consumers.ConsumePower;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawDefault;
@@ -600,16 +598,13 @@ public class ECMultiCrafter extends Block {
                         percent += minPercent;
                     }
 
-
                     material[i] = percent;
 
                 }
 
-                //ECTool.print(0+" : "+material[0]);
                 int max = 0;
                 for (int i = 1 ; i < material.length;i++){
                     if (material[max]<=material[i]) max = i;
-                    ECTool.print(i+" : "+material[i]);
                 }
 
                 index = max;
@@ -623,7 +618,6 @@ public class ECMultiCrafter extends Block {
             }else {
 
                 sleepTimer -= delta();
-                ECTool.print("sleepTimer : "+sleepTimer);
 
                 if (needUpdateBar) {
                     updateBar();

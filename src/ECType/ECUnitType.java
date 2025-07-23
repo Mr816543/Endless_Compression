@@ -8,6 +8,7 @@ import ECType.ECWeapons.*;
 import arc.Core;
 import arc.math.Mathf;
 import arc.struct.Seq;
+import mindustry.content.UnitTypes;
 import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
@@ -19,15 +20,12 @@ public class ECUnitType extends UnitType {
 
     public int level;
 
-    public static Config config = new Config().linearConfig("health","armor","itemCapacity","buildSpeed").scaleConfig("speed","maxRange","mineTier");
+    public static Config config = new Config().linearConfig("health","armor","buildSpeed","mineSpeed").scaleConfig("speed","maxRange","mineTier");
 
     public ECUnitType(UnitType root,int level) throws IllegalAccessException {
         super("c"+ level +"-"+root.name);
         this.root = root;
         this.level = level;
-        if (this.itemCapacity < 0) {
-            this.itemCapacity = Math.max(Mathf.round((int)(this.hitSize * 4.0F), 10), 10);
-        }
         ECTool.compress(this.root,this,config,level);
         ECTool.loadCompressContentRegion(root,this);
         ECTool.setIcon(root,this,level);
@@ -35,10 +33,15 @@ public class ECUnitType extends UnitType {
         description = root.description;
         details = root.details;
 
-
         loadWeapons(root, level);
 
         ECData.register(root,this,level);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        itemCapacity *= Mathf.pow(5,level);
     }
 
     private void loadWeapons(UnitType root, int level) throws IllegalAccessException {

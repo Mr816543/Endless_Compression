@@ -1,4 +1,4 @@
-package ECType.ECTurretTypes;
+package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -9,18 +9,14 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.ctype.UnlockableContent;
 import mindustry.entities.bullet.BulletType;
-import mindustry.type.Item;
 import mindustry.type.Liquid;
-import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
-import mindustry.world.consumers.ConsumeCoolant;
-import mindustry.world.consumers.ConsumeLiquid;
 
 public class ECLiquidTurret extends LiquidTurret {
 
     public LiquidTurret root;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","ammoTypes");
+    public static Config config = new Config().addConfigSimple(null,"buildType","ammoTypes").linearConfig("health");
 
     public ECLiquidTurret(LiquidTurret root) throws IllegalAccessException {
         super("compression-"+root.name);

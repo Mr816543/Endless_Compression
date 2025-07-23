@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Item;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -33,7 +33,7 @@ public class ECConveyor extends Conveyor {
     private static final float itemSpace = 0.4f;
     private static final int capacity = 3;
 
-    public Drill root;
+    public Conveyor root;
 
     public int level;
 
@@ -43,6 +43,10 @@ public class ECConveyor extends Conveyor {
 
     public ECConveyor(Conveyor root,int level) throws IllegalAccessException {
         super("c"+level+"-"+root.name);
+
+        this.root = root;
+        this.level = level;
+
 
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
@@ -56,8 +60,11 @@ public class ECConveyor extends Conveyor {
         ECData.register(root,this,level);
     }
 
-
-
+    @Override
+    public void init() {
+        health = root.health * Mathf.pow(5,level);
+        super.init();
+    }
 
     public class ECConveyorBuild extends ConveyorBuild implements ChainedBuilding {
 

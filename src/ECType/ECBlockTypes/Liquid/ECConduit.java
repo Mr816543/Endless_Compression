@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Liquid;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -8,14 +8,11 @@ import arc.Core;
 import arc.math.Mathf;
 import arc.util.Time;
 import mindustry.content.Fx;
-import mindustry.ctype.UnlockableContent;
 import mindustry.entities.Puddles;
 import mindustry.gen.Building;
 import mindustry.type.Liquid;
 import mindustry.world.Tile;
 import mindustry.world.blocks.liquid.Conduit;
-import mindustry.world.blocks.production.Drill;
-import mindustry.world.blocks.production.SolidPump;
 
 public class ECConduit extends Conduit{
 
@@ -26,7 +23,7 @@ public class ECConduit extends Conduit{
     public float outputMultiple;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("liquidCapacity","health");
+            .scaleConfig().linearConfig("liquidCapacity");
 
     public ECConduit(Conduit root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
@@ -43,6 +40,13 @@ public class ECConduit extends Conduit{
         details = root.details;
 
         ECData.register(root,this,level);
+    }
+
+
+    @Override
+    public void init() {
+        health = root.health * Mathf.pow(5,level);
+        super.init();
     }
 
     public class ECConduitBuild extends ConduitBuild{

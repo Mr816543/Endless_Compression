@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Generator;
 
 import ECConfig.Config;
 import ECConfig.ECData;

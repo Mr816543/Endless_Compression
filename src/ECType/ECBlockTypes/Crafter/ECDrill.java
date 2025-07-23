@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Crafter;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -7,12 +7,8 @@ import ECConfig.ECTool;
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
-import arc.util.Eachable;
-import arc.util.Log;
 import arc.util.Strings;
-import mindustry.entities.units.BuildPlan;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
@@ -58,6 +54,7 @@ public class ECDrill extends Drill {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        health = root.health * Mathf.pow(5,level);
         super.init();
     }
 

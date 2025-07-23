@@ -1,30 +1,28 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Power;
 
 import ECConfig.Config;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
-import mindustry.world.blocks.liquid.ArmoredConduit;
-import mindustry.world.blocks.liquid.Conduit;
+import mindustry.world.blocks.power.Battery;
+import mindustry.world.blocks.storage.StorageBlock;
+import mindustry.world.consumers.Consume;
+import mindustry.world.consumers.ConsumePower;
 
-public class ECArmoredConduit extends ArmoredConduit{
+public class ECBattery extends Battery {
 
-    public ArmoredConduit root;
+    public Battery root;
 
     public int level;
 
-    public float outputMultiple;
-
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("liquidCapacity","health","liquidPressure");
+            .scaleConfig().linearConfig("itemCapacity");
 
-    public ECArmoredConduit(ArmoredConduit root, int level) throws IllegalAccessException {
+    public ECBattery(Battery root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
@@ -35,5 +33,16 @@ public class ECArmoredConduit extends ArmoredConduit{
         details = root.details;
 
         ECData.register(root,this,level);
+    }
+
+    @Override
+    public void init() {
+        health = root.health * Mathf.pow(5,level);
+        for (Consume consume:root.consumers){
+            if (consume instanceof ConsumePower c && c.buffered){
+                this.consumePowerBuffered(c.capacity * Mathf.pow(5,level));
+            }
+        }
+        super.init();
     }
 }

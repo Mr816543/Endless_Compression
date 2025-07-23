@@ -1,4 +1,4 @@
-package ECType.ECTurretTypes;
+package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -41,7 +41,7 @@ public class ECPowerTurret extends PowerTurret {
 
     public ObjectMap<Integer,ConsumePower> consumePowers = new ObjectMap<>();
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","shootTypes","consumers","optionalConsumers","nonOptionalConsumers","updateConsumers");
+    public static Config config = new Config().addConfigSimple(null,"buildType","shootTypes","consumers","optionalConsumers","nonOptionalConsumers","updateConsumers").linearConfig("health");
 
 
     public ECPowerTurret(PowerTurret root) throws IllegalAccessException {
@@ -328,12 +328,9 @@ public class ECPowerTurret extends PowerTurret {
 
         @Override
         public float requestedPower(Building entity) {
-            ECTool.print("requestedPower");
+            //ECTool.print("requestedPower");
 
             if (entity instanceof ECPowerTurretBuild build){
-                ECTool.print(buffered ?
-                        (1f - entity.power.status) * capacity :
-                        ((ECPowerTurret)build.block).powerUse.get(build.index) * (entity.shouldConsume() ? 1f : 0f));
                 return buffered ?
                         (1f - entity.power.status) * capacity :
                         ((ECPowerTurret)build.block).powerUse.get(build.index) * (entity.shouldConsume() ? 1f : 0f);

@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Liquid;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -7,7 +7,6 @@ import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
 import mindustry.world.blocks.liquid.LiquidRouter;
-import mindustry.world.blocks.production.Drill;
 
 public class ECLiquidRouter extends LiquidRouter{
 
@@ -36,6 +35,12 @@ public class ECLiquidRouter extends LiquidRouter{
         details = root.details;
 
         ECData.register(root,this,level);
+    }
+
+    @Override
+    public void init() {
+        health = root.health * Mathf.pow(5,level);
+        super.init();
     }
 
     public class ECLiquidRouterBuild extends LiquidRouterBuild{

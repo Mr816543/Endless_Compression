@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Liquid;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -7,10 +7,7 @@ import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
 import arc.util.Time;
-import mindustry.Vars;
 import mindustry.ctype.UnlockableContent;
-import mindustry.gen.Building;
-import mindustry.type.Liquid;
 import mindustry.world.blocks.production.Pump;
 import mindustry.world.blocks.production.SolidPump;
 import mindustry.world.meta.Stat;
@@ -24,7 +21,7 @@ public class ECSolidPump extends SolidPump {
     public float outputMultiple;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("liquidCapacity");
+            .scaleConfig().linearConfig("liquidCapacity","health");
 
 
     public float itemUseTime = 60f;
@@ -51,6 +48,7 @@ public class ECSolidPump extends SolidPump {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        health = root.health * Mathf.pow(5,level);
         super.init();
     }
 
