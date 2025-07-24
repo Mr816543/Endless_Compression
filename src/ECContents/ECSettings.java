@@ -14,7 +14,7 @@ public class ECSettings {
     public static void init(){
         Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("Compress-Waves", false));
         Core.settings.getBool("Compress-Waves");
-        Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("Compress-Crafters", false));
-        Core.settings.getBool("Compress-Crafters");
+        Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("ECSync", true));
+        Core.settings.getBool("ECSync");
     }
 }

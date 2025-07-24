@@ -7,10 +7,7 @@ import ECType.ECBlockTypes.Crafter.ECGenericCrafter;
 import ECType.ECBlockTypes.Crafter.ECMultiCrafter;
 import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
 import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
-import ECType.ECBlockTypes.Item.ECCompressCrafter;
-import ECType.ECBlockTypes.Item.ECConveyor;
-import ECType.ECBlockTypes.Item.ECStackConveyor;
-import ECType.ECBlockTypes.Item.ECStorageBlock;
+import ECType.ECBlockTypes.Item.*;
 import ECType.ECBlockTypes.Liquid.*;
 import ECType.ECBlockTypes.Power.ECBattery;
 import ECType.ECBlockTypes.Power.ECPowerNode;
@@ -19,11 +16,11 @@ import ECType.ECBlockTypes.Turret.ECLiquidTurret;
 import ECType.ECBlockTypes.Turret.ECPowerTurret;
 import ECType.ECBlockTypes.Unit.ECReconstructor;
 import ECType.ECBlockTypes.Unit.ECUnitFactory;
+import arc.Core;
 import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
-import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
@@ -59,6 +56,9 @@ public class ECBlocks {
     public static Seq<Block> blocks;
 
     public static Seq<ECCompressCrafter> ecCompressCrafters = new Seq<>();
+    public static Seq<ECMultipleCompressCrafter> ecMultipleCompressCrafters = new Seq<>();
+
+    public static int unlockedLevel = 0;
 
     public static void load() throws IllegalAccessException {
 
@@ -67,7 +67,12 @@ public class ECBlocks {
 
         for (int i = 1; i <= MAX_LEVEL; i++) {
             ECCompressCrafter compressCrafter = new ECCompressCrafter(i);
+            if (Core.settings.getBool(compressCrafter.name + "-unlocked")) unlockedLevel+=1;
             ecCompressCrafters.add(compressCrafter);
+
+            ECMultipleCompressCrafter multipleCompressCrafter = new ECMultipleCompressCrafter(i);
+            ecMultipleCompressCrafters.add(multipleCompressCrafter);
+
         }
 
 
@@ -152,13 +157,13 @@ public class ECBlocks {
 
                 //传送带
                 case "Conveyor" -> {
-                    for (int i = 1 ; i <= MAX_LEVEL;i++) new ECConveyor((Conveyor) root, i);
+                    for (int i = 1 ; i <= 5;i++) new ECConveyor((Conveyor) root, i);
                 }
                 case "StackConveyor" -> {
                     for (int i = 1 ; i <= MAX_LEVEL;i++) new ECStackConveyor((StackConveyor) root, i);
                 }
                 case "ArmoredConveyor" -> {
-                    for (int i = 1 ; i <= MAX_LEVEL;i++) new ECConveyor((Conveyor) root, i){{
+                    for (int i = 1 ; i <= MAX_LEVEL;i++) new ECConveyorOld((Conveyor) root, i){{
 
                         noSideBlend = true;
                     }
@@ -202,37 +207,6 @@ public class ECBlocks {
 
     }
 
-    public static void init(){
-
-        int speed = 0;
-        for (ECCompressCrafter crafter:ecCompressCrafters){
-            if (crafter.unlocked()){
-                speed += 1;
-            }
-        }
-
-        for (ECCompressCrafter crafter:ecCompressCrafters){
-            int speedPow = (int) Math.pow(9,speed- crafter.level);
-            for (ECMultiCrafter.Recipe r : crafter.recipes){
-                for (ItemStack itemStack : r.inputItems){
-                    itemStack.amount *= speedPow;
-                }
-                for (ItemStack itemStack : r.outputItems){
-                    itemStack.amount *= speedPow;
-                }
-                for (LiquidStack liquidStack : r.inputLiquids){
-                    liquidStack.amount *= speedPow;
-                }
-                for (LiquidStack liquidStack : r.outputLiquids){
-                    liquidStack.amount *= speedPow;
-                }
-            }
-            crafter.initCapacity();
-        }
-
-
-
-    }
 
 
 

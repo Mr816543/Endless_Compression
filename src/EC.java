@@ -18,7 +18,6 @@ public class EC extends Mod {
         //*/
 
         ECSettings.init();
-        if (Core.settings.getBool("Compress-Crafters")) ECBlocks.init();
 
 
 

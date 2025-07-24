@@ -44,6 +44,11 @@ public class ECMultiCrafter extends Block {
 
     public boolean aiRecipe = false;
 
+
+    public int androidPerRow = 2;
+
+    public int computerRerRow = 4;
+
     // /* 环境工厂 */
     public Attribute attribute = Attribute.heat;
     public float baseEfficiency = 1f;
@@ -469,7 +474,7 @@ public class ECMultiCrafter extends Block {
             ScrollPane pane = new ScrollPane(table);
 
             pane.setScrollingDisabled(false, false);
-            int buttonsPerRow = Vars.android ? 2 : 4; // 每行显示的按钮数量
+            int buttonsPerRow = Vars.android ? androidPerRow : computerRerRow; // 每行显示的按钮数量
             if (recipes.size == 1 || recipes.size == 2) buttonsPerRow = recipes.size;
 
             int count = 0;
@@ -969,6 +974,18 @@ public class ECMultiCrafter extends Block {
         public void read(Reads read, byte revision) {
             super.read(read, revision);
             index = read.i();//读取保存的索引
+        }
+
+        @Override
+        public void writeSync(Writes write) {
+            super.writeSync(write);
+            if (Core.settings.getBool("ECSync")) write.i(index);//保存当前配方索引
+        }
+
+        @Override
+        public void readSync(Reads read, byte revision) {
+            super.readSync(read, revision);
+            if (Core.settings.getBool("ECSync")) index = read.i();
         }
 
         @Override

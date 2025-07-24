@@ -15,7 +15,7 @@ public class ECPowerNode extends PowerNode {
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig().scaleConfig("maxNodes","laserRange");
+            .scaleConfig().linearConfig("maxNodes").scaleConfig("laserRange");
 
 
     public ECPowerNode(PowerNode root,int level) throws IllegalAccessException {

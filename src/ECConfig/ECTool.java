@@ -582,6 +582,12 @@ public class ECTool {
                     });
                 }
 
+                if (rootNode.requirements.length>0&&node.requirements.length>0){
+                    if (rootNode.requirements[0].item == node.requirements[0].item && ECData.hasECContent(rootNode.requirements[0].item)){
+                        node.requirements = ECTool.compressItemStack(rootNode.requirements,i);
+                    }
+                }
+
                 node.parent = parent;
                 parent.children.add(node);
 
