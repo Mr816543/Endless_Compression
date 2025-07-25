@@ -57,7 +57,8 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
 
                 inputItems = new ItemStack[]{new ItemStack(ECData.get(item,0), need)};
                 outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1)};
-                crafterTime = 60f;
+                inputPower = 0.2f * Mathf.pow(5f,level);
+                crafterTime = 12f;
                 drawer = new DrawRegion() {
                     @Override
                     public void load(Block block) {
@@ -96,8 +97,9 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
             }});
             recipes.add(new Recipe() {{
                 inputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1)};
-                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,0), need)};
-                crafterTime = 60f;
+                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level-1), 9)};
+                inputPower = 0.2f * Mathf.pow(5f,level);
+                crafterTime = 12f;
                 drawer = new DrawRegion() {
                     @Override
                     public void load(Block block) {
@@ -144,7 +146,8 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
             recipes.add(new Recipe() {{
                 inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,0), need)};
                 outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1)};
-                crafterTime = 60f;
+                inputPower = 0.2f * Mathf.pow(5f,level);
+                crafterTime = 1f;
                 drawer = new DrawRegion() {
                     @Override
                     public void load(Block block) {
@@ -179,8 +182,9 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
             }});
             recipes.add(new Recipe() {{
                 inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1)};
-                outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,0), need)};
-                crafterTime = 60f;
+                outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9)};
+                inputPower = 0.2f * Mathf.pow(5f,level);
+                crafterTime = 1f;
                 drawer = new DrawRegion() {
                     @Override
                     public void load(Block block) {

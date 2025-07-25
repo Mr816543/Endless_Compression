@@ -16,5 +16,7 @@ public class ECSettings {
         Core.settings.getBool("Compress-Waves");
         Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("ECSync", true));
         Core.settings.getBool("ECSync");
+        Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("asFrame", false));
+        Core.settings.getBool("asFrame");
     }
 }

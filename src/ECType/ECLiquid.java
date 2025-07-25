@@ -5,6 +5,7 @@ import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
+import arc.math.Mathf;
 import mindustry.type.Liquid;
 
 public class ECLiquid extends Liquid {
@@ -13,23 +14,28 @@ public class ECLiquid extends Liquid {
 
     public int level;
 
-    public Config config = new Config().linearConfig("heatCapacity").scaleConfig("flammability","viscosity","explosiveness");
+    public Config config = new Config().linearConfig("heatCapacity").scaleConfig("flammability","explosiveness");
 
     public ECLiquid(Liquid root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        ECTool.compress(this.root,this,config,level);
-        ECTool.setIcon(root,this,level);
         if (root.temperature > 0.5){
             config.scaleConfig("temperature");
         }else {
             config.addConfigSimple(1/ECSetting.SCALE_MULTIPLIER,"temperature");
         }
+
+
+
+
+        ECTool.compress(this.root,this,config,level);
+        ECTool.setIcon(root,this,level);
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
         color = ECTool.Color(root.color,level,true);
+        viscosity = 0.9f - (1-root.viscosity)/Mathf.pow(9,level);
         ECData.register(root,this,level);
     }
 }

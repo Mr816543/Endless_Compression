@@ -5,6 +5,7 @@ import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import mindustry.world.Block;
 import mindustry.world.blocks.power.PowerNode;
 import mindustry.world.blocks.storage.StorageBlock;
 
@@ -22,7 +23,11 @@ public class ECPowerNode extends PowerNode {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        ECTool.compress(root, this, config, level);
+        ECTool.compress(root, this,root.getClass(), Block.class, config, level);
+
+        this.size = root.size;
+
+
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));

@@ -276,7 +276,15 @@ public class ECMultiCrafter extends Block {
 
         imageForRecipes(regions, r.inputItems, r.inputLiquids, r.inputUnits, r.inputHeat, r.inputPower);
 
-        regions.add(" -(" + r.crafterTime / 60f + "s)-> ");
+        if (Core.settings.getBool("asFrame")){
+
+            boolean isInt = r.crafterTime - (int) r.crafterTime < 0.01F || r.crafterTime - (int) r.crafterTime > 0.99F;
+            regions.add(" -(" + (isInt?(int)r.crafterTime : r.crafterTime) + Core.bundle.get("string.frame") + ")-> ");
+
+        }else {
+            regions.add(" -(" + r.crafterTime / 60f + "s)-> ");
+        }
+
 
         imageForRecipes(regions, r.outputItems, r.outputLiquids, r.outputUnits, r.outputHeat, r.outputPower);
 
@@ -470,7 +478,7 @@ public class ECMultiCrafter extends Block {
 
             Table table = new Table();
             //table.defaults().growX().height(50f).pad(10f);
-            table.defaults().growX().uniformX().fillX().height(50f).pad(5f);
+            table.defaults().growX().uniformX().fillX().growY().uniformY().fillY().height(50f).pad(5f);
             ScrollPane pane = new ScrollPane(table);
 
             pane.setScrollingDisabled(false, false);
@@ -570,6 +578,8 @@ public class ECMultiCrafter extends Block {
 
         @Override
         public void updateTile() {
+
+
 
             Recipe r = recipes.get(index);
             if (aiRecipe&&!canConsume(r)&&sleepTimer<=0){
@@ -845,10 +855,36 @@ public class ECMultiCrafter extends Block {
             }
             for (LiquidStack output : r.outputLiquids) {
                 for (int i = 0; i < 9 && b.liquids.get(output.liquid) > 0f; i++) {
-                    dumpLiquid(output.liquid, b.liquids.get(output.liquid));
+                    dumpLiquid(output.liquid, b.liquids.get(output.liquid),-1);
                 }
             }
         }
+
+        @Override
+        public void dumpLiquid(Liquid liquid, float scaling, int outputDir) {
+            int dump = this.cdump;
+            if (!(this.liquids.get(liquid) <= 1.0E-4F)) {
+                if (!Vars.net.client() && Vars.state.isCampaign() && this.team == Vars.state.rules.defaultTeam) {
+                    liquid.unlock();
+                }
+
+                for(int i = 0; i < this.proximity.size; ++i) {
+                    this.incrementDump(this.proximity.size);
+                    Building other = this.proximity.get((i + dump) % this.proximity.size);
+                    if (outputDir == -1 || (outputDir + this.rotation) % 4 == this.relativeTo(other)) {
+                        other = other.getLiquidDestination(this, liquid);
+                        if (other != null && other.block.hasLiquids && this.canDumpLiquid(other, liquid) && other.liquids != null) {
+                            float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
+                            float fract = this.liquids.get(liquid) / this.block.liquidCapacity;
+                            transferLiquid(other, liquids.get(liquid) , liquid);
+
+                        }
+                    }
+                }
+
+            }
+        }
+
 
         public void updateHeat() {
             if (lastHeatUpdate == Vars.state.updateId) return;

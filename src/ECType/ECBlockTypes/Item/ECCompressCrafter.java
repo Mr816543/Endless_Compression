@@ -40,47 +40,6 @@ public class ECCompressCrafter extends ECMultiCrafter {
 
     }
 
-    @Override
-    public void onUnlock() {
-        super.onUnlock();
-        for (ECCompressCrafter compressCrafter:ECBlocks.ecCompressCrafters){
-            if (compressCrafter.level <= level){
-                for (Recipe r : compressCrafter.recipes){
-                    if (r.name.equals(Core.bundle.get("ECType.Recipe.ECname"))){
-                        for (ItemStack stack:r.inputItems){
-                            if (stack.amount==0) {
-                                stack.amount = 1;
-                                continue;
-                            }
-                            stack.amount *= 9;
-                        }
-                        for (ItemStack stack:r.outputItems){
-                            if (stack.amount==0) {
-                                stack.amount = 1;
-                                continue;
-                            }
-                            stack.amount *= 9;
-                        }
-                        for (LiquidStack stack:r.inputLiquids){
-                            if (stack.amount==0) {
-                                stack.amount = 1;
-                                continue;
-                            }
-                            stack.amount *= 9;
-                        }
-                        for (LiquidStack stack:r.outputLiquids){
-                            if (stack.amount==0) {
-                                stack.amount = 1;
-                                continue;
-                            }
-                            stack.amount *= 9;
-                        }
-                    }
-                }
-                compressCrafter.initCapacity();
-            }
-        }
-    }
 
     @Override
     public void init() {
@@ -146,45 +105,45 @@ public class ECCompressCrafter extends ECMultiCrafter {
             recipes.add(new Recipe() {{
 
                 name = Core.bundle.get("ECType.Recipe.ECname");
-                    inputItems = new ItemStack[]{new ItemStack(ECData.get(item,level-1), 9*recipeMultiple)};
-                    outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1*recipeMultiple)};
-                    crafterTime = 60f;
-                    drawer = new DrawRegion() {
-                        @Override
-                        public void load(Block block) {
-                            region = Core.atlas.find("ec-ECCompressCrafter");
-                            //Log.info("load "+ block.name+" region "+(region==null?"worry":"finish"));
-                        }
+                inputItems = new ItemStack[]{new ItemStack(ECData.get(item,level-1), 9*recipeMultiple)};
+                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1*recipeMultiple)};
+                crafterTime = 60f;
+                drawer = new DrawRegion() {
+                    @Override
+                    public void load(Block block) {
+                        region = Core.atlas.find("ec-ECCompressCrafter");
+                        //Log.info("load "+ block.name+" region "+(region==null?"worry":"finish"));
+                    }
 
 
-                        @Override
-                        public void draw(Building build) {
-                            float z = Draw.z();
-                            if (layer > 0) Draw.z(layer);
+                    @Override
+                    public void draw(Building build) {
+                        float z = Draw.z();
+                        if (layer > 0) Draw.z(layer);
 
-                            Draw.rect(region, build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
-                            draw(build, 0);
-                            draw(build, 1);
-                            draw(build, 2);
+                        Draw.rect(region, build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
+                        draw(build, 0);
+                        draw(build, 1);
+                        draw(build, 2);
 
-                            Draw.z(z);
-                        }
+                        Draw.z(z);
+                    }
 
-                        public void draw(Building build, int level) {
+                    public void draw(Building build, int level) {
 
-                            float z = Draw.z();
-                            if (layer > 0) Draw.z(layer);
+                        float z = Draw.z();
+                        if (layer > 0) Draw.z(layer);
 
-                            Draw.color(ECData.get(item,level*4).color);
+                        Draw.color(ECData.get(item,level*4).color);
 
-                            Draw.rect(Core.atlas.find("ec-Compressor-top" + level), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
+                        Draw.rect(Core.atlas.find("ec-Compressor-top" + level), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
 
 
-                            Draw.z(z);
-                        }
+                        Draw.z(z);
+                    }
 
-                    };
-                }});
+                };
+            }});
 
         }
         for (Liquid liquid : liquids) {
@@ -194,7 +153,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
             recipes.add(new Recipe() {{
                 inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9)};
                 outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1)};
-                crafterTime = 60f;
+                crafterTime = 5f;
                 drawer = new DrawRegion() {
                     @Override
                     public void load(Block block) {
@@ -232,7 +191,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
                 name = Core.bundle.get("ECType.Recipe.ECname");
                     inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9*recipeMultiple)};
                     outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1*recipeMultiple)};
-                    crafterTime = 60f;
+                    crafterTime = 5f;
                     drawer = new DrawRegion() {
                         @Override
                         public void load(Block block) {
@@ -306,7 +265,6 @@ public class ECCompressCrafter extends ECMultiCrafter {
 
         fullIcon = uiIcon = ECTool.mergeRegions(A,B);
     }
-
 
 
 
