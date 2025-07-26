@@ -26,6 +26,7 @@ public class ECConveyor extends Conveyor {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
+        ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -37,11 +38,10 @@ public class ECConveyor extends Conveyor {
 
     @Override
     public void init() {
-        health = root.health * Mathf.pow(5, level);
         super.init();
     }
 
-    public class ECConveyorNewBuild extends ConveyorBuild {
+    public class ECConveyorBuild extends ConveyorBuild {
 
 
         private static final float ITEM_SPACE = 0.4f;

@@ -44,6 +44,7 @@ public class ECUnloader extends Unloader {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
+        ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -55,7 +56,6 @@ public class ECUnloader extends Unloader {
 
     @Override
     public void init() {
-        health = root.health * Mathf.pow(5,level);
         allItems = content.items().toArray(Item.class);
         super.init();
     }

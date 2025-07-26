@@ -43,12 +43,14 @@ public class ECSorter extends Sorter {
 
         ECTool.setIcon(root,this,0);
 
+
+        ECTool.loadHealth(this,root,1);
+
         ECData.register(root,this,1);
     }
 
     @Override
     public void init() {
-        health = root.health * Mathf.pow(5,1);
         super.init();
     }
 

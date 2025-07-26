@@ -18,5 +18,7 @@ public class ECSettings {
         Core.settings.getBool("ECSync");
         Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("asFrame", false));
         Core.settings.getBool("asFrame");
+        Events.on(EventType.ClientLoadEvent.class, e -> Vars.ui.settings.game.checkPref("banContent", false));
+        Core.settings.getBool("banContent");
     }
 }

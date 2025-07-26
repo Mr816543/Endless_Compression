@@ -1,23 +1,26 @@
-package ECType.ECBlockTypes.Item;
+package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.math.Mathf;
-import mindustry.world.blocks.storage.StorageBlock;
+import mindustry.world.blocks.defense.MendProjector;
+import mindustry.world.blocks.units.RepairTurret;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatCat;
+import mindustry.world.meta.StatUnit;
 
-public class ECStorageBlock extends StorageBlock {
+import static mindustry.Vars.tilesize;
 
-    public StorageBlock root;
+public class ECRepairTurret extends RepairTurret {
+    public RepairTurret root;
 
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("itemCapacity");
+            .scaleConfig("repairRadius").linearConfig("repairSpeed","powerUse");
 
-
-    public ECStorageBlock(StorageBlock root,int level) throws IllegalAccessException {
+    public ECRepairTurret(RepairTurret root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
@@ -27,6 +30,8 @@ public class ECStorageBlock extends StorageBlock {
         ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
 
+        //phaseRangeBoost = root.phaseRangeBoost * range / root.range;
+
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
@@ -34,8 +39,6 @@ public class ECStorageBlock extends StorageBlock {
         ECData.register(root,this,level);
     }
 
-    @Override
-    public void init() {
-        super.init();
-    }
+
+
 }

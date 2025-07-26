@@ -102,6 +102,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
                 };
             }});
 
+            if(level == 9) continue;
             recipes.add(new Recipe() {{
 
                 name = Core.bundle.get("ECType.Recipe.ECname");
@@ -187,6 +188,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
                 };
             }});
 
+            if(level == 9) continue;
             recipes.add(new Recipe() {{
                 name = Core.bundle.get("ECType.Recipe.ECname");
                     inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9*recipeMultiple)};

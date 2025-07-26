@@ -526,7 +526,7 @@ public class ECTool {
 
     }
 
-
+    //通用强化抛出流体方法
     public static void dumpLiquids(Liquid liquid, float scaling, int outputDir, Building thiz) {
         int dump = thiz.cdump;
         if (!(thiz.liquids.get(liquid) <= 1.0E-4F)) {
@@ -618,6 +618,26 @@ public class ECTool {
 
     public static void print(Object o){
         Log.info(o);
+    }
+
+    public static void loadHealth(Block b,Block root,int level){
+        if (root.health>0){
+            b.health = root.health * Mathf.pow(5,level);
+        }else if (root.scaledHealth>0){
+            b.scaledHealth = root.scaledHealth * Mathf.pow(5,level);
+            b.health = (int)(b.size * b.size * b.scaledHealth);
+        }else {
+            float scaledHealth = 40;
+
+            float scaling = 1f;
+            for(var stack : root.requirements){
+                scaling += stack.item.healthScaling;
+            }
+
+            scaledHealth *= scaling;
+            b.scaledHealth = scaledHealth * Mathf.pow(5,level);
+            b.health = Mathf.round(b.size * b.size * b.scaledHealth, 5);
+        }
     }
 
 }

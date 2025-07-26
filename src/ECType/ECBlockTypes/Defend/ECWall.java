@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes;
+package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -6,14 +6,7 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
-import arc.util.Time;
-import mindustry.Vars;
-import mindustry.content.Blocks;
-import mindustry.game.Team;
-import mindustry.gen.Bullet;
-import mindustry.gen.Call;
 import mindustry.world.blocks.defense.Wall;
-import mindustry.world.blocks.production.Drill;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 
