@@ -46,7 +46,7 @@ public class ECUnitTypes {
         if (!Core.settings.getBool("Compress-Waves")||root.max < 5 || (root.end - root.begin + root.spawn) < 5 || !ECData.hasECContent(root.type)) {
             spawnGroups.add(root.copy());
             out.append(root).append("\n no change");
-            ECTool.print(out.toString());
+            //ECTool.print(out.toString());
             return spawnGroups;
         }
 
@@ -56,7 +56,7 @@ public class ECUnitTypes {
             int begin = Mathf.pow(2,1+i);
             int end = begin * 2;
             if (begin > ecSpawnGroup.end || end < ecSpawnGroup.begin) continue;
-            int spawn = Math.max(ecSpawnGroup.spawn + begin - ecSpawnGroup.begin - 5,1);
+            int spawn = Math.max(ecSpawnGroup.spawn + (begin - ecSpawnGroup.begin) - 5,1);
 
             ecSpawnGroup.begin = Math.max(begin, ecSpawnGroup.begin);
             if (i==0) ecSpawnGroup.begin = root.begin;
@@ -68,7 +68,7 @@ public class ECUnitTypes {
             out.append(ecSpawnGroup).append("\n");
 
         }
-        ECTool.print(out.toString());
+        //ECTool.print(out.toString());
 
         return spawnGroups;
 
