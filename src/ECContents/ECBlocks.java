@@ -10,6 +10,9 @@ import ECType.ECBlockTypes.Item.*;
 import ECType.ECBlockTypes.Liquid.*;
 import ECType.ECBlockTypes.Power.ECBattery;
 import ECType.ECBlockTypes.Power.ECPowerNode;
+import ECType.ECBlockTypes.SandBox.ECItemSource;
+import ECType.ECBlockTypes.SandBox.ECLiquidSource;
+import ECType.ECBlockTypes.SandBox.ECPowerSource;
 import ECType.ECBlockTypes.Turret.ECItemTurret;
 import ECType.ECBlockTypes.Turret.ECLiquidTurret;
 import ECType.ECBlockTypes.Turret.ECPowerTurret;
@@ -20,7 +23,6 @@ import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
-import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.world.Block;
@@ -34,6 +36,7 @@ import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.distribution.Conveyor;
+import mindustry.world.blocks.distribution.MassDriver;
 import mindustry.world.blocks.distribution.StackConveyor;
 import mindustry.world.blocks.liquid.ArmoredConduit;
 import mindustry.world.blocks.liquid.Conduit;
@@ -45,6 +48,10 @@ import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.GenericCrafter;
 import mindustry.world.blocks.production.Pump;
 import mindustry.world.blocks.production.SolidPump;
+import mindustry.world.blocks.sandbox.ItemSource;
+import mindustry.world.blocks.sandbox.LiquidSource;
+import mindustry.world.blocks.sandbox.PowerSource;
+import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.blocks.storage.Unloader;
 import mindustry.world.blocks.units.Reconstructor;
@@ -82,7 +89,7 @@ public class ECBlocks {
         for (Block root : blocks) {
             if (root.buildVisibility == BuildVisibility.debugOnly) continue;
             if (root.isModded()) continue;
-            if (root.isHidden()) continue;
+            if (root.isHidden() && root.buildVisibility != BuildVisibility.sandboxOnly) continue;
 
             String cn = ECTool.getClassName(root.getClass());
 
@@ -148,44 +155,59 @@ public class ECBlocks {
                 //case "Sorter" -> new ECSorter((Sorter) root);
                 //溢流门
                 //case "OverflowGate" -> new ECOverflowGate((OverflowGate) root);
+                //核心
+                case "CoreBlock" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECCoreBlock((CoreBlock) root, i);
+                }
+                //质驱
+                case "MassDriver" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECMassDriver((MassDriver) root, i);
+                }
+
+
+                //生产源
+                case "PowerSource" -> new ECPowerSource((PowerSource) root);
+                case "ItemSource" -> new ECItemSource((ItemSource) root);
+                case "LiquidSource" -> new ECLiquidSource((LiquidSource) root);
+
 
                 //传送带
                 case "Conveyor" -> {
-                    if (!Core.settings.getBool("banContent"))
-                        for (int i = 1; i <= 5; i++) new ECConveyor((Conveyor) root, i);
+                    for (int i = 1; i <= 5; i++) new ECConveyor((Conveyor) root, i);
                 }
                 case "StackConveyor" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECStackConveyor((StackConveyor) root, i);
+                    if (!Core.settings.getBool("banContent"))
+                        for (int i = 1; i <= MAX_LEVEL; i++) new ECStackConveyor((StackConveyor) root, i);
                 }
                 case "ArmoredConveyor" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++)
-                        new ECConveyorOld((Conveyor) root, i) {
-                            {
-
-                                noSideBlend = true;
-                            }
-
-                            @Override
-                            public boolean blends(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
-                                return (otherblock.outputsItems() && blendsArmored(tile, rotation, otherx, othery, otherrot, otherblock)) ||
-                                        (lookingAt(tile, rotation, otherx, othery, otherblock) && otherblock.hasItems);
-                            }
-
-                            @Override
-                            public boolean blendsArmored(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
-                                return Point2.equals(tile.x + Geometry.d4(rotation).x, tile.y + Geometry.d4(rotation).y, otherx, othery)
-                                        || ((!otherblock.rotatedOutput(otherx, othery, tile) && Edges.getFacingEdge(otherblock, otherx, othery, tile) != null &&
-                                        Edges.getFacingEdge(otherblock, otherx, othery, tile).relativeTo(tile) == rotation) ||
-                                        (otherblock instanceof Conveyor && otherblock.rotatedOutput(otherx, othery, tile) && Point2.equals(otherx + Geometry.d4(otherrot).x, othery + Geometry.d4(otherrot).y, tile.x, tile.y)));
-                            }
-
-                            public class ECArmoredConveyorBuild extends ECConveyorBuild {
-                                @Override
-                                public boolean acceptItem(Building source, Item item) {
-                                    return super.acceptItem(source, item) && (source.block instanceof Conveyor || Edges.getFacingEdge(source.tile, tile).relativeTo(tile) == rotation);
+                    if (!Core.settings.getBool("banContent"))
+                        for (int i = 1; i <= 5; i++)
+                            new ECConveyor((Conveyor) root, i) {
+                                {
+                                    noSideBlend = true;
                                 }
-                            }
-                        };
+
+                                @Override
+                                public boolean blends(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
+                                    return (otherblock.outputsItems() && blendsArmored(tile, rotation, otherx, othery, otherrot, otherblock)) ||
+                                            (lookingAt(tile, rotation, otherx, othery, otherblock) && otherblock.hasItems);
+                                }
+
+                                @Override
+                                public boolean blendsArmored(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
+                                    return Point2.equals(tile.x + Geometry.d4(rotation).x, tile.y + Geometry.d4(rotation).y, otherx, othery)
+                                            || ((!otherblock.rotatedOutput(otherx, othery, tile) && Edges.getFacingEdge(otherblock, otherx, othery, tile) != null &&
+                                            Edges.getFacingEdge(otherblock, otherx, othery, tile).relativeTo(tile) == rotation) ||
+                                            (otherblock instanceof Conveyor && otherblock.rotatedOutput(otherx, othery, tile) && Point2.equals(otherx + Geometry.d4(otherrot).x, othery + Geometry.d4(otherrot).y, tile.x, tile.y)));
+                                }
+
+                                public class ECArmoredConveyorBuild extends ECConveyorBuild {
+                                    @Override
+                                    public boolean acceptItem(Building source, Item item) {
+                                        return super.acceptItem(source, item) && (source.block instanceof Conveyor || Edges.getFacingEdge(source.tile, tile).relativeTo(tile) == rotation);
+                                    }
+                                }
+                            };
                 }
 
                 //单位工厂
@@ -212,15 +234,15 @@ public class ECBlocks {
                 }
                 //维修点
                 case "RepairTurret" -> {
-                    for (int i = 1; i <= MAX_LEVEL;i++) new ECRepairTurret((RepairTurret) root,i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECRepairTurret((RepairTurret) root, i);
                 }
                 //力墙
                 case "ForceProjector" -> {
-                    for (int i = 1; i <=MAX_LEVEL;i++) new ECForceProjector((ForceProjector) root,i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECForceProjector((ForceProjector) root, i);
                 }
                 //超速
-                case "OverdriveProjector" ->{
-                    for (int i = 1; i <=MAX_LEVEL;i++) new ECOverdriveProjector((OverdriveProjector) root,i);
+                case "OverdriveProjector" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECOverdriveProjector((OverdriveProjector) root, i);
                 }
                 case "" -> {
                 }

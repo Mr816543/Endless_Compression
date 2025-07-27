@@ -1,6 +1,7 @@
 package ECConfig;
 
 
+import ECType.ECBlockTypes.Item.ECMassDriver;
 import ECType.ECLiquid;
 import ECType.ECUnitType;
 import arc.Core;
@@ -466,7 +467,7 @@ public class ECTool {
                             Item itemArr = (Item) itemArray[ii];
                             if (other.acceptItem(build, itemArr) && build.canDump(other, itemArr)) {
 
-                                dump(build, other, item);
+                                dump(build, other, itemArr);
 
 
                                 build.incrementDump(build.proximity.size);
@@ -498,14 +499,14 @@ public class ECTool {
         }
     }
 
-    public static void dump(Building build, Building other, Item item) {
-        if (!other.acceptItem(build, item)) return;
+    public static boolean dump(Building build, Building other, Item item) {
+        if (!other.acceptItem(build, item)) return false;
 
 
         if (other instanceof ItemVoid.ItemVoidBuild) {
             other.flowItems().add(item, build.items.get(item));
             build.items.set(item, 0);
-            return;
+            return true;
         }
 
 
@@ -513,47 +514,56 @@ public class ECTool {
         if (accepted >0){
             other.handleStack(item,accepted,build);
             build.items.remove(item,accepted);
+        }else {
+            for (int i = 0;i < 60; i++) {
+                if (build.items.get(item)<=0) return false;
+                if (!other.acceptItem(build, item)) return false;
+                other.handleItem(build, item);
+                build.items.remove(item, 1);
+            }
         }
-
-
-
-        for (int i = 0; i < build.items.get(item) && i < 60; i++) {
-            if (!other.acceptItem(build, item)) return;
-            other.handleItem(build, item);
-            build.items.remove(item, 1);
-        }
-
-
+        return true;
     }
 
+    public static boolean dump(Building build) {
+        return dump(build,null);
+    }
     //通用强化抛出流体方法
-    public static void dumpLiquids(Liquid liquid, float scaling, int outputDir, Building thiz) {
-        int dump = thiz.cdump;
-        if (!(thiz.liquids.get(liquid) <= 1.0E-4F)) {
-            if (!Vars.net.client() && Vars.state.isCampaign() && thiz.team == Vars.state.rules.defaultTeam) {
+    public static void dumpLiquids(Liquid liquid, float scaling, int outputDir, Building build) {
+        int dump = build.cdump;
+        if (!(build.liquids.get(liquid) <= 1.0E-4F)) {
+            if (!Vars.net.client() && Vars.state.isCampaign() && build.team == Vars.state.rules.defaultTeam) {
                 liquid.unlock();
             }
 
-            for(int i = 0; i < thiz.proximity.size; ++i) {
-                thiz.incrementDump(thiz.proximity.size);
-                Building other = thiz.proximity.get((i + dump) % thiz.proximity.size);
-                if (outputDir == -1 || (outputDir + thiz.rotation) % 4 == thiz.relativeTo(other)) {
-                    other = other.getLiquidDestination(thiz, liquid);
-                    if (other != null && other.block.hasLiquids && thiz.canDumpLiquid(other, liquid) && other.liquids != null) {
+            for(int i = 0; i < build.proximity.size; ++i) {
+                build.incrementDump(build.proximity.size);
+                Building other = build.proximity.get((i + dump) % build.proximity.size);
+                if (outputDir == -1 || (outputDir + build.rotation) % 4 == build.relativeTo(other)) {
+                    other = other.getLiquidDestination(build, liquid);
+                    if (other != null && other.block.hasLiquids && build.canDumpLiquid(other, liquid) && other.liquids != null) {
                         float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
-                        float fract = thiz.liquids.get(liquid) / thiz.block.liquidCapacity;
+                        float fract = build.liquids.get(liquid) / build.block.liquidCapacity;
                         if (ofract < fract) {
 
 
-                            float max = Math.min(other.block.liquidCapacity-other.liquids.get(liquid) ,thiz.liquids.get(liquid));
-                            max = Math.min((fract - ofract) * thiz.block.liquidCapacity / scaling,max);
-                            thiz.transferLiquid(other, max, liquid);
+                            float max = Math.min(other.block.liquidCapacity-other.liquids.get(liquid) ,build.liquids.get(liquid));
+                            max = Math.min((fract - ofract) * build.block.liquidCapacity / scaling,max);
+                            build.transferLiquid(other, max, liquid);
                         }
                     }
                 }
             }
 
         }
+    }
+
+    public static void dumpLiquids(Liquid liquid,float scaling, Building build){
+        dumpLiquids(liquid,scaling,-1,build);
+    }
+
+    public static void dumpLiquids(Liquid liquid, Building build){
+        dumpLiquids(liquid,2F,build);
     }
 
     //通用科技节点添加方法

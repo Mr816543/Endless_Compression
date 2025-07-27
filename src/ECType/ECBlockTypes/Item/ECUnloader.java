@@ -209,7 +209,6 @@ public class ECUnloader extends Unloader {
                         dumpingFrom.building.removeStack(item, 1);
                     }else {
                         int max = dumpingTo.building.acceptStack(item,num,this);
-                        ECTool.print(max);
                         if (dumpingTo.building.items==null||max == 0){
                             for (int i = 0 ; i < num && i < 81;i++){
                                 if (!dumpingTo.building.acceptItem(this,item) || dumpingFrom.building.items.get(item)<=0) break;
