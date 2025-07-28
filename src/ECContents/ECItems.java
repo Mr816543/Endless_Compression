@@ -3,6 +3,7 @@ package ECContents;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import ECType.ECItem;
+import arc.Core;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.type.Item;
@@ -18,12 +19,19 @@ public class ECItems {
             if (root.isModded()) continue;
             if (root.isHidden()) continue;
             compressItem(root);
+            if (Core.settings.getBool("oldContent"))compressOldItem(root);
         }
     }
 
     public static void compressItem(Item root) throws IllegalAccessException {
         for (int i = 1; i <= MAX_LEVEL; i++) {
             new ECItem(root, i);
+        }
+    }
+    public static void compressOldItem(Item root) throws IllegalAccessException {
+        for (int i = 1; i <= MAX_LEVEL; i++) {
+            Item old = new Item(root.name+i);
+            ECTool.setIcon(root,old,i);
         }
     }
 

@@ -102,7 +102,54 @@ public class ECCompressCrafter extends ECMultiCrafter {
                 };
             }});
 
+            if (Core.settings.getBool("oldContent")){
+
+                recipes.add(new Recipe() {{
+
+                    name = Core.bundle.get("ECType.Recipe.update");
+                    inputItems = new ItemStack[]{new ItemStack(Vars.content.item("ec-" + item.name+level), 1)};
+                    outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1)};
+                    crafterTime = 1f;
+                    drawer = new DrawRegion() {
+                        @Override
+                        public void load(Block block) {
+                            region = Core.atlas.find("ec-ECCompressCrafter");
+                            //Log.info("load "+ block.name+" region "+(region==null?"worry":"finish"));
+                        }
+
+
+                        @Override
+                        public void draw(Building build) {
+                            float z = Draw.z();
+                            if (layer > 0) Draw.z(layer);
+
+                            Draw.rect(region, build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
+                            draw(build, 0);
+                            draw(build, 1);
+                            draw(build, 2);
+
+                            Draw.z(z);
+                        }
+
+                        public void draw(Building build, int level) {
+
+                            float z = Draw.z();
+                            if (layer > 0) Draw.z(layer);
+
+                            Draw.color(ECData.get(item,level*4).color);
+
+                            Draw.rect(Core.atlas.find("ec-Compressor-top" + level), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
+
+
+                            Draw.z(z);
+                        }
+
+                    };
+                }});
+            }
+
             if(level == 9) continue;
+
             recipes.add(new Recipe() {{
 
                 name = Core.bundle.get("ECType.Recipe.ECname");
@@ -145,6 +192,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
 
                 };
             }});
+
 
         }
         for (Liquid liquid : liquids) {

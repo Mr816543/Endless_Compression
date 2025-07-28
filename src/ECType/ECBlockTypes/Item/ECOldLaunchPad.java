@@ -1,4 +1,4 @@
-package ECType.ECBlockTypes.Power;
+package ECType.ECBlockTypes.Item;
 
 import ECConfig.Config;
 import ECConfig.ECData;
@@ -8,33 +8,25 @@ import arc.Core;
 import arc.math.Mathf;
 import mindustry.world.Block;
 import mindustry.world.blocks.power.NuclearReactor;
-import mindustry.world.blocks.power.PowerNode;
 
-public class ECNuclearReactor extends NuclearReactor {
+public class ECOldLaunchPad extends OldLaunchPad{
 
-    public NuclearReactor root;
+    public OldLaunchPad root;
 
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("explosionRadius").linearConfig("explosionDamage","powerProduction");
+            .scaleConfig("minLaunchCapacity").linearConfig("itemCapacity").addConfigSimple(1/ ECSetting.SCALE_MULTIPLIER,"launchTime");
 
-
-    public ECNuclearReactor(NuclearReactor root,int level) throws IllegalAccessException {
+    public ECOldLaunchPad(OldLaunchPad root,int level,Block iconRoot) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        ECTool.compress(root, this,root.getClass(), Block.class, config, level);
-
-        this.size = root.size;
-
-
-        ECTool.loadCompressContentRegion(root, this);
-        ECTool.setIcon(root, this, level);
+        ECTool.compress(root, this, config, level);
+        ECTool.loadCompressContentRegion(iconRoot, this);
+        ECTool.setIcon(iconRoot, this, level);
         ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
-
-        fuelItem = ECData.get(root.fuelItem,level);
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;

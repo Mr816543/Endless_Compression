@@ -24,7 +24,10 @@ import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.content.Blocks;
+import mindustry.content.Items;
+import mindustry.content.TechTree;
 import mindustry.gen.Building;
+import mindustry.type.Category;
 import mindustry.type.Item;
 import mindustry.world.Block;
 import mindustry.world.Edges;
@@ -56,6 +59,7 @@ import mindustry.world.blocks.units.UnitFactory;
 import mindustry.world.meta.BuildVisibility;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
+import static mindustry.type.ItemStack.with;
 
 public class ECBlocks {
 
@@ -69,6 +73,8 @@ public class ECBlocks {
     public static void load() throws IllegalAccessException {
 
         blocks = Vars.content.blocks().copy();
+
+
 
 
         for (int i = 1; i <= MAX_LEVEL; i++) {
@@ -85,7 +91,7 @@ public class ECBlocks {
         for (Block root : blocks) {
             if (root.buildVisibility == BuildVisibility.debugOnly) continue;
             if (root.isModded()) continue;
-            if (root.isHidden() && root.buildVisibility != BuildVisibility.sandboxOnly) continue;
+            if (root.isHidden() && root.buildVisibility != BuildVisibility.sandboxOnly && root.buildVisibility != BuildVisibility.legacyLaunchPadOnly) continue;
 
             String cn = ECTool.getClassName(root.getClass());
 
@@ -219,6 +225,49 @@ public class ECBlocks {
                                     }
                                 }
                             };
+                }
+                //发射台
+                case "LaunchPad" ->{
+
+
+                    if (Core.settings.getBool("testContent")){
+                        ECTool.print(root.name);
+                        if ("launch-pad".equals(root.name)) {
+
+
+                            String localizedNameOld = root.localizedName;
+                            String descriptionOld = root.description;
+                            String detailsOld = root.details;
+
+
+                            OldLaunchPad launchPad = new OldLaunchPad("launch-pad"){{
+                                requirements(Category.effect, BuildVisibility.notLegacyLaunchPadOnly, with(Items.copper, 350, Items.silicon, 140, Items.lead, 200, Items.titanium, 150));
+                                size = 3;
+                                itemCapacity = 100;
+                                launchTime = 60f * 20;
+                                hasPower = true;
+
+                                ECTool.loadCompressContentRegion(root, this);
+                                ECTool.setIcon(root, this, 0);
+
+                                localizedName = localizedNameOld;
+                                description = descriptionOld;
+                                details = detailsOld;
+
+                                consumePower(4f);
+                            }};
+                            TechTree.TechNode node = TechTree.node(launchPad,() ->{});
+                            node.parent = Blocks.advancedLaunchPad.techNode != null? Blocks.advancedLaunchPad.techNode:Blocks.advancedLaunchPad.techNodes.get(0);
+                            node.parent.children.add(node);
+
+
+                            for (int i = 1; i <= MAX_LEVEL; i++) new ECOldLaunchPad(launchPad, i , root);
+
+                        }
+
+                    }
+
+
                 }
 
 
