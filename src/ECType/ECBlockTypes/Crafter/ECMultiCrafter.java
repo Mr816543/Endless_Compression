@@ -1,6 +1,7 @@
 package ECType.ECBlockTypes.Crafter;
 
 import ECConfig.ECData;
+import ECConfig.ECTool;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -43,7 +44,6 @@ public class ECMultiCrafter extends Block {
     public float visualMaxHeat;//视觉最大热量
 
     public boolean aiRecipe = false;
-
 
     public int androidPerRow = 2;
 
@@ -186,6 +186,10 @@ public class ECMultiCrafter extends Block {
 
             table.add(pane).grow().height(200f);
         });
+    }
+
+    public void drawOverlay(float x, float y, int rotation,int index) {
+        super.drawOverlay(x, y, rotation);
     }
 
     /* 环境工厂 */
@@ -366,7 +370,6 @@ public class ECMultiCrafter extends Block {
         }
     }
 
-
     //配方类
     public static class Recipe {
         public String name;
@@ -378,6 +381,7 @@ public class ECMultiCrafter extends Block {
         public float crafterTime;//帧
         public float warmupRate;//热量升高时间
         public DrawBlock drawer;
+        public int[] liquidOutputDirections = {-1};
 
         public Recipe() {
             name = Core.bundle.get("ECType.Recipe.name");
@@ -407,6 +411,7 @@ public class ECMultiCrafter extends Block {
             crafterTime = r.crafterTime;
             warmupRate = r.warmupRate;
             drawer = r.drawer;
+            liquidOutputDirections = r.liquidOutputDirections;
         }
 
         public boolean isUnlocked() {
@@ -840,41 +845,17 @@ public class ECMultiCrafter extends Block {
             Building b = this;
             for (ItemStack output : r.outputItems) {
                 for (int i = 0; i < 9 && b.items.get(output.item) > 0; i++) {
-                    dump(output.item);
+                    ECTool.dump(this,output.item);
                 }
             }
-            for (LiquidStack output : r.outputLiquids) {
-                for (int i = 0; i < 9 && b.liquids.get(output.liquid) > 0f; i++) {
-                    dumpLiquid(output.liquid, b.liquids.get(output.liquid), -1);
+                for(int i = 0; i < r.outputLiquids.length; i++){
+                    LiquidStack output = r.outputLiquids[i];
+                    int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
+                    //ECTool.print(r.liquidOutputDirections.length);
+                    ECTool.dumpLiquids(output.liquid, b.liquids.get(output.liquid), dir,this);
                 }
-            }
+
         }
-
-        @Override
-        public void dumpLiquid(Liquid liquid, float scaling, int outputDir) {
-            int dump = this.cdump;
-            if (!(this.liquids.get(liquid) <= 1.0E-4F)) {
-                if (!Vars.net.client() && Vars.state.isCampaign() && this.team == Vars.state.rules.defaultTeam) {
-                    liquid.unlock();
-                }
-
-                for (int i = 0; i < this.proximity.size; ++i) {
-                    this.incrementDump(this.proximity.size);
-                    Building other = this.proximity.get((i + dump) % this.proximity.size);
-                    if (outputDir == -1 || (outputDir + this.rotation) % 4 == this.relativeTo(other)) {
-                        other = other.getLiquidDestination(this, liquid);
-                        if (other != null && other.block.hasLiquids && this.canDumpLiquid(other, liquid) && other.liquids != null) {
-                            float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
-                            float fract = this.liquids.get(liquid) / this.block.liquidCapacity;
-                            transferLiquid(other, liquids.get(liquid), liquid);
-
-                        }
-                    }
-                }
-
-            }
-        }
-
 
         public void updateHeat() {
             if (lastHeatUpdate == Vars.state.updateId) return;
@@ -1103,6 +1084,12 @@ public class ECMultiCrafter extends Block {
             super.onProximityUpdate();
 
             attrsum = sumAttribute(attribute, tile.x, tile.y);
+        }
+
+
+        @Override
+        public void drawSelect() {
+            ((ECMultiCrafter)block).drawOverlay(x,y, rotation,index);
         }
 
     }

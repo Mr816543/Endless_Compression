@@ -36,6 +36,7 @@ public class ECSolidPump extends SolidPump {
         ECTool.compress(root, this,SolidPump.class, UnlockableContent.class, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
+        ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -48,7 +49,6 @@ public class ECSolidPump extends SolidPump {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
-        health = root.health * Mathf.pow(5,level);
         super.init();
     }
 

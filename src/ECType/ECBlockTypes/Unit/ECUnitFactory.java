@@ -19,8 +19,7 @@ public class ECUnitFactory extends UnitFactory {
 
     public UnitFactory root;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","configurations")
-            .linearConfig("health");
+    public static Config config = new Config().addConfigSimple(null,"buildType","configurations");
 
 
     public ECUnitFactory(UnitFactory root) throws IllegalAccessException {
@@ -31,6 +30,7 @@ public class ECUnitFactory extends UnitFactory {
         ECTool.compress(root,this, PayloadBlock.class,UnlockableContent.class , config, 0);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, 0);
+        ECTool.loadHealth(this,root,1);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,1));
 
         localizedName = Core.bundle.get("Compression.localizedName") + root.localizedName;

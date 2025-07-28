@@ -247,6 +247,13 @@ public class ECTool {
     public static TextureRegion mergeRegions(Pixmap pixmapA, Pixmap pixmapB, int size) {
         // 创建新Pixmap并绘制叠加效果
         Pixmap result = new Pixmap(size, size);
+
+        /*/
+        int dx = (int) ((pixmapA.width - size)/2f -1);
+        int dy = (int) ((pixmapA.height - size)/2f -1);
+        dx = Math.max(dx,0);
+        dy = Math.max(dy,0);
+        //*/
         result.draw(pixmapA, 0, 0); // 绘制A
         //result.setBlending(Pixmap.Blending.SourceOver); // 启用Alpha混合
         //result.draw(pixmapB, 3 , -3 ,true); // 叠加B
@@ -342,7 +349,6 @@ public class ECTool {
             loadCompressContentSpriteRegion(root, child, sprite);
         }
     }
-
     //贴图复制
     public static void loadCompressContentSpriteRegion(UnlockableContent root, UnlockableContent child, String sprite) {
         if (Core.atlas.has(root.name + sprite)) {
@@ -540,7 +546,8 @@ public class ECTool {
                 build.incrementDump(build.proximity.size);
                 Building other = build.proximity.get((i + dump) % build.proximity.size);
                 if (outputDir == -1 || (outputDir + build.rotation) % 4 == build.relativeTo(other)) {
-                    other = other.getLiquidDestination(build, liquid);
+                    //ECTool.print(outputDir +" == -1 || " + (outputDir + build.rotation) % 4  + " == " + build.relativeTo(other));
+                    //other = other.getLiquidDestination(build, liquid);
                     if (other != null && other.block.hasLiquids && build.canDumpLiquid(other, liquid) && other.liquids != null) {
                         float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
                         float fract = build.liquids.get(liquid) / build.block.liquidCapacity;

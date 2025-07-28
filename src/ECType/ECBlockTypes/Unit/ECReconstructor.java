@@ -16,8 +16,7 @@ public class ECReconstructor extends Reconstructor {
 
     public int level;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","configurations","upgrades").
-            linearConfig("health");
+    public static Config config = new Config().addConfigSimple(null,"buildType","configurations","upgrades");
 
     public ECReconstructor(Reconstructor root,int level) throws IllegalAccessException {
         super("c"+level+"-" + root.name);
@@ -28,6 +27,7 @@ public class ECReconstructor extends Reconstructor {
         ECTool.compress(root,this, UnlockableContent.class , config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
+        ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;

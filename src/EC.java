@@ -23,7 +23,6 @@ public class EC extends Mod {
 
 
 
-
     }
 
     private void checkIconAvailability() {

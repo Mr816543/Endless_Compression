@@ -16,7 +16,7 @@ public class ECLiquidTurret extends LiquidTurret {
 
     public LiquidTurret root;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","ammoTypes").linearConfig("health");
+    public static Config config = new Config().addConfigSimple(null,"buildType","ammoTypes");
 
     public ECLiquidTurret(LiquidTurret root) throws IllegalAccessException {
         super("compression-"+root.name);
@@ -26,6 +26,7 @@ public class ECLiquidTurret extends LiquidTurret {
         ECTool.compress(root,this, UnlockableContent.class , config, 0);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, 0);
+        ECTool.loadHealth(this,root,1);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,1));
         localizedName = Core.bundle.get("Compression.localizedName") + root.localizedName;
         description = root.description;

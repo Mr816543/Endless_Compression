@@ -41,7 +41,7 @@ public class ECPowerTurret extends PowerTurret {
 
     public ObjectMap<Integer,ConsumePower> consumePowers = new ObjectMap<>();
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","shootTypes","consumers","optionalConsumers","nonOptionalConsumers","updateConsumers").linearConfig("health");
+    public static Config config = new Config().addConfigSimple(null,"buildType","shootTypes","consumers","optionalConsumers","nonOptionalConsumers","updateConsumers");
 
 
     public ECPowerTurret(PowerTurret root) throws IllegalAccessException {
@@ -50,6 +50,7 @@ public class ECPowerTurret extends PowerTurret {
         ECTool.compress(root,this, UnlockableContent.class , config, 0);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, 0);
+        ECTool.loadHealth(this,root,1);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,1));
         localizedName = Core.bundle.get("Compression.localizedName") + root.localizedName;
         description = root.description;

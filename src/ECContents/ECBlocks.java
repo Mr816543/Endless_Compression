@@ -1,6 +1,7 @@
 package ECContents;
 
 import ECConfig.ECTool;
+import ECType.ECBlockTypes.Crafter.ECAttributeCrafter;
 import ECType.ECBlockTypes.Crafter.ECDrill;
 import ECType.ECBlockTypes.Crafter.ECGenericCrafter;
 import ECType.ECBlockTypes.Defend.*;
@@ -8,8 +9,7 @@ import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
 import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
 import ECType.ECBlockTypes.Item.*;
 import ECType.ECBlockTypes.Liquid.*;
-import ECType.ECBlockTypes.Power.ECBattery;
-import ECType.ECBlockTypes.Power.ECPowerNode;
+import ECType.ECBlockTypes.Power.*;
 import ECType.ECBlockTypes.SandBox.ECItemSource;
 import ECType.ECBlockTypes.SandBox.ECLiquidSource;
 import ECType.ECBlockTypes.SandBox.ECPowerSource;
@@ -23,6 +23,7 @@ import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
+import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.world.Block;
@@ -41,13 +42,8 @@ import mindustry.world.blocks.distribution.StackConveyor;
 import mindustry.world.blocks.liquid.ArmoredConduit;
 import mindustry.world.blocks.liquid.Conduit;
 import mindustry.world.blocks.liquid.LiquidRouter;
-import mindustry.world.blocks.power.Battery;
-import mindustry.world.blocks.power.ConsumeGenerator;
-import mindustry.world.blocks.power.PowerNode;
-import mindustry.world.blocks.production.Drill;
-import mindustry.world.blocks.production.GenericCrafter;
-import mindustry.world.blocks.production.Pump;
-import mindustry.world.blocks.production.SolidPump;
+import mindustry.world.blocks.power.*;
+import mindustry.world.blocks.production.*;
 import mindustry.world.blocks.sandbox.ItemSource;
 import mindustry.world.blocks.sandbox.LiquidSource;
 import mindustry.world.blocks.sandbox.PowerSource;
@@ -96,6 +92,9 @@ public class ECBlocks {
             switch (cn) {
                 //工厂
                 case "GenericCrafter" -> new ECGenericCrafter((GenericCrafter) root);
+                //环境工厂
+                case "AttributeCrafter" -> new ECAttributeCrafter((AttributeCrafter) root);
+
                 //消耗类发电厂
                 case "ConsumeGenerator" -> {
                     Seq<String> CGNames = new Seq<>(new String[]{
@@ -106,6 +105,18 @@ public class ECBlocks {
                     } else {
                         new ECConsumeItemFilterGenerator((ConsumeGenerator) root);
                     }
+                }
+                //钍反应堆
+                case "NuclearReactor" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECNuclearReactor((NuclearReactor) root,i);
+                }
+                //冲击反应堆
+                case "ImpactReactor" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECImpactReactor((ImpactReactor) root,i);
+                }
+                //地热
+                case "ThermalGenerator" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECThermalGenerator((ThermalGenerator) root,i);
                 }
 
                 //电力节点
@@ -209,6 +220,8 @@ public class ECBlocks {
                                 }
                             };
                 }
+
+
 
                 //单位工厂
                 case "UnitFactory" -> new ECUnitFactory((UnitFactory) root);

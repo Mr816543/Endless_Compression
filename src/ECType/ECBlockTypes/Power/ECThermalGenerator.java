@@ -4,30 +4,34 @@ import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.math.Mathf;
-import mindustry.world.blocks.power.Battery;
-import mindustry.world.blocks.storage.StorageBlock;
-import mindustry.world.consumers.Consume;
-import mindustry.world.consumers.ConsumePower;
+import mindustry.world.Block;
+import mindustry.world.blocks.power.ImpactReactor;
+import mindustry.world.blocks.power.ThermalGenerator;
 
-public class ECBattery extends Battery {
+public class ECThermalGenerator extends ThermalGenerator {
 
-    public Battery root;
+    public ThermalGenerator root;
 
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("itemCapacity");
+            .scaleConfig().linearConfig("powerProduction");
 
-    public ECBattery(Battery root,int level) throws IllegalAccessException {
+
+    public ECThermalGenerator(ThermalGenerator root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        ECTool.compress(root, this, config, level);
+        ECTool.compress(root, this,root.getClass(), Block.class, config, level);
+
+        this.size = root.size;
+
+
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
@@ -38,11 +42,7 @@ public class ECBattery extends Battery {
 
     @Override
     public void init() {
-        for (Consume consume:root.consumers){
-            if (consume instanceof ConsumePower c && c.buffered){
-                this.consumePowerBuffered(c.capacity * Mathf.pow(5,level));
-            }
-        }
+        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
         super.init();
     }
 }
