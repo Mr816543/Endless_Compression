@@ -12,6 +12,7 @@ import arc.scene.ui.Slider;
 import arc.scene.ui.layout.Table;
 import mindustry.Vars;
 import mindustry.ai.UnitCommand;
+import mindustry.content.Blocks;
 import mindustry.game.EventType;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
@@ -35,7 +36,7 @@ public class ECSettings {
 
                     settingsTable.checkPref("ECSync", true);
                     Core.settings.getBool("ECSync");
-                    settingsTable.checkPref("Compress-Waves", false);
+                    settingsTable.checkPref("Compress-Waves", true);
                     Core.settings.getBool("Compress-Waves");
                     settingsTable.checkPref("asFrame", false);
                     Core.settings.getBool("asFrame");
@@ -45,6 +46,7 @@ public class ECSettings {
                     Core.settings.getBool("oldContent");
                     settingsTable.checkPref("testContent", false);
                     Core.settings.getBool("testContent");
+
 
 
                     /*/

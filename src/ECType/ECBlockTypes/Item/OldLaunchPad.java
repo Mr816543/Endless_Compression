@@ -13,9 +13,11 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import ECConfig.Annotations.*;
+import mindustry.Vars;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.game.EventType.*;
+import mindustry.game.SectorInfo;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.logic.*;
@@ -29,7 +31,7 @@ import static mindustry.Vars.*;
 public class OldLaunchPad extends Block{
     /** Time inbetween launches. */
     public float launchTime = 1f;
-    public int minLaunchCapacity = 10;
+    public int minLaunchCapacity = 10 ;
     public Sound launchSound = Sounds.none;
 
     public @Load("@-light") TextureRegion lightRegion;
@@ -43,6 +45,13 @@ public class OldLaunchPad extends Block{
         update = true;
         configurable = true;
         flags = EnumSet.of(BlockFlag.launchPad);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        lightRegion = Core.atlas.find("ec-launch-pad-light");
+        podRegion = Core.atlas.find("ec-launchpod");
     }
 
     @Override
@@ -144,6 +153,11 @@ public class OldLaunchPad extends Block{
             }
         }
 
+
+        public Sector getRealDestination(SectorInfo info){
+            return !net.client() || info.destination != null ? info.destination : state.rules.sector.planet.sectors.find(Sector::hasBase);
+        }
+
         @Override
         public void display(Table table){
             super.display(table);
@@ -152,7 +166,7 @@ public class OldLaunchPad extends Block{
 
             table.row();
             table.label(() -> {
-                Sector dest = state.rules.sector == null ? null : state.rules.sector.info.destination;
+                Sector dest = state.rules.sector == null ? null :getRealDestination( state.rules.sector.info);
 
                 return Core.bundle.format("launch.destination",
                     dest == null || !dest.hasBase() ? Core.bundle.get("sectors.nonelaunch") :
@@ -261,11 +275,16 @@ public class OldLaunchPad extends Block{
             }
         }
 
+
+        public Sector getRealDestination(SectorInfo info){
+            return !net.client() || info.destination != null ? info.destination : state.rules.sector.planet.sectors.find(Sector::hasBase);
+        }
+
         @Override
         public void remove(){
             if(!state.isCampaign()) return;
 
-            Sector destsec = state.rules.sector.info.destination;
+            Sector destsec = getRealDestination(state.rules.sector.info);
 
             //actually launch the items upon removal
             if(team() == state.rules.defaultTeam){

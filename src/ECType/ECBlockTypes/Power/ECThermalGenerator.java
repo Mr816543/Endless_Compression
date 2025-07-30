@@ -4,6 +4,7 @@ import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
+import mindustry.ctype.UnlockableContent;
 import mindustry.world.Block;
 import mindustry.world.blocks.power.ImpactReactor;
 import mindustry.world.blocks.power.ThermalGenerator;
@@ -22,10 +23,7 @@ public class ECThermalGenerator extends ThermalGenerator {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        ECTool.compress(root, this,root.getClass(), Block.class, config, level);
-
-        this.size = root.size;
-
+        ECTool.compress(root, this, config, level);
 
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);

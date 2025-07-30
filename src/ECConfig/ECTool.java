@@ -11,14 +11,20 @@ import arc.graphics.Texture;
 import arc.graphics.TextureData;
 import arc.graphics.g2d.TextureAtlas;
 import arc.graphics.g2d.TextureRegion;
+import arc.math.Interp;
 import arc.math.Mathf;
+import arc.scene.actions.Actions;
+import arc.scene.ui.Image;
+import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Align;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.TechTree;
 import mindustry.ctype.Content;
 import mindustry.ctype.UnlockableContent;
+import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.bullet.LiquidBulletType;
 import mindustry.gen.Building;
@@ -26,6 +32,7 @@ import mindustry.type.Item;
 import mindustry.type.ItemStack;
 import mindustry.type.Liquid;
 import mindustry.type.LiquidStack;
+import mindustry.ui.Styles;
 import mindustry.world.Block;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.*;
@@ -171,7 +178,7 @@ public class ECTool {
 
 
         //别太短
-        child.scaleLife = false;
+        //child.scaleLife = false;
 
 
         return child;
@@ -655,6 +662,63 @@ public class ECTool {
             b.scaledHealth = scaledHealth * Mathf.pow(5,level);
             b.health = Mathf.round(b.size * b.size * b.scaledHealth, 5);
         }
+    }
+
+    public static void showToast(TextureRegion icon, String text) {
+
+        float height = 40f;
+        float pad = 10f;
+
+
+        // 创建主容器（弹窗背景）
+        Table container = new Table();
+        container.background(Styles.black6); // 设置背景样式
+        container.margin(pad); // 内边距
+        container.setHeight(height); // 固定高度
+
+        // 添加内容：左侧图标 + 右侧文本
+        container.table(inner -> {
+            // 左侧图标（居中）
+            inner.add(new Image(icon))
+                    .size(height) // 图标尺寸
+                    .padRight(pad) // 图标右边距
+                    .center();
+
+            // 右侧文本
+            inner.add(text).growX().wrap().get().setAlignment(Align.left);
+        }).grow();
+
+        // 设置初始位置（屏幕外右侧）
+        container.setPosition(Core.graphics.getWidth() + pad * 10,
+                Core.graphics.getHeight() - height,
+                Align.topRight);
+
+        // 添加到场景
+        Core.scene.add(container);
+
+        // 计算弹窗宽度（根据文本长度动态变化）
+        container.pack();
+        float width = container.getPrefWidth();
+
+        // 动画序列
+        container.actions(
+                // 1. 从右侧滑入（0.5秒）
+                Actions.moveToAligned(Core.graphics.getWidth() - width * 2,
+                        Core.graphics.getHeight() - height,
+                        Align.topRight, 0.5f, Interp.smooth),
+
+                // 2. 等待3秒
+                Actions.delay(5),
+
+                // 3. 向右侧滑出（0.5秒）
+                Actions.moveToAligned(Core.graphics.getWidth() + pad * 10,
+                        Core.graphics.getHeight() - height,
+                        Align.topRight, 0.5f, Interp.smooth),
+
+                Actions.delay(5),
+                // 4. 移除元素
+                Actions.remove()
+        );
     }
 
 }

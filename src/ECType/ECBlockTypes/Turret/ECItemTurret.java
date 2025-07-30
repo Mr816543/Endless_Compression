@@ -4,10 +4,13 @@ import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
+import ECType.ECItem;
 import arc.Core;
+import arc.math.Mathf;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.ctype.UnlockableContent;
+import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BulletType;
 import mindustry.type.Item;
 import mindustry.type.Liquid;
@@ -25,7 +28,7 @@ public class ECItemTurret extends ItemTurret {
 
         this.root = root;
 
-        ECTool.compress(root,this, UnlockableContent.class , config, 0);
+        ECTool.compress(root,this, config, 0);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, 0);
         ECTool.loadHealth(this,root,1);
@@ -106,4 +109,30 @@ public class ECItemTurret extends ItemTurret {
 
 
     }
+
+    public class ECItemTurretBuild extends ItemTurretBuild{
+        @Override
+        public float range() {
+            if(peekAmmo() != null){
+                if (peekAmmo() instanceof ArtilleryBulletType ammo){
+
+                    int level = 0;
+
+                    for (Item item : ammoTypes.keys()){
+                        if (ammoTypes.get(item) != ammo) continue;
+                        if (item instanceof ECItem ecItem) {
+                            level = ecItem.level;
+                        }
+
+                    }
+
+                    return (range + peekAmmo().rangeChange) * Mathf.pow(ECSetting.SCALE_MULTIPLIER,level);
+                }
+
+                return range + peekAmmo().rangeChange;
+            }
+            return range;
+        }
+    }
+
 }

@@ -15,14 +15,19 @@ import arc.struct.Seq;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
+import mindustry.content.Items;
+import mindustry.core.UI;
 import mindustry.ctype.UnlockableContent;
 import mindustry.entities.bullet.BulletType;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
+import mindustry.graphics.Pal;
 import mindustry.type.Liquid;
+import mindustry.ui.Bar;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
+import mindustry.world.blocks.power.PowerGraph;
 import mindustry.world.consumers.Consume;
 import mindustry.world.consumers.ConsumeCoolant;
 import mindustry.world.consumers.ConsumeLiquid;
@@ -155,6 +160,13 @@ public class ECPowerTurret extends PowerTurret {
 
         public int index = 0;
 
+        public int barIndex = -1;
+
+        @Override
+        public Object config() {
+            return index;
+        }
+
         /*/
         @Override
         public float getPowerProduction() {
@@ -174,9 +186,15 @@ public class ECPowerTurret extends PowerTurret {
         }
 
         @Override
-        public boolean hasAmmo(){
-            //you can always rotate, but never shoot if there's no power
-            return true;
+        public boolean hasAmmo() {
+            // 获取建筑所在的电网
+            PowerGraph graph = power.graph;
+
+            // 检查电网是否存在
+            if(graph == null) return false;
+
+            // 检查电能产出或 电池存储
+            return graph.getPowerProduced()+ graph.getBatteryStored() >= powerUse.get(index);
         }
 
         @Override
@@ -220,6 +238,41 @@ public class ECPowerTurret extends PowerTurret {
         }
 
         //*/
+
+        @Override
+        public void updateTile() {
+            super.updateTile();
+            if (barIndex != index){
+                updateBars();
+                barIndex = index;
+            }
+        }
+
+        public void updateBars(){
+
+            removeBar("power");
+            if(consPower != null){
+                boolean buffered = consPower.buffered;
+                float capacity = consPower.capacity;
+
+
+                PowerGraph graph = power.graph;
+
+                addBar("power", entity -> new Bar(
+                        () -> buffered ? Core.bundle.format("bar.poweramount", Float.isNaN(entity.power.status * capacity) ? "<ERROR>" : UI.formatAmount((int)(entity.power.status * capacity))) :
+                                Core.bundle.get("bar.power"),
+                        () -> Pal.powerBar,
+                        () -> graph == null ? 0 : Mathf.clamp(
+                                (graph.getPowerProduced()+ graph.getBatteryStored() ) / powerUse.get(index)
+                        )
+
+                        )
+                );
+            }
+
+
+
+        }
     }
 
 
@@ -294,9 +347,10 @@ public class ECPowerTurret extends PowerTurret {
                     })).grow().left();
                 }, Styles.cleart, () -> {//触发事件
                     build.index = finalI;
+                    build.updateBars();
                     hide();
 
-                }).get();
+                }).get().setDisabled(!(Vars.state == null || (Vars.state.rules.infiniteResources || ECData.get(Items.silicon,finalI).unlocked())));
 
 
                 count++;

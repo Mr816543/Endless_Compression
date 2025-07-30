@@ -1,6 +1,7 @@
 package ECContents;
 
 import ECConfig.ECData;
+import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import ECType.ECUnitType;
 import arc.Core;
@@ -8,15 +9,19 @@ import arc.Events;
 import arc.math.Mathf;
 import arc.struct.Seq;
 import arc.util.Log;
+import arc.util.Time;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.game.SpawnGroup;
+import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
 
 public class ECUnitTypes {
     public static Seq<UnitType> unitTypes;
+    public static Seq<SpawnGroup> spawns;
+    public static Seq<SpawnGroup> newSpawns;
 
     public static void load() throws IllegalAccessException {
         unitTypes = Vars.content.units().copy();
@@ -26,57 +31,67 @@ public class ECUnitTypes {
             compressUnitType(root);
         }
 
+
         Events.on(EventType.WorldLoadEvent.class,e->{
-            //ECTool.print("WorldLoadEvent");
-            Seq<SpawnGroup> spawns = Vars.state.rules.spawns.copy();
-            Seq<SpawnGroup> newSpawns = new Seq<>();
-            for (SpawnGroup spawn : spawns){
-                newSpawns.addAll(compressWaves(spawn));
+            spawns = Vars.state.rules.spawns.copy();
+            newSpawns = compressWaves(spawns);
+            //ECTool.print(Vars.state.map.name());
+            //ECTool.print(toString(Vars.state.rules.spawns));
+            if (Core.settings.getBool("Compress-Waves")){
+                Vars.state.rules.spawns = newSpawns;
             }
-            Vars.state.rules.spawns = newSpawns;
+        });
+
+        Events.on(EventType.SaveWriteEvent.class,e->{
+            //ECTool.print("SaveWriteEvent");
+            Vars.state.rules.spawns = spawns;
+            Time.run(0f,()->{
+                //ECTool.print("SaveWriteFinish");
+                if (Core.settings.getBool("Compress-Waves")){
+                    Vars.state.rules.spawns = newSpawns;
+                }
+                //ECTool.print(toString(Vars.state.rules.spawns));
+            });
         });
 
 
     }
 
-    public static Seq<SpawnGroup> compressWaves(SpawnGroup root){
-        StringBuilder out = new StringBuilder();
-        Seq<SpawnGroup> spawnGroups = new Seq<>();
-
-        if (!Core.settings.getBool("Compress-Waves")||root.max < 5 || (root.end - root.begin + root.spawn) < 5 || !ECData.hasECContent(root.type)) {
-            spawnGroups.add(root.copy());
-            out.append(root).append("\n no change");
-            //ECTool.print(out.toString());
-            return spawnGroups;
+    public static Seq<SpawnGroup> compressWaves(Seq<SpawnGroup> spawns) {
+        Seq<SpawnGroup> newSpawns = new Seq<>();
+        for (SpawnGroup group : spawns){
+            for (int i = 0 ; i <= MAX_LEVEL;i++){
+                SpawnGroup newGroup = group.copy();
+                int begin = i == 0 ? 0 : Mathf.pow(2,i+1);
+                int end = Mathf.pow(2,i+2)-1;
+                if (begin > group.end || end < group.begin || !ECData.hasECContent(group.type) ) continue;
+                newGroup.begin = Math.max(begin,group.begin);
+                newGroup.end = Math.min(end,group.end);
+                newGroup.type = ECData.get(group.type,i);
+                newGroup.shields = group.shields * Mathf.pow(ECSetting.LINEAR_MULTIPLIER,i);
+                if (group.payloads!=null){
+                    newGroup.payloads  = new Seq<>();
+                    for (UnitType unitType:group.payloads){
+                        newGroup.payloads.add(ECData.get(unitType,i));
+                    }
+                }
+                if (group.items!=null){
+                    newGroup.items = new ItemStack(ECData.get(group.items.item,i),group.items.amount);
+                }
+                newSpawns.add(newGroup);
+            }
         }
+        return newSpawns;
+    }
 
-        out.append(root).append("\n to \n");
-        for (int i = 0;i<=9;i++){
-            SpawnGroup ecSpawnGroup = root.copy();
-            int begin = Mathf.pow(2,1+i);
-            int end = begin * 2;
-            if (begin > ecSpawnGroup.end || end < ecSpawnGroup.begin) continue;
-            int spawn = Math.max(ecSpawnGroup.spawn + (begin - ecSpawnGroup.begin) - 5,1);
 
-            ecSpawnGroup.begin = Math.max(begin, ecSpawnGroup.begin);
-            if (i==0) ecSpawnGroup.begin = root.begin;
-            ecSpawnGroup.end = Math.min(end,ecSpawnGroup.end);
-            ecSpawnGroup.spawn = spawn;
-            ecSpawnGroup.type = ECData.get(ecSpawnGroup.type,i);
-
-            spawnGroups.add(ecSpawnGroup);
-            out.append(ecSpawnGroup).append("\n");
-
+    public static String toString(Seq<SpawnGroup> spawns){
+        StringBuilder s = new StringBuilder();
+        for (SpawnGroup group : spawns){
+            String spawn = "[" + group.type.localizedName + ":" + group.begin+"-"+group.end+","+group.unitAmount+"/"+group.max+"]";
+            s.append(spawn);
         }
-        //ECTool.print(out.toString());
-
-        return spawnGroups;
-
-
-
-
-
-
+        return s.toString();
     }
 
 

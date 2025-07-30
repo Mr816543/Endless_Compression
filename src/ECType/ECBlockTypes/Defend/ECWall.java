@@ -17,7 +17,7 @@ public class ECWall extends Wall {
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType").
-            linearConfig("lightningDamage").
+            linearConfig("lightningDamage","armor").
             scaleConfig("lightningChance","lightningLength","chanceDeflect");
 
     public float IFR ;

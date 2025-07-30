@@ -174,7 +174,8 @@ public class ECBlocks {
                 //case "OverflowGate" -> new ECOverflowGate((OverflowGate) root);
                 //核心
                 case "CoreBlock" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECCoreBlock((CoreBlock) root, i);
+                    if (!Core.settings.getBool("banContent"))
+                        for (int i = 1; i <= MAX_LEVEL; i++) new ECCoreBlock((CoreBlock) root, i);
                 }
                 //质驱
                 case "MassDriver" -> {
@@ -193,11 +194,9 @@ public class ECBlocks {
                     for (int i = 1; i <= 5; i++) new ECConveyor((Conveyor) root, i);
                 }
                 case "StackConveyor" -> {
-                    if (!Core.settings.getBool("banContent"))
                         for (int i = 1; i <= MAX_LEVEL; i++) new ECStackConveyor((StackConveyor) root, i);
                 }
                 case "ArmoredConveyor" -> {
-                    if (!Core.settings.getBool("banContent"))
                         for (int i = 1; i <= 5; i++)
                             new ECConveyor((Conveyor) root, i) {
                                 {
@@ -230,7 +229,7 @@ public class ECBlocks {
                 case "LaunchPad" ->{
 
 
-                    if (Core.settings.getBool("testContent")){
+                    if (Core.settings.getBool("testContent") && false){
                         ECTool.print(root.name);
                         if ("launch-pad".equals(root.name)) {
 
@@ -281,7 +280,9 @@ public class ECBlocks {
 
 
                 //炮台
-                case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
+                case "ItemTurret" -> {
+                    if (!Core.settings.getBool("banContent")) new ECItemTurret((ItemTurret) root);
+                }
                 case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
 

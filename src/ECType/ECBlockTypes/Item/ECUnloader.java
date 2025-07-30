@@ -52,6 +52,11 @@ public class ECUnloader extends Unloader {
         details = root.details;
 
         ECData.register(root,this,level);
+
+        configurations.clear();
+
+        config(Item.class, (ECUnloaderBuild tile, Item item) -> tile.sortItem = item);
+        configClear((ECUnloaderBuild tile) -> tile.sortItem = null);
     }
 
     @Override
@@ -244,6 +249,9 @@ public class ECUnloader extends Unloader {
             Draw.color(sortItem == null ? Color.clear : sortItem.color);
             Draw.rect(centerRegion, x, y);
             Draw.color();
+            if (sortItem!=null){
+                Draw.rect(sortItem.uiIcon,x,y,4,4);
+            }
         }
 
         @Override

@@ -22,7 +22,7 @@ public class ECItem extends Item {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        ECTool.compress(this.root,this,config,level);
+        ECTool.compress(root,this,config,level);
         ECTool.setIcon(root,this,level);
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;

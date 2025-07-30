@@ -2,8 +2,10 @@ import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
 import arc.Core;
+import arc.Events;
 import mindustry.content.Blocks;
 import mindustry.content.Items;
+import mindustry.game.EventType;
 import mindustry.mod.Mod;
 
 public class EC extends Mod {
@@ -19,7 +21,10 @@ public class EC extends Mod {
         //*/
 
         ECSettings.init();
-
+        Events.on(EventType.WorldLoadEvent.class,e -> {
+            //ECTool.print("WorldLoadEvent");
+            //ECTool.showToast(Core.atlas.find("ec-icon"),"Endless Compression");
+        });
 
 
 
