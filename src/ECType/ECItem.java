@@ -6,7 +6,10 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.type.Item;
+import mindustry.ui.Styles;
 import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatCat;
+import mindustry.world.meta.StatUnit;
 
 
 public class ECItem extends Item {
@@ -31,13 +34,12 @@ public class ECItem extends Item {
         ECData.register(root,this,level);
     }
 
-
     @Override
     public void setStats() {
         super.setStats();
 
         stats.add(new Stat("hardness"), hardness);
-        stats.add(new Stat("cost"), cost);
+        stats.add(new Stat("cost"), cost/60f, StatUnit.seconds);
         stats.addPercent(new Stat("healthscaling"), healthScaling);
     }
 }

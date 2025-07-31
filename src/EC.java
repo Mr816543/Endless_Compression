@@ -3,10 +3,12 @@ import ECContents.*;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.Events;
+import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.content.Items;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
+import mindustry.mod.Mods;
 
 public class EC extends Mod {
 
@@ -21,12 +23,10 @@ public class EC extends Mod {
         //*/
 
         ECSettings.init();
-        Events.on(EventType.WorldLoadEvent.class,e -> {
-            //ECTool.print("WorldLoadEvent");
-            //ECTool.showToast(Core.atlas.find("ec-icon"),"Endless Compression");
-        });
 
-
+        if (Core.settings.getBool("clearAchievements")) {
+            Achievements.clearAllAchievements();
+        }
 
 
     }
@@ -50,6 +50,9 @@ public class EC extends Mod {
     public void loadContent() {
         GradualDisplayName.load();
         StartTime();
+        Mods.LoadedMod mod = Vars.mods.locateMod("ec");
+        String version = mod.meta.version;
+        ECTool.print("[EC]Loading...\nversion:"+version);
 
         ECTool.loadNumberPixmap();
         loadTime("NumberPixmap");
@@ -71,8 +74,10 @@ public class EC extends Mod {
             loadTime("ECBlocks");
 
             ECTechTrees.load();
-            loadTime("ECTechTree");
+            loadTime("ECTechTrees");
 
+            Achievements.load();
+            loadTime("ECAchievements");
 
 
         } catch (IllegalAccessException e) {

@@ -28,7 +28,7 @@ public class ECItems {
             new ECItem(root, i);
         }
     }
-    public static void compressOldItem(Item root) throws IllegalAccessException {
+    public static void compressOldItem(Item root) {
         for (int i = 1; i <= MAX_LEVEL; i++) {
             Item old = new Item(root.name+i);
             ECTool.setIcon(root,old,i);

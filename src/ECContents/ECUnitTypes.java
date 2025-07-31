@@ -35,22 +35,17 @@ public class ECUnitTypes {
         Events.on(EventType.WorldLoadEvent.class,e->{
             spawns = Vars.state.rules.spawns.copy();
             newSpawns = compressWaves(spawns);
-            //ECTool.print(Vars.state.map.name());
-            //ECTool.print(toString(Vars.state.rules.spawns));
             if (Core.settings.getBool("Compress-Waves")){
                 Vars.state.rules.spawns = newSpawns;
             }
         });
 
         Events.on(EventType.SaveWriteEvent.class,e->{
-            //ECTool.print("SaveWriteEvent");
             Vars.state.rules.spawns = spawns;
             Time.run(0f,()->{
-                //ECTool.print("SaveWriteFinish");
                 if (Core.settings.getBool("Compress-Waves")){
                     Vars.state.rules.spawns = newSpawns;
                 }
-                //ECTool.print(toString(Vars.state.rules.spawns));
             });
         });
 

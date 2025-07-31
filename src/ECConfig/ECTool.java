@@ -42,7 +42,7 @@ import java.lang.reflect.Modifier;
 
 public class ECTool {
 
-    public static Pixmap[][] numberPixmap = new Pixmap[9][10];
+    public static Pixmap[][] numberPixmap = new Pixmap[9][11];
     public static Config bulletConfig = new Config().
             addConfigSimple(null, "fragBullet", "intervalBullet", "lightningType", "spawnBullets", "spawnUnit", "despawnUnit", "puddleLiquid").
             linearConfig("damage", "splashDamage", "healAmount", "lifesteal", "lightningDamage").
@@ -237,7 +237,7 @@ public class ECTool {
 
     //加载数字角标贴图
     public static void loadNumberPixmap() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i <= 10; i++) {
             numberPixmap[0][i] = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("number").child("num-" + i + ".png")).getTextureData().getPixmap();
         }
         for (int j = 2; j <= 9; j++) {
@@ -664,6 +664,8 @@ public class ECTool {
         }
     }
 
+    //废弃
+    /*/
     public static void showToast(TextureRegion icon, String text) {
 
         float height = 40f;
@@ -720,5 +722,6 @@ public class ECTool {
                 Actions.remove()
         );
     }
+    //*/
 
 }

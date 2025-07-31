@@ -46,6 +46,10 @@ public class ECSettings {
                     Core.settings.getBool("oldContent");
                     settingsTable.checkPref("testContent", false);
                     Core.settings.getBool("testContent");
+                    settingsTable.checkPref("clearAchievements", false);
+                    Core.settings.getBool("clearAchievements");
+                    settingsTable.checkPref("achievementsWork", true);
+                    Core.settings.getBool("achievementsWork");
 
 
 

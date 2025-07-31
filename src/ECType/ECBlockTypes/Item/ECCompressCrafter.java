@@ -36,17 +36,24 @@ public class ECCompressCrafter extends ECMultiCrafter {
         this.level = level;
         multiDrawer = true;
         localizedName = level + Core.bundle.get("ECCompressCrafter.name");
-
+        description = Core.bundle.get("ECCompressCrafter.description");
 
     }
 
 
     @Override
     public void init() {
-
         initRecipes();
         super.init();
         initTechTree();
+    }
+
+    @Override
+    public void unlock() {
+        super.unlock();
+        for (ECCompressCrafter crafter : ECBlocks.ecCompressCrafters){
+            crafter.initRecipes();
+        }
     }
 
     public void initRecipes() {
@@ -162,7 +169,6 @@ public class ECCompressCrafter extends ECMultiCrafter {
                         region = Core.atlas.find("ec-ECCompressCrafter");
                         //Log.info("load "+ block.name+" region "+(region==null?"worry":"finish"));
                     }
-
 
                     @Override
                     public void draw(Building build) {

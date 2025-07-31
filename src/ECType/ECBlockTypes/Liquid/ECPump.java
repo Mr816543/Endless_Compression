@@ -4,6 +4,8 @@ import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
+import ECContents.Achievements;
+import ECType.ECBlockTypes.Crafter.ECDrill;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -13,6 +15,7 @@ import arc.util.Time;
 import mindustry.gen.Building;
 import mindustry.type.Liquid;
 import mindustry.ui.Bar;
+import mindustry.ui.Styles;
 import mindustry.world.Tile;
 import mindustry.world.blocks.production.Pump;
 import mindustry.world.meta.Stat;
@@ -30,6 +33,8 @@ public class ECPump extends Pump{
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig().linearConfig("liquidCapacity");
+
+    public boolean compressLiquid = true;
 
     public ECPump(Pump root,int level) throws IllegalAccessException {
 
@@ -55,14 +60,27 @@ public class ECPump extends Pump{
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        Core.settings.defaults(name,true);
+        compressLiquid = Core.settings.getBool(name);
         super.init();
     }
 
     @Override
     public void setStats() {
         super.setStats();
+
+        if (level> 2) stats.add(new Stat("compressore"),table -> {
+            table.button(compressLiquid?Core.bundle.get("stat.true"):Core.bundle.get("stat.false"), Styles.flatTogglet,()->{
+                compressLiquid = !compressLiquid;
+                Core.settings.put(name,compressLiquid);
+            }).size(75,30);
+            table.setSize(75,30);
+        });
+
         stats.remove(Stat.output);
-        stats.add(Stat.output, 60f * pumpAmount * size * size * outputMultiple, StatUnit.liquidSecond);
+        stats.add(Stat.output, 60f * pumpAmount * size * size * outputMultiple *
+                (Achievements.pumpStrengthen.working(this)&&compressLiquid?Mathf.pow(1f/9f,level-2):1)
+                , StatUnit.liquidSecond);
     }
 
     @Override
@@ -105,15 +123,26 @@ public class ECPump extends Pump{
         }
 
         if(liquidDrop != null){
-            float width = drawPlaceText(Core.bundle.formatFloat("bar.pumpspeed", amount * pumpAmount * outputMultiple * 60f, 0), x, y, valid);
+            float width = drawPlaceText(Core.bundle.formatFloat("bar.pumpspeed", amount * pumpAmount * outputMultiple * 60f *
+                            (Achievements.pumpStrengthen.working(this)&&compressLiquid?Mathf.pow(1f/9f,level-2):1)
+                    , 0), x, y, valid);
             float dx = x * tilesize + offset - width/2f - 4f, dy = y * tilesize + offset + size * tilesize / 2f + 5, s = iconSmall / 4f;
             float ratio = (float)liquidDrop.fullIcon.width / liquidDrop.fullIcon.height;
             Draw.mixcol(Color.darkGray, 1f);
-            Draw.rect(liquidDrop.fullIcon, dx, dy - 1, s * ratio, s);
+
+            Liquid liquid = liquidDrop;
+
+
+            if (Achievements.pumpStrengthen.working(this)&&compressLiquid) {
+                liquid = ECData.get(liquidDrop, level-2);
+            }
+
+            Draw.rect(liquid.fullIcon, dx, dy - 1, s * ratio, s);
             Draw.reset();
-            Draw.rect(liquidDrop.fullIcon, dx, dy, s * ratio, s);
+            Draw.rect(liquid.fullIcon, dx, dy, s * ratio, s);
         }
     }
+
 
     public class ECPumpBuild extends PumpBuild{
 
@@ -136,8 +165,18 @@ public class ECPump extends Pump{
 
             totalProgress += warmup * Time.delta;
 
+
             if(liquidDrop != null){
-                this.dumpLiquid(liquidDrop,2f/outputMultiple,-1);
+                if (Achievements.pumpStrengthen.working(this.block)&&compressLiquid){
+                    if (level > 2 && liquids.get(liquidDrop) >= Mathf.pow(9,level-2)){
+                        int amount = (int) (liquids.get(liquidDrop)/Mathf.pow(9,level-2));
+                        liquids.remove(liquidDrop,Mathf.pow(9,level-2)*amount);
+                        liquids.add(ECData.get(liquidDrop,level-2),amount);
+                    }
+                    dumpLiquid(ECData.get(liquidDrop,level-2));
+                }else {
+                    dumpLiquid(liquidDrop);
+                }
             }
         }
 
