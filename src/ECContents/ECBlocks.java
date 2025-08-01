@@ -4,6 +4,7 @@ import ECConfig.ECTool;
 import ECType.ECBlockTypes.Crafter.ECAttributeCrafter;
 import ECType.ECBlockTypes.Crafter.ECDrill;
 import ECType.ECBlockTypes.Crafter.ECGenericCrafter;
+import ECType.ECBlockTypes.Crafter.ECSeparator;
 import ECType.ECBlockTypes.Defend.*;
 import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
 import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
@@ -100,6 +101,10 @@ public class ECBlocks {
                 case "GenericCrafter" -> new ECGenericCrafter((GenericCrafter) root);
                 //环境工厂
                 case "AttributeCrafter" -> new ECAttributeCrafter((AttributeCrafter) root);
+                //分离机
+                case "Separator" ->{
+                    for (int i = 1 ; i <= MAX_LEVEL;i++) new ECSeparator((Separator)root,i);
+                }
 
                 //消耗类发电厂
                 case "ConsumeGenerator" -> {
@@ -123,6 +128,10 @@ public class ECBlocks {
                 //地热
                 case "ThermalGenerator" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECThermalGenerator((ThermalGenerator) root,i);
+                }
+                //太阳能
+                case "SolarGenerator" ->{
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECSolarGenerator((SolarGenerator) root,i);
                 }
 
                 //电力节点

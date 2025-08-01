@@ -110,8 +110,10 @@ public class Achievement extends Item {
 
     @Override
     public void unlock() {
-        if (locked()) show();
-        super.unlock();
+        if (!unlockedNow()) {
+            show();
+            super.unlock();
+        }
     }
 
     public void show() {

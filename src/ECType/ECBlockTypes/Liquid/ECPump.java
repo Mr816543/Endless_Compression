@@ -69,7 +69,7 @@ public class ECPump extends Pump{
     public void setStats() {
         super.setStats();
 
-        if (level> 2) stats.add(new Stat("compressore"),table -> {
+        if (level> 2&&Achievements.pumpStrengthen.working(this)) stats.add(new Stat("compressore"),table -> {
             table.button(compressLiquid?Core.bundle.get("stat.true"):Core.bundle.get("stat.false"), Styles.flatTogglet,()->{
                 compressLiquid = !compressLiquid;
                 Core.settings.put(name,compressLiquid);

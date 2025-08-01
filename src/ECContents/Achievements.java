@@ -2,14 +2,19 @@ package ECContents;
 
 import ECType.Achievement;
 import ECType.ECBlockTypes.Crafter.ECDrill;
+import ECType.ECBlockTypes.Crafter.ECSeparator;
 import ECType.ECBlockTypes.Liquid.ECPump;
+import ECType.ECBlockTypes.Power.ECNuclearReactor;
+import ECType.ECBlockTypes.Power.ECSolarGenerator;
 import ECType.ECItem;
 import arc.Core;
 import arc.struct.Seq;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.content.Items;
 import mindustry.ctype.UnlockableContent;
+import mindustry.game.EventType;
 import mindustry.world.Block;
 
 import static mindustry.game.EventType.UnlockEvent;
@@ -20,7 +25,8 @@ public class Achievements {
     public static Seq<Achievement> achievements = new Seq<>();
 
     public static Achievement
-            startGame, c1 ,c2,c3,c4,c5,c6,c7,c8,c9,drillStrengthen, pumpStrengthen
+            startGame, c1 ,c2,c3,c4,c5,c6,c7,c8,c9,drillStrengthen, pumpStrengthen,
+            explosiveArt,explosiveArtBig,explosiveArtMax,cleanPower
             ;
 
 
@@ -213,6 +219,50 @@ public class Achievements {
                 });
 
             }};
+
+        explosiveArt = new Achievement("explosiveArt"){{
+            root = c2;
+            iconFrom = Blocks.thoriumReactor;
+            index = 2;
+            setEvent(EventType.BlockDestroyEvent.class,e->{
+                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 2 && reactor.root == Blocks.thoriumReactor){
+                    unlock();
+                }
+            });
+        }};
+
+        explosiveArtBig = new Achievement("explosiveArtBig"){{
+            root = explosiveArt;
+            iconFrom = Blocks.thoriumReactor;
+            index = 5;
+            setEvent(EventType.BlockDestroyEvent.class,e->{
+                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 5 && reactor.root == Blocks.thoriumReactor){
+                    unlock();
+                }
+            });
+        }};
+
+        explosiveArtMax = new Achievement("explosiveArtMax"){{
+            root = explosiveArt;
+            iconFrom = Blocks.thoriumReactor;
+            index = 9;
+            setEvent(EventType.BlockDestroyEvent.class,e->{
+                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 9 && reactor.root == Blocks.thoriumReactor){
+                    unlock();
+                }
+            });
+        }};
+
+        cleanPower = new Achievement("cleanPower"){{
+            root = c1;
+            iconFrom = Blocks.solarPanel;
+            index = 1;
+            setEvent(EventType.BlockBuildEndEvent.class,e->{
+                if (e.tile.block() instanceof ECSolarGenerator solar){
+                    unlock();
+                }
+            });
+        }};
 
     }
 

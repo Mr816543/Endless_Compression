@@ -69,7 +69,7 @@ public class ECDrill extends Drill {
         stats.remove(Stat.booster);
 
 
-        if (level> 2) stats.add(new Stat("compressore"),table -> {
+        if (level> 2 && Achievements.drillStrengthen.working(this)) stats.add(new Stat("compressore"),table -> {
             table.button(compressOre?Core.bundle.get("stat.true"):Core.bundle.get("stat.false"), Styles.flatTogglet,()->{
                 compressOre = !compressOre;
                 Core.settings.put(name,compressOre);

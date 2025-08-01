@@ -36,7 +36,7 @@ public class ECUnitTypes {
         Events.on(EventType.WorldLoadEvent.class,e->{
             spawns = Vars.state.rules.spawns.copy();
             newSpawns = compressWaves(spawns);
-            if (Core.settings.getBool("Compress-Waves") && Items.silicon.unlockedNow()){
+            if (Core.settings.getBool("Compress-Waves")){
                 Vars.state.rules.spawns = newSpawns;
             }
         });
@@ -44,7 +44,7 @@ public class ECUnitTypes {
         Events.on(EventType.SaveWriteEvent.class,e->{
             Vars.state.rules.spawns = spawns;
             Time.run(0f,()->{
-                if (Core.settings.getBool("Compress-Waves") && Items.silicon.unlockedNow()){
+                if (Core.settings.getBool("Compress-Waves")){
                     Vars.state.rules.spawns = newSpawns;
                 }
             });
@@ -55,6 +55,7 @@ public class ECUnitTypes {
 
     public static Seq<SpawnGroup> compressWaves(Seq<SpawnGroup> spawns) {
         Seq<SpawnGroup> newSpawns = new Seq<>();
+        int maxLevel = 0;
         for (SpawnGroup group : spawns){
             for (int i = 0 ; i <= MAX_LEVEL;i++){
                 SpawnGroup newGroup = group.copy();
@@ -63,7 +64,13 @@ public class ECUnitTypes {
                 if (begin > group.end || end < group.begin || !ECData.hasECContent(group.type) ) continue;
                 newGroup.begin = Math.max(begin,group.begin);
                 newGroup.end = Math.min(end,group.end);
-                newGroup.type = ECData.get(group.type,i);
+                if (i != 0 && ECData.get(Items.silicon,i-1).unlockedNow()) {
+                    newGroup.type = ECData.get(group.type, i);
+                    maxLevel = i;
+                }else {
+                    newGroup.type = ECData.get(group.type, maxLevel);
+                }
+
                 newGroup.shields = group.shields * Mathf.pow(ECSetting.LINEAR_MULTIPLIER,i);
                 if (group.payloads!=null){
                     newGroup.payloads  = new Seq<>();
