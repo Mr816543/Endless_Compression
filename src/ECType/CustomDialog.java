@@ -18,8 +18,7 @@ import static mindustry.Vars.*;
 
 public class CustomDialog extends BaseDialog {
     // 尺寸变量
-    float screenWidth,screenHeight, dialogHeight, dialogWidth , titleHeight,contentHeight , footerHeight; // 底部区域高度
-
+    float screenWidth,screenHeight, dialogHeight, dialogWidth , titleHeight,contentHeight , footerHeight, iconSize; // 图标尺寸
     // 间距变量
     float padOuter = 20f; // 外间距
     float padInner = 15f; // 内间距
@@ -36,7 +35,6 @@ public class CustomDialog extends BaseDialog {
 
     // 纹理变量（使用游戏内置图标）
     TextureRegion icon = Icon.infoSmall.getRegion();
-    float iconSize = titleHeight * 0.7f; // 图标尺寸
 
     public CustomDialog() {
         super("");
@@ -181,6 +179,7 @@ public class CustomDialog extends BaseDialog {
         titleHeight = dialogHeight * 0.15f; // 标题区高度
         contentHeight = dialogHeight * 0.65f; // 内容区高度
         footerHeight = dialogHeight * 0.2f; // 底部区域高度
+        iconSize = titleHeight * 0.7f;
 
 
     }
