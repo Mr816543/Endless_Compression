@@ -41,8 +41,8 @@ public class CustomDialog extends BaseDialog {
         icon = Core.atlas.find("ec-icon");
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
-        dialogHeight = screenHeight * 0.6f; // 75%屏幕高度
-        dialogWidth = Math.min(screenWidth * 0.6f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
+        dialogHeight = screenHeight * 0.75f; // 75%屏幕高度
+        dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
         titleHeight = dialogHeight * 0.15f; // 标题区高度
         contentHeight = dialogHeight * 0.65f; // 内容区高度
         footerHeight = dialogHeight * 0.2f; // 底部区域高度
@@ -173,9 +173,12 @@ public class CustomDialog extends BaseDialog {
     void updateSizes() {
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
+        dialogHeight = screenHeight * 0.75f; // 75%屏幕高度
+        dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
+        titleHeight = dialogHeight * 0.15f; // 标题区高度
+        contentHeight = dialogHeight * 0.65f; // 内容区高度
+        footerHeight = dialogHeight * 0.2f; // 底部区域高度
 
-        dialogHeight = screenHeight * 0.75f;
-        dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f);
 
         // 更新对话框位置（居中）
         setPosition((screenWidth - dialogWidth) / 2, (screenHeight - dialogHeight) / 2);
