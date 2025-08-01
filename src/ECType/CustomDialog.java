@@ -173,7 +173,7 @@ public class CustomDialog extends BaseDialog {
 
         if (Core.app.isMobile()){
             screenWidth /= 2.5f;
-            screenHeight /= 4f;
+            screenHeight /= 2f;
         }
 
         dialogHeight = screenHeight * 0.75f; // 75%屏幕高度
