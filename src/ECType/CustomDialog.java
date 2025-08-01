@@ -120,6 +120,8 @@ public class CustomDialog extends BaseDialog {
                 label.setAlignment(Align.topLeft); // 左上对齐
                 label.setColor(Color.lightGray);
                 label.setFontScale(1f);
+                label.setHeight(content.getHeight()-padInner);
+                label.setWidth(content.getWidth()-padInner);
 
                 // 创建包含标签的表格（用于控制内边距）
                 Table textTable = new Table();
@@ -170,6 +172,12 @@ public class CustomDialog extends BaseDialog {
     void updateSizes() {
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
+
+        if (Core.app.isAndroid()){
+            screenWidth /= 2;
+            screenHeight /= 2;
+        }
+
         dialogHeight = screenHeight * 0.75f;
         dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f);
 
