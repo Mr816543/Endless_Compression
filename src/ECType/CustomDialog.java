@@ -173,6 +173,12 @@ public class CustomDialog extends BaseDialog {
     void updateSizes() {
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
+
+        if (Core.app.isMobile()){
+            screenWidth /= 3;
+            screenHeight /= 3;
+        }
+
         dialogHeight = screenHeight * 0.75f; // 75%屏幕高度
         dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
         titleHeight = dialogHeight * 0.15f; // 标题区高度
