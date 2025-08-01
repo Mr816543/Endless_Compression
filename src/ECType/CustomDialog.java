@@ -18,13 +18,7 @@ import static mindustry.Vars.*;
 
 public class CustomDialog extends BaseDialog {
     // 尺寸变量
-    float screenWidth = Core.graphics.getWidth();
-    float screenHeight = Core.graphics.getHeight();
-    float dialogHeight = screenHeight * 0.6f; // 75%屏幕高度
-    float dialogWidth = Math.min(screenWidth * 0.6f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
-    float titleHeight = dialogHeight * 0.15f; // 标题区高度
-    float contentHeight = dialogHeight * 0.65f; // 内容区高度
-    float footerHeight = dialogHeight * 0.2f; // 底部区域高度
+    float screenWidth,screenHeight, dialogHeight, dialogWidth , titleHeight,contentHeight , footerHeight; // 底部区域高度
 
     // 间距变量
     float padOuter = 20f; // 外间距
@@ -45,6 +39,13 @@ public class CustomDialog extends BaseDialog {
     public CustomDialog() {
         super("");
         icon = Core.atlas.find("ec-icon");
+        screenWidth = Core.graphics.getWidth();
+        screenHeight = Core.graphics.getHeight();
+        dialogHeight = screenHeight * 0.6f; // 75%屏幕高度
+        dialogWidth = Math.min(screenWidth * 0.6f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
+        titleHeight = dialogHeight * 0.15f; // 标题区高度
+        contentHeight = dialogHeight * 0.65f; // 内容区高度
+        footerHeight = dialogHeight * 0.2f; // 底部区域高度
         setup();
     }
 
@@ -172,11 +173,6 @@ public class CustomDialog extends BaseDialog {
     void updateSizes() {
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
-
-        if (Core.app.isAndroid()){
-            screenWidth /= 2;
-            screenHeight /= 2;
-        }
 
         dialogHeight = screenHeight * 0.75f;
         dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f);
