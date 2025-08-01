@@ -52,16 +52,13 @@ public class ECCompressCrafter extends ECMultiCrafter {
     public void unlock() {
         super.unlock();
         for (ECCompressCrafter crafter : ECBlocks.ecCompressCrafters){
-            crafter.initRecipes();
+            crafter.updateRecipes();
+            crafter.updateRecipes();
         }
     }
 
     public void initRecipes() {
         recipes.clear();
-
-        int MultipleLevel = ECBlocks.unlockedLevel-level;
-
-        int recipeMultiple = Mathf.pow(9,MultipleLevel);
 
         for (Item item : items) {
 
@@ -160,8 +157,8 @@ public class ECCompressCrafter extends ECMultiCrafter {
             recipes.add(new Recipe() {{
 
                 name = Core.bundle.get("ECType.Recipe.ECname");
-                inputItems = new ItemStack[]{new ItemStack(ECData.get(item,level-1), 9*recipeMultiple)};
-                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1*recipeMultiple)};
+                inputItems = new ItemStack[]{new ItemStack(ECData.get(item,level-1), 9)};
+                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1)};
                 crafterTime = 60f;
                 drawer = new DrawRegion() {
                     @Override
@@ -245,8 +242,8 @@ public class ECCompressCrafter extends ECMultiCrafter {
             if(level == 9) continue;
             recipes.add(new Recipe() {{
                 name = Core.bundle.get("ECType.Recipe.ECname");
-                    inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9*recipeMultiple)};
-                    outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1*recipeMultiple)};
+                    inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9)};
+                    outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1)};
                     crafterTime = 5f;
                     drawer = new DrawRegion() {
                         @Override
@@ -282,8 +279,35 @@ public class ECCompressCrafter extends ECMultiCrafter {
                 }});
 
         }
-
+        updateRecipes();
         initCapacity();
+    }
+
+    public void updateRecipes(){
+        String fastRecipe = Core.bundle.get("ECType.Recipe.ECname");
+        int unlockedLevel = 0;
+        for (ECCompressCrafter crafter:ECBlocks.ecCompressCrafters){
+            if (crafter.unlocked()){
+                unlockedLevel += 1;
+            }
+        }
+        int m = unlockedLevel - level;
+        if (m>0) for (Recipe r:recipes){
+            if (fastRecipe.equals(r.name)){
+                for (ItemStack stack:r.inputItems){
+                    stack.amount = 9 * Mathf.pow(5,m);
+                }
+                for (ItemStack stack:r.outputItems){
+                    stack.amount = Mathf.pow(5,m);
+                }
+                for (LiquidStack stack:r.inputLiquids){
+                    stack.amount = 9 * Mathf.pow(5,m);
+                }
+                for (LiquidStack stack:r.inputLiquids){
+                    stack.amount = Mathf.pow(5,m);
+                }
+            }
+        }
     }
 
     public void initTechTree(){

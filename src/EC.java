@@ -1,6 +1,7 @@
 import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
+import ECType.CustomDialog;
 import arc.Core;
 import arc.Events;
 import mindustry.Vars;
@@ -22,12 +23,36 @@ public class EC extends Mod {
 
         //*/
 
+
         ECSettings.init();
 
         if (Core.settings.getBool("clearAchievements")) {
             Achievements.clearAllAchievements();
         }
 
+        CustomDialog c = new CustomDialog();
+        if (isUpdatedMod()){
+            c.show();
+        }else if (Core.settings.getBool("showDialog")){
+            c.show();
+        }
+
+
+        Core.settings.put("ECVersion",Vars.mods.locateMod("ec").meta.version);
+
+    }
+
+    public boolean isUpdatedMod(){
+
+        Mods.LoadedMod mod = Vars.mods.locateMod("ec");
+        String[] old = Core.settings.getString("ECVersion","0.0.0").split("\\.");
+        String[] now = mod.meta.version.split("\\.");
+        for (int i = 0 ; i < old.length&&i<now.length;i++){
+            if (Integer.parseInt(now[i]) > Integer.parseInt(old[i])) return true;
+            if (Integer.parseInt(now[i]) < Integer.parseInt(old[i])) return false;
+        }
+        if (now.length > old.length) return true;
+        return false;
 
     }
 

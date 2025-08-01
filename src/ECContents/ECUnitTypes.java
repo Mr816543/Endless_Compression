@@ -11,6 +11,7 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Time;
 import mindustry.Vars;
+import mindustry.content.Items;
 import mindustry.game.EventType;
 import mindustry.game.SpawnGroup;
 import mindustry.type.ItemStack;
@@ -35,7 +36,7 @@ public class ECUnitTypes {
         Events.on(EventType.WorldLoadEvent.class,e->{
             spawns = Vars.state.rules.spawns.copy();
             newSpawns = compressWaves(spawns);
-            if (Core.settings.getBool("Compress-Waves")){
+            if (Core.settings.getBool("Compress-Waves") && Items.silicon.unlockedNow()){
                 Vars.state.rules.spawns = newSpawns;
             }
         });
@@ -43,7 +44,7 @@ public class ECUnitTypes {
         Events.on(EventType.SaveWriteEvent.class,e->{
             Vars.state.rules.spawns = spawns;
             Time.run(0f,()->{
-                if (Core.settings.getBool("Compress-Waves")){
+                if (Core.settings.getBool("Compress-Waves") && Items.silicon.unlockedNow()){
                     Vars.state.rules.spawns = newSpawns;
                 }
             });

@@ -50,7 +50,8 @@ public class ECSettings {
                     Core.settings.getBool("clearAchievements");
                     settingsTable.checkPref("achievementsWork", true);
                     Core.settings.getBool("achievementsWork");
-
+                    settingsTable.checkPref("showDialog", true);
+                    Core.settings.getBool("showDialog");
 
 
                     /*/
