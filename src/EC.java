@@ -4,6 +4,7 @@ import ECConfig.ECTool;
 import ECType.CustomDialog;
 import arc.Core;
 import arc.Events;
+import arc.util.Time;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.content.Items;
@@ -30,16 +31,20 @@ public class EC extends Mod {
             Achievements.clearAllAchievements();
         }
 
+        Events.on(EventType.ClientLoadEvent.class,e->{
+            Time.run(1f,this::showDialog);
+        });
+
+    }
+
+    private void showDialog() {
         CustomDialog c = new CustomDialog();
         if (isUpdatedMod()){
             c.show();
         }else if (Core.settings.getBool("showDialog")){
             c.show();
         }
-
-
         Core.settings.put("ECVersion",Vars.mods.locateMod("ec").meta.version);
-
     }
 
     public boolean isUpdatedMod(){

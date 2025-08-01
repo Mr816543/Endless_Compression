@@ -25,6 +25,8 @@ public class CustomDialog extends BaseDialog {
     float padInner = 15f; // 内间距
     float elementSpacing = 10f; // 元素间距
 
+    boolean setupFinish = false;
+
     // 颜色变量
     Color bgColor = Color.white;
             //new Color(255f, 255f, 255f, 255f); // 背景
@@ -39,18 +41,7 @@ public class CustomDialog extends BaseDialog {
     public CustomDialog() {
         super("");
         icon = Core.atlas.find("ec-icon");
-        screenWidth = Core.graphics.getWidth();
-        screenHeight = Core.graphics.getHeight();
-        if (Core.app.isMobile()){
-            screenWidth /= 3;
-            screenHeight /= 3;
-        }
-        dialogHeight = screenHeight * 0.75f; // 75%屏幕高度
-        dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
-        titleHeight = dialogHeight * 0.15f; // 标题区高度
-        contentHeight = dialogHeight * 0.65f; // 内容区高度
-        footerHeight = dialogHeight * 0.2f; // 底部区域高度
-        setup();
+        updateSizes();
     }
 
     void setup() {
@@ -163,12 +154,16 @@ public class CustomDialog extends BaseDialog {
         keyDown(KeyCode.escape, this::hide);
     }
 
-
-
     @Override
     public Dialog show() {
         // 每次显示时更新尺寸
         updateSizes();
+        if (!setupFinish){
+            setup();
+            setupFinish = true;
+        }
+        // 更新对话框位置（居中）
+        setPosition((screenWidth - dialogWidth) / 2, (screenHeight - dialogHeight) / 2);
         return super.show();
     }
 
@@ -176,10 +171,6 @@ public class CustomDialog extends BaseDialog {
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
 
-        if (Core.app.isMobile()){
-            screenWidth /= 3;
-            screenHeight /= 3;
-        }
 
         dialogHeight = screenHeight * 0.75f; // 75%屏幕高度
         dialogWidth = Math.min(screenWidth * 0.8f, dialogHeight * 1.25f); // 80%宽度且不超过高度的125%
@@ -188,8 +179,6 @@ public class CustomDialog extends BaseDialog {
         footerHeight = dialogHeight * 0.2f; // 底部区域高度
 
 
-        // 更新对话框位置（居中）
-        setPosition((screenWidth - dialogWidth) / 2, (screenHeight - dialogHeight) / 2);
     }
 
     String toText(String key){
