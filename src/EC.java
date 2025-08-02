@@ -11,6 +11,7 @@ import mindustry.content.Items;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
 import mindustry.mod.Mods;
+import mindustry.world.modules.ItemModule;
 
 public class EC extends Mod {
 

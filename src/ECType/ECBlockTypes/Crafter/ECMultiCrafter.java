@@ -81,7 +81,7 @@ public class ECMultiCrafter extends Block {
 
         //drawer = new DrawMulti(new DrawDefault(), new DrawHeatOutput());
         rotateDraw = false;
-        rotate = true;
+        //rotate = true;
         canOverdrive = true;
         drawArrow = true;
 
@@ -519,7 +519,7 @@ public class ECMultiCrafter extends Block {
                         }
 
                         //t.add(new Image(imageForRecipe(r))).size(40f);
-                    })).grow().left();
+                    })).grow().left().color(r.isUnlocked()?Color.gray:Color.clear);
                 }, Styles.cleart, () -> {//触发事件
                     build.index = finalI;
                     build.progress = 0f;
@@ -784,9 +784,13 @@ public class ECMultiCrafter extends Block {
             Building b = this;
             for (ItemStack output : r.outputItems) {
                 b.items.add(output.item, output.amount);
+                produced(output.item,output.amount);
             }
             for (LiquidStack output : r.outputLiquids) {
                 b.liquids.add(output.liquid, output.amount);
+                if (!Vars.net.client()) {
+                    output.liquid.unlock();
+                }
             }
         }
 

@@ -14,6 +14,7 @@ import mindustry.Vars;
 import mindustry.content.Items;
 import mindustry.game.EventType;
 import mindustry.game.SpawnGroup;
+import mindustry.type.Item;
 import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
 
@@ -39,6 +40,8 @@ public class ECUnitTypes {
             if (Core.settings.getBool("Compress-Waves")){
                 Vars.state.rules.spawns = newSpawns;
             }
+            ECTool.print(toString(spawns));
+            ECTool.print(toString(newSpawns));
         });
 
         Events.on(EventType.SaveWriteEvent.class,e->{
@@ -55,7 +58,12 @@ public class ECUnitTypes {
 
     public static Seq<SpawnGroup> compressWaves(Seq<SpawnGroup> spawns) {
         Seq<SpawnGroup> newSpawns = new Seq<>();
-        int maxLevel = 0;
+        int maxLevel = 1;
+        for (Item s : ECData.ECItems.get(Items.silicon)){
+            if (s.unlockedNow()) maxLevel += 1;
+        }
+        maxLevel = Math.min(maxLevel,9);
+
         for (SpawnGroup group : spawns){
             for (int i = 0 ; i <= MAX_LEVEL;i++){
                 SpawnGroup newGroup = group.copy();
@@ -64,14 +72,11 @@ public class ECUnitTypes {
                 if (begin > group.end || end < group.begin || !ECData.hasECContent(group.type) ) continue;
                 newGroup.begin = Math.max(begin,group.begin);
                 newGroup.end = Math.min(end,group.end);
-                if (i != 0 && ECData.get(Items.silicon,i-1).unlockedNow()) {
-                    newGroup.type = ECData.get(group.type, i);
-                    maxLevel = i;
-                }else {
-                    newGroup.type = ECData.get(group.type, maxLevel);
-                }
 
-                newGroup.shields = group.shields * Mathf.pow(ECSetting.LINEAR_MULTIPLIER,i);
+                newGroup.type = ECData.get(group.type, Math.min(i, maxLevel));
+
+
+                newGroup.shields = group.shields * Mathf.pow(ECSetting.LINEAR_MULTIPLIER, Math.min(i, maxLevel-1));
                 if (group.payloads!=null){
                     newGroup.payloads  = new Seq<>();
                     for (UnitType unitType:group.payloads){
@@ -79,7 +84,7 @@ public class ECUnitTypes {
                     }
                 }
                 if (group.items!=null){
-                    newGroup.items = new ItemStack(ECData.get(group.items.item,i),group.items.amount);
+                    newGroup.items = new ItemStack(ECData.get(group.items.item, Math.min(i, maxLevel)),group.items.amount);
                 }
                 newSpawns.add(newGroup);
             }

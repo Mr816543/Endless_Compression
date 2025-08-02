@@ -37,6 +37,8 @@ public class ECCompressCrafter extends ECMultiCrafter {
         multiDrawer = true;
         localizedName = level + Core.bundle.get("ECCompressCrafter.name");
         description = Core.bundle.get("ECCompressCrafter.description");
+        details = Core.bundle.get("ECCompressCrafter.details");
+
 
     }
 

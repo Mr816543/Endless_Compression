@@ -40,7 +40,6 @@ public class ECGenericCrafter extends ECMultiCrafter {
         size = root.size;
         health = root.health;
         multiDrawer = true;
-
         rotate = root.rotate;
 
         ECTool.loadCompressContentRegion(root, this);
