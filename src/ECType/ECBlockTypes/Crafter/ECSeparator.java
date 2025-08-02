@@ -6,8 +6,10 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import mindustry.world.Block;
 import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.Separator;
+import mindustry.world.meta.BlockGroup;
 
 public class ECSeparator extends Separator {
 
@@ -36,6 +38,15 @@ public class ECSeparator extends Separator {
         ECData.register(root, this, level);
     }
 
+    @Override
+    public boolean canReplace(Block other){
+        if(other.alwaysReplace) return true;
+        if(other.privileged) return false;
+        return other.replaceable &&
+                (other != this || (rotate && quickRotate)) &&
+                ((this.group != BlockGroup.none && other.group == this.group) || other == this.root) &&
+                (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
+    }
 
     @Override
     public void init() {

@@ -5,6 +5,8 @@ import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import mindustry.game.Team;
+import mindustry.world.Tile;
 import mindustry.world.blocks.power.Battery;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.consumers.Consume;
@@ -45,4 +47,5 @@ public class ECBattery extends Battery {
         }
         super.init();
     }
+
 }

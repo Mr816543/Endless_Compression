@@ -15,10 +15,13 @@ import mindustry.content.Items;
 import mindustry.content.TechTree;
 import mindustry.ctype.UnlockableContent;
 import mindustry.game.EventType;
+import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.*;
 import mindustry.world.Block;
+import mindustry.world.Tile;
 import mindustry.world.draw.DrawRegion;
+import mindustry.world.meta.BlockGroup;
 
 import static ECContents.ECItems.items;
 import static ECContents.ECLiquids.liquids;
@@ -48,6 +51,16 @@ public class ECCompressCrafter extends ECMultiCrafter {
         initRecipes();
         super.init();
         initTechTree();
+    }
+
+    @Override
+    public boolean canReplace(Block other){
+        if(other.alwaysReplace) return true;
+        if(other.privileged) return false;
+        return other.replaceable &&
+                (other != this || (rotate && quickRotate)) &&
+                ((this.group != BlockGroup.none && other.group == this.group) || other instanceof ECCompressCrafter) &&
+                (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
     @Override
@@ -303,10 +316,10 @@ public class ECCompressCrafter extends ECMultiCrafter {
                     stack.amount = Mathf.pow(5,m);
                 }
                 for (LiquidStack stack:r.inputLiquids){
-                    stack.amount = 9 * Mathf.pow(5,m);
+                    stack.amount = 9f * Mathf.pow(5f,m);
                 }
-                for (LiquidStack stack:r.inputLiquids){
-                    stack.amount = Mathf.pow(5,m);
+                for (LiquidStack stack:r.outputLiquids){
+                    stack.amount = Mathf.pow(5f,m);
                 }
             }
         }

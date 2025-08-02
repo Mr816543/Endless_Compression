@@ -205,8 +205,7 @@ public class ECMultiCrafter extends Block {
 
     @Override
     public boolean canPlaceOn(Tile tile, Team team, int rotation) {
-        //make sure there's enough efficiency at this location
-        return baseEfficiency + tile.getLinkedTilesAs(this, tempTiles).sumf(other -> other.floor().attributes.get(attribute)) >= minEfficiency;
+        return true;
     }
 
 
@@ -765,6 +764,7 @@ public class ECMultiCrafter extends Block {
             Building b = this;
             for (ItemStack input : r.inputItems) {
                 b.items.remove(input.item, input.amount);
+                produced(input.item,-input.amount);
             }
             for (LiquidStack input : r.inputLiquids) {
                 b.liquids.remove(input.liquid, input.amount);

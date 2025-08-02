@@ -2,6 +2,7 @@ package ECType.ECBlockTypes.Crafter;
 
 import ECConfig.ECData;
 import ECConfig.ECTool;
+import ECType.ECBlockTypes.Item.ECCompressCrafter;
 import arc.Core;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
@@ -20,6 +21,7 @@ import mindustry.world.consumers.*;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawLiquidOutputs;
 import mindustry.world.draw.DrawMulti;
+import mindustry.world.meta.BlockGroup;
 
 import static mindustry.Vars.tilesize;
 
@@ -170,6 +172,15 @@ public class ECGenericCrafter extends ECMultiCrafter {
         }
     }
 
+    @Override
+    public boolean canReplace(Block other){
+        if(other.alwaysReplace) return true;
+        if(other.privileged) return false;
+        return other.replaceable &&
+                (other != this || (rotate && quickRotate)) &&
+                ((this.group != BlockGroup.none && other.group == this.group) || other == this.root) &&
+                (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
+    }
 
     @Override
     public void drawOverlay(float x, float y, int rotation){

@@ -160,7 +160,9 @@ public class ECDrill extends Drill {
             if (Achievements.drillStrengthen.working(this.block)&&compressOre){
                 if (level > 2 && items.get(dominantItem) >= Mathf.pow(9,level-2)){
                     items.remove(dominantItem,Mathf.pow(9,level-2));
+                    produced(dominantItem,-Mathf.pow(9,level-2));
                     items.add(ECData.get(dominantItem,level-2),1);
+                    produced(ECData.get(dominantItem,level-2),1);
                 }
                 dump(ECData.get(dominantItem,level-2));
             }else {
@@ -194,6 +196,7 @@ public class ECDrill extends Drill {
 
 
                 items.add(dominantItem, amount);
+                produced(dominantItem,amount);
 
 
                 progress %= delay;

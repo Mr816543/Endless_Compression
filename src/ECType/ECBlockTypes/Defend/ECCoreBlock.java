@@ -64,6 +64,7 @@ public class ECCoreBlock extends CoreBlock {
         return tile.block() instanceof CoreBlock && (
                 size > tile.block().size ||
                         (size == tile.block().size && tile.block() instanceof ECCoreBlock t && level > t.level )
+                        ||(tile.block() == root)
         ) && (!requiresCoreZone || tempTiles.allMatch(o -> o.floor().allowCorePlacement));
     }
 

@@ -3,8 +3,10 @@ package ECType.ECBlockTypes.Crafter;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
+import mindustry.world.Block;
 import mindustry.world.blocks.production.AttributeCrafter;
 import mindustry.world.blocks.production.GenericCrafter;
+import mindustry.world.meta.BlockGroup;
 
 public class ECAttributeCrafter extends ECGenericCrafter{
 
@@ -39,4 +41,5 @@ public class ECAttributeCrafter extends ECGenericCrafter{
 
         ECData.register(root, this, 1);
     }
+
 }

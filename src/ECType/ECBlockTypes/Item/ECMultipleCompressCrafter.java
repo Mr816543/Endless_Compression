@@ -13,10 +13,13 @@ import mindustry.Vars;
 import mindustry.content.Items;
 import mindustry.content.TechTree;
 import mindustry.ctype.UnlockableContent;
+import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.*;
 import mindustry.world.Block;
+import mindustry.world.Tile;
 import mindustry.world.draw.DrawRegion;
+import mindustry.world.meta.BlockGroup;
 
 import static ECContents.ECItems.items;
 import static ECContents.ECLiquids.liquids;
@@ -242,6 +245,16 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
 
 
 
+    }
+
+    @Override
+    public boolean canReplace(Block other){
+        if(other.alwaysReplace) return true;
+        if(other.privileged) return false;
+        return other.replaceable &&
+                (other != this || (rotate && quickRotate)) &&
+                ((this.group != BlockGroup.none && other.group == this.group) || other instanceof ECMultipleCompressCrafter) &&
+                (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
     @Override
