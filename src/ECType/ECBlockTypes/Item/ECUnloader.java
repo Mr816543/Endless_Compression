@@ -7,64 +7,102 @@ import ECConfig.ECTool;
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
+import arc.util.Eachable;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import arc.util.pooling.Pool;
 import arc.util.pooling.Pools;
-import mindustry.content.Blocks;
+import mindustry.ctype.UnlockableContent;
+import mindustry.entities.units.BuildPlan;
 import mindustry.gen.Building;
 import mindustry.type.Item;
+import mindustry.world.Block;
 import mindustry.world.blocks.ItemSelection;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.blocks.storage.Unloader;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
 
 import java.util.Comparator;
 
 import static mindustry.Vars.content;
 
-public class ECUnloader extends Unloader {
+public class ECUnloader extends Block {
+    public TextureRegion centerRegion;
+
+    public float speed = 1f;
+
+    /** Cached result of content.items() */
+    static Item[] allItems;
+
 
     public Unloader root;
 
     public int level;
 
-    public static Item[] allItems;
-
-    public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig().addConfigSimple(1/ ECSetting.LINEAR_MULTIPLIER,"speed");
-
+    public static Config config = new Config().addConfigSimple(null, "buildType","configurations")
+            .scaleConfig().linearConfig();
 
     public ECUnloader(Unloader root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
+        update = true;
+        solid = true;
+        health = 70;
+        hasItems = true;
+        configurable = true;
+        saveConfig = true;
+        itemCapacity = 0;
+        noUpdateDisabled = true;
+        clearOnDoubleTap = true;
+        unloadable = false;
+
+
+
         this.root = root;
         this.level = level;
-        ECTool.compress(root, this, config, level);
+        ECTool.compress(root, this,Block.class, UnlockableContent.class, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this,root,level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
 
+        speed=root.speed* Mathf.pow(1f/ ECSetting.LINEAR_MULTIPLIER,level);
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
-        ECData.register(root,this,level);
-
-        configurations.clear();
-
         config(Item.class, (ECUnloaderBuild tile, Item item) -> tile.sortItem = item);
         configClear((ECUnloaderBuild tile) -> tile.sortItem = null);
+        ECData.register(root,this,level);
     }
 
     @Override
-    public void init() {
+    public void init(){
         allItems = content.items().toArray(Item.class);
+        centerRegion =root.centerRegion;
         super.init();
     }
 
+    @Override
+    public void setStats(){
+        super.setStats();
+        stats.add(Stat.speed, 60f / speed, StatUnit.itemsSecond);
+    }
+
+    @Override
+    public void drawPlanConfig(BuildPlan plan, Eachable<BuildPlan> list){
+        drawPlanConfigCenter(plan, plan.config, "unloader-center");
+    }
+
+    @Override
+    public void setBars(){
+        super.setBars();
+        removeBar("items");
+    }
 
     public static class ContainerStat implements Pool.Poolable {
         Building building;
@@ -81,7 +119,7 @@ public class ECUnloader extends Unloader {
         }
     }
 
-    public class ECUnloaderBuild extends UnloaderBuild{
+    public class ECUnloaderBuild extends Building{
         public float unloadTimer = 0f;
         public int rotations = 0;
         public Item sortItem = null;
@@ -247,7 +285,7 @@ public class ECUnloader extends Unloader {
             super.draw();
 
             Draw.color(sortItem == null ? Color.clear : sortItem.color);
-            Draw.rect(centerRegion, x, y);
+            Draw.rect(root.centerRegion, x, y);
             Draw.color();
             if (sortItem!=null){
                 Draw.rect(sortItem.uiIcon,x,y,4,4);
@@ -262,7 +300,7 @@ public class ECUnloader extends Unloader {
 
         @Override
         public void buildConfiguration(Table table){
-            ItemSelection.buildTable(ECUnloader.this, table, content.items(), () -> sortItem, this::configure, selectionRows, selectionColumns);
+            ItemSelection.buildTable(block, table, content.items(), () -> sortItem, this::configure, selectionRows, selectionColumns);
         }
 
         @Override
@@ -288,8 +326,4 @@ public class ECUnloader extends Unloader {
             sortItem = id == -1 ? null : content.item(id);
         }
     }
-
-
-
-
 }

@@ -565,6 +565,11 @@ public class ECMultiCrafter extends Block {
 
         public float sleepTimer = 0;
 
+        @Override
+        public void configured(Unit builder, Object value) {
+            super.configured(builder, value);
+        }
+
         /* 环境工厂 */
         public float attrsum;
 

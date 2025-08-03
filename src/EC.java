@@ -36,6 +36,8 @@ public class EC extends Mod {
             Time.run(1f,this::showDialog);
         });
 
+        ECUnitTypes.init();
+
     }
 
     private void showDialog() {

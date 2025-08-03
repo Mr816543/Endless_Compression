@@ -6,82 +6,61 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import arc.util.Nullable;
 import arc.util.Time;
-import mindustry.content.Blocks;
 import mindustry.content.Fx;
-import mindustry.entities.Puddles;
+import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Building;
+import mindustry.type.Item;
 import mindustry.type.Liquid;
-import mindustry.world.Tile;
+import mindustry.world.blocks.distribution.BufferedItemBridge;
 import mindustry.world.blocks.distribution.ItemBridge;
-import mindustry.world.blocks.liquid.Conduit;
+import mindustry.world.blocks.liquid.LiquidBridge;
 
-public class ECConduit extends Conduit{
+import static mindustry.Vars.content;
+import static mindustry.Vars.world;
 
-    public Conduit root;
-
-    public int level;
-
-    public float outputMultiple;
+public class ECLiquidBridge extends LiquidBridge {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("liquidCapacity");
+            .scaleConfig("range")
+            .linearConfig("liquidCapacity").addConfigSimple(1f/ ECSetting.LINEAR_MULTIPLIER,"transportTime");
+    public ItemBridge root;
+    public int level;
 
-    public ECConduit(Conduit root, int level) throws IllegalAccessException {
+    public ECLiquidBridge(LiquidBridge root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
+
         this.root = root;
         this.level = level;
-        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
+
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
-        ECData.register(root,this,level);
+        ECData.register(root, this, level);
     }
 
 
     @Override
     public void init() {
+        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
         super.init();
-
-        junctionReplacement = ECData.get(Blocks.liquidJunction,level);
-        bridgeReplacement = ECData.get(Blocks.bridgeConduit,level);
     }
 
-    public class ECConduitBuild extends ConduitBuild{
-        @Override
-        public void updateTile() {
-            smoothLiquid = Mathf.lerpDelta(smoothLiquid, liquids.currentAmount() / liquidCapacity, 0.05f);
+    public class ECLiquidBridgeBuild extends LiquidBridgeBuild{
 
-            if(liquids.currentAmount() > 0.0001f && timer(timerFlow, 1)){
-                this.moveLiquidForward(leaks, liquids.current());
-                noSleep();
-            }else{
-                sleep();
-            }
-        }
 
         @Override
-        public float moveLiquidForward(boolean leaks, Liquid liquid) {
-            Tile next = this.tile.nearby(this.rotation);
-            if (next == null) {
-                return 0.0F;
-            } else if (next.build != null) {
-                return this.moveLiquid(next.build, liquid);
-            } else {
-                if (leaks && !next.block().solid && !next.block().hasLiquids) {
-                    float leakAmount = this.liquids.get(liquid) / 1.5F;
-                    Puddles.deposit(next, this.tile, liquid, leakAmount, true, true);
-                    this.liquids.remove(liquid, leakAmount);
-                }
-
-                return 0.0F;
+        public void updateTransport(Building other){
+            if(warmup >= 0.25f){
+                moved |= moveLiquid(other, liquids.current()) > 0.05f;
             }
         }
 
@@ -97,12 +76,6 @@ public class ECConduit extends Conduit{
                     float flow = Math.min(Mathf.clamp(fract - ofract) * this.block.liquidCapacity, this.liquids.get(liquid));
                     flow = Math.min(flow, next.block.liquidCapacity - next.liquids.get(liquid));
                     if (flow > 0.0F && ofract <= fract && next.acceptLiquid(this, liquid)) {
-
-                        float max = Math.min(next.block.liquidCapacity-next.liquids.get(liquid) ,this.liquids.get(liquid) );
-
-
-
-
                         next.handleLiquid(this, liquid, flow);
                         this.liquids.remove(liquid, flow);
                         return flow;
@@ -115,7 +88,7 @@ public class ECConduit extends Conduit{
                         if (other.blockReactive && liquid.blockReactive) {
                             if ((!(other.flammability > 0.3F) || !(liquid.temperature > 0.7F)) && (!(liquid.flammability > 0.3F) || !(other.temperature > 0.7F))) {
                                 if (liquid.temperature > 0.7F && other.temperature < 0.55F || other.temperature > 0.7F && liquid.temperature < 0.55F) {
-                                    this.liquids.remove(liquid, Math.min(this.liquids.get(liquid), 0.7F * Time.delta * outputMultiple));
+                                    this.liquids.remove(liquid, Math.min(this.liquids.get(liquid), 0.7F * Time.delta));
                                     if (Mathf.chanceDelta(0.20000000298023224)) {
                                         Fx.steam.at(fx, fy);
                                     }
@@ -134,5 +107,12 @@ public class ECConduit extends Conduit{
                 return 0.0F;
             }
         }
+
+        @Override
+        public void doDump(){
+            dumpLiquid(liquids.current(), 1f);
+            ECTool.dumpLiquids(liquids.current(),1f,this);
+        }
     }
+
 }

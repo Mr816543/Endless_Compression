@@ -242,7 +242,7 @@ public class ECTool {
         }
         for (int j = 2; j <= 9; j++) {
             int size = 32 * j;
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i <= 10; i++) {
                 Pixmap num = new Pixmap(size, size);
                 num.draw(numberPixmap[0][i], 0, 0, size, size);
                 numberPixmap[j - 1][i] = num;
@@ -554,7 +554,7 @@ public class ECTool {
                 Building other = build.proximity.get((i + dump) % build.proximity.size);
                 if (outputDir == -1 || (outputDir + build.rotation) % 4 == build.relativeTo(other)) {
                     //ECTool.print(outputDir +" == -1 || " + (outputDir + build.rotation) % 4  + " == " + build.relativeTo(other));
-                    //other = other.getLiquidDestination(build, liquid);
+                    other = other.getLiquidDestination(build, liquid);
                     if (other != null && other.block.hasLiquids && build.canDumpLiquid(other, liquid) && other.liquids != null) {
                         float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
                         float fract = build.liquids.get(liquid) / build.block.liquidCapacity;

@@ -40,11 +40,10 @@ import mindustry.world.blocks.defense.Wall;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
-import mindustry.world.blocks.distribution.Conveyor;
-import mindustry.world.blocks.distribution.MassDriver;
-import mindustry.world.blocks.distribution.StackConveyor;
+import mindustry.world.blocks.distribution.*;
 import mindustry.world.blocks.liquid.ArmoredConduit;
 import mindustry.world.blocks.liquid.Conduit;
+import mindustry.world.blocks.liquid.LiquidBridge;
 import mindustry.world.blocks.liquid.LiquidRouter;
 import mindustry.world.blocks.power.*;
 import mindustry.world.blocks.production.*;
@@ -168,6 +167,10 @@ public class ECBlocks {
                 case "LiquidRouter" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECLiquidRouter((LiquidRouter) root, i);
                 }
+                //液体桥
+                case "LiquidBridge" ->{
+                    for (int i = 1 ; i<=MAX_LEVEL;i++) new ECLiquidBridge((LiquidBridge)root,i);
+                }
 
                 //物品仓库
                 case "StorageBlock" -> {
@@ -175,7 +178,8 @@ public class ECBlocks {
                 }
                 //装卸器
                 case "Unloader" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
+                    if (!Core.settings.getBool("banContent"))
+                      for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
                 }
                 //分类器
                 //case "Sorter" -> new ECSorter((Sorter) root);
@@ -183,8 +187,7 @@ public class ECBlocks {
                 //case "OverflowGate" -> new ECOverflowGate((OverflowGate) root);
                 //核心
                 case "CoreBlock" -> {
-                    if (!Core.settings.getBool("banContent"))
-                        for (int i = 1; i <= MAX_LEVEL; i++) new ECCoreBlock((CoreBlock) root, i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECCoreBlock((CoreBlock) root, i);
                 }
                 //质驱
                 case "MassDriver" -> {
@@ -234,6 +237,16 @@ public class ECBlocks {
                                 }
                             };
                 }
+                //传送带桥
+                case "ItemBridge" ->{
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECItemBridge((ItemBridge) root, i);
+                }
+                case "BufferedItemBridge" ->{
+                    for (int i = 1; i <= 5; i++) new ECItemBridge((BufferedItemBridge) root, i);
+                }
+                //交叉器  有缓冲,不想做
+
+
                 //发射台
                 case "LaunchPad" ->{
 
@@ -289,9 +302,7 @@ public class ECBlocks {
 
 
                 //炮台
-                case "ItemTurret" -> {
-                    if (!Core.settings.getBool("banContent")) new ECItemTurret((ItemTurret) root);
-                }
+                case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
                 case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
 

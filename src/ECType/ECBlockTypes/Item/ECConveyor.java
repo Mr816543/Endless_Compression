@@ -5,9 +5,12 @@ import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.world.blocks.distribution.Conveyor;
+import mindustry.world.blocks.distribution.DuctBridge;
+import mindustry.world.blocks.distribution.ItemBridge;
 
 public class ECConveyor extends Conveyor {
 
@@ -39,6 +42,8 @@ public class ECConveyor extends Conveyor {
     @Override
     public void init() {
         super.init();
+        junctionReplacement = ECData.get(Blocks.junction,level);
+        bridgeReplacement = ECData.get(Blocks.itemBridge,level);
     }
 
     public class ECConveyorBuild extends ConveyorBuild {
