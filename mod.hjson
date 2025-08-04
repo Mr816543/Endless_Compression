@@ -12,7 +12,7 @@ author: "816543"
 main: "EC"
 
 #mod版本
-version: 2.0.9.6
+version: 2.0.9.7
 
 #运行此mod所需的最低游戏构建
 minGameVersion: 149
