@@ -2,20 +2,30 @@ package ECContents;
 
 import ECType.Achievement;
 import ECType.ECBlockTypes.Crafter.ECDrill;
-import ECType.ECBlockTypes.Crafter.ECSeparator;
+import ECType.ECBlockTypes.Defend.ECCoreBlock;
 import ECType.ECBlockTypes.Liquid.ECPump;
 import ECType.ECBlockTypes.Power.ECNuclearReactor;
 import ECType.ECBlockTypes.Power.ECSolarGenerator;
 import ECType.ECItem;
+import ECType.ECUnitType;
 import arc.Core;
+import arc.Events;
+import arc.graphics.Color;
+import arc.scene.ui.Label;
+import arc.scene.ui.ScrollPane;
+import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
-import arc.util.Log;
+import arc.util.Align;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.content.Items;
+import mindustry.content.UnitTypes;
 import mindustry.ctype.UnlockableContent;
 import mindustry.game.EventType;
+import mindustry.game.Gamemode;
+import mindustry.type.UnitType;
 import mindustry.world.Block;
+import mindustry.world.meta.Stat;
 
 import static mindustry.game.EventType.UnlockEvent;
 import static mindustry.game.EventType.WorldLoadEvent;
@@ -25,23 +35,20 @@ public class Achievements {
     public static Seq<Achievement> achievements = new Seq<>();
 
     public static Achievement
-            startGame, c1 ,c2,c3,c4,c5,c6,c7,c8,c9,drillStrengthen, pumpStrengthen,
-            explosiveArt,explosiveArtBig,explosiveArtMax,cleanPower
-            ;
+            startGame, c1, c2, c3, c4, c5, c6, c7, c8, c9, drillStrengthen, pumpStrengthen,
+            explosiveArt, explosiveArtBig, explosiveArtMax, cleanPower, killer, compressCore;
 
 
     public static int drillMinLevel = 5;
 
 
     public static void load() {
-
         startGame = new Achievement("startGame") {{
             root = Items.copper;
             setEvent(WorldLoadEvent.class, e -> {
                 unlock();
             });
         }};
-
         c1 = new Achievement("c1") {{
             root = startGame;
             iconFrom = Items.copper;
@@ -132,142 +139,211 @@ public class Achievements {
                 }
             });
         }};
-
-        drillStrengthen = new Achievement("drillStrengthen"){
-            @Override
-            public boolean working(UnlockableContent content){
-                return Core.settings.getBool("achievementsWork") && unlockedNow() &&
-                        content instanceof ECDrill drill && drill.level>=2;
-            }
-            {
-            root = c5;
-            iconFrom = Blocks.mechanicalDrill;
-            index = 0;
-            setEvent(UnlockEvent.class,e->{
-                if (e.content instanceof ECDrill drill && drill.level >= drillMinLevel){
-                    boolean unlocked = true;
-                    for (Block block: Vars.content.blocks()){
-                        if (block instanceof ECDrill d && d.level <= drillMinLevel){
-                            if (d.locked()){
-                                unlocked = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (unlocked){
-                        unlock();
-                    }
-                }
-            });
-            setEvent(WorldLoadEvent.class,e->{
-                boolean unlocked = true;
-                for (Block block: Vars.content.blocks()){
-                    if (block instanceof ECDrill d && d.level <= drillMinLevel){
-                        if (d.locked()){
-                            unlocked = false;
-                            break;
-                        }
-                    }
-                }
-                if (unlocked){
-                    unlock();
-                }
-            });
-        }};
-
-        pumpStrengthen = new Achievement("pumpStrengthen"){
-
-            @Override
-            public boolean working(UnlockableContent content){
-                return Core.settings.getBool("achievementsWork") && unlockedNow() &&
-                        content instanceof ECPump pump && pump.level>=2;
-            }
+        drillStrengthen = new Achievement("drillStrengthen") {
             {
                 root = c5;
-                iconFrom = Blocks.mechanicalPump;
+                iconFrom = Blocks.mechanicalDrill;
                 index = 0;
-
-                setEvent(UnlockEvent.class,e->{
-                    if (e.content instanceof ECPump pump && pump.level >= drillMinLevel){
+                hasAward = true;
+                setEvent(UnlockEvent.class, e -> {
+                    if (e.content instanceof ECDrill drill && drill.level >= drillMinLevel) {
                         boolean unlocked = true;
-                        for (Block block: Vars.content.blocks()){
-                            if (block instanceof ECPump p && p.level <= drillMinLevel){
-                                if (p.locked()){
+                        for (Block block : Vars.content.blocks()) {
+                            if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                                if (d.locked()) {
                                     unlocked = false;
                                     break;
                                 }
                             }
                         }
-                        if (unlocked){
+                        if (unlocked) {
                             unlock();
                         }
                     }
                 });
-                setEvent(WorldLoadEvent.class,e->{
+                setEvent(WorldLoadEvent.class, e -> {
                     boolean unlocked = true;
-                    for (Block block: Vars.content.blocks()){
-                        if (block instanceof ECPump p && p.level <= drillMinLevel){
-                            if (p.locked()){
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                            if (d.locked()) {
                                 unlocked = false;
                                 break;
                             }
                         }
                     }
-                    if (unlocked){
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
+            }
+
+            @Override
+            public boolean working(UnlockableContent content) {
+                return super.working(content) &&
+                        content instanceof ECDrill drill && drill.level >= 2;
+            }
+        };
+        pumpStrengthen = new Achievement("pumpStrengthen") {
+
+            {
+                root = c5;
+                iconFrom = Blocks.mechanicalPump;
+                index = 0;
+                hasAward = true;
+                setEvent(UnlockEvent.class, e -> {
+                    if (e.content instanceof ECPump pump && pump.level >= drillMinLevel) {
+                        boolean unlocked = true;
+                        for (Block block : Vars.content.blocks()) {
+                            if (block instanceof ECPump p && p.level <= drillMinLevel) {
+                                if (p.locked()) {
+                                    unlocked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (unlocked) {
+                            unlock();
+                        }
+                    }
+                });
+                setEvent(WorldLoadEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel) {
+                            if (p.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
                         unlock();
                     }
                 });
 
-            }};
+            }
 
-        explosiveArt = new Achievement("explosiveArt"){{
+            @Override
+            public boolean working(UnlockableContent content) {
+                return super.working(content) &&
+                        content instanceof ECPump pump && pump.level >= 2;
+            }
+        };
+        explosiveArt = new Achievement("explosiveArt") {{
             root = c2;
             iconFrom = Blocks.thoriumReactor;
             index = 2;
-            setEvent(EventType.BlockDestroyEvent.class,e->{
-                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 2 && reactor.root == Blocks.thoriumReactor){
+            setEvent(EventType.BlockDestroyEvent.class, e -> {
+                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 2 && reactor.root == Blocks.thoriumReactor) {
                     unlock();
                 }
             });
         }};
-
-        explosiveArtBig = new Achievement("explosiveArtBig"){{
+        explosiveArtBig = new Achievement("explosiveArtBig") {{
             root = explosiveArt;
             iconFrom = Blocks.thoriumReactor;
             index = 5;
-            setEvent(EventType.BlockDestroyEvent.class,e->{
-                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 5 && reactor.root == Blocks.thoriumReactor){
+            setEvent(EventType.BlockDestroyEvent.class, e -> {
+                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 5 && reactor.root == Blocks.thoriumReactor) {
                     unlock();
                 }
             });
         }};
-
-        explosiveArtMax = new Achievement("explosiveArtMax"){{
+        explosiveArtMax = new Achievement("explosiveArtMax") {{
             root = explosiveArt;
             iconFrom = Blocks.thoriumReactor;
             index = 9;
-            setEvent(EventType.BlockDestroyEvent.class,e->{
-                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 9 && reactor.root == Blocks.thoriumReactor){
+            setEvent(EventType.BlockDestroyEvent.class, e -> {
+                if (e.tile.block() instanceof ECNuclearReactor reactor && reactor.level >= 9 && reactor.root == Blocks.thoriumReactor) {
                     unlock();
                 }
             });
         }};
-
-        cleanPower = new Achievement("cleanPower"){{
+        cleanPower = new Achievement("cleanPower") {{
             root = c1;
             iconFrom = Blocks.solarPanel;
             index = 1;
-            setEvent(EventType.BlockBuildEndEvent.class,e->{
-                if (e.tile.block() instanceof ECSolarGenerator solar){
+            setEvent(EventType.BlockBuildEndEvent.class, e -> {
+                if (e.tile.block() instanceof ECSolarGenerator solar) {
                     unlock();
                 }
             });
         }};
+        killer = new Achievement("killer") {
+            {
+                root = startGame;
+                iconFrom = UnitTypes.crawler;
+                index = 0;
+                setEvent(EventType.UnitDestroyEvent.class, e -> {
+                    if (e.unit.team != Vars.player.team() && (Vars.state.rules.mode() == Gamemode.survival) && e.unit.type instanceof ECUnitType) {
+                        unlock();
+                    }
+                });
+            }
 
+            @Override
+            public void init() {
+                super.init();
+                Events.on(EventType.UnitDestroyEvent.class, e -> {
+                    if (e.unit.team != Vars.player.team()) {
+                        if (Vars.state.rules.mode() == Gamemode.survival) {
+                            UnitType unit = e.unit.type();
+                            Core.settings.put(unit.name, Core.settings.getInt(unit.name, 0) + 1);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void setStats() {
+                super.setStats();
+                if (unlockedNow()) stats.add(new Stat("kill"), table -> {
+                    StringBuilder s = new StringBuilder("\n");
+                    for (UnitType unit : Vars.content.units()) {
+                        if (unit instanceof ECUnitType ecUnit) {
+                            int amount = Core.settings.getInt(ecUnit.name, 0);
+                            if (amount > 0) {
+                                s.append(ecUnit.localizedName).append(":").append(amount).append("\n");
+                            }
+                        }
+                    }
+                    // 创建支持换行的标签
+                    Label label = new Label(s.toString());
+                    label.setWrap(true); // 启用自动换行
+                    label.setAlignment(Align.topLeft); // 左上对齐
+                    label.setColor(Color.lightGray);
+                    label.setFontScale(1f);
+
+                    // 创建包含标签的表格（用于控制内边距）
+                    Table textTable = new Table();
+                    float textPad = 15f; // 文本内边距
+                    textTable.add(label).grow().pad(textPad).top().left();
+
+                    // 滚动面板
+                    ScrollPane pane = new ScrollPane(textTable);
+                    pane.setFadeScrollBars(false);
+                    pane.setScrollingDisabled(true, false); // 禁用水平滚动
+
+                    table.add(pane).grow();
+
+                });
+            }
+        };
+        compressCore = new Achievement("compressCore") {{
+            root = killer;
+            iconFrom = Blocks.coreShard;
+            index = 1;
+            hasAward = true;
+            setEvent(EventType.UnlockEvent.class, e -> {
+                if (e.content instanceof ECCoreBlock) {
+                    unlock();
+                }
+            });
+        }};
     }
 
-    public static void clearAllAchievements(){
-        for (Achievement a:achievements){
+    public static void clearAllAchievements() {
+        for (Achievement a : achievements) {
             a.clearUnlock();
         }
     }

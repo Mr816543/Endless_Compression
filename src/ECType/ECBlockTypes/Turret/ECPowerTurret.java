@@ -4,6 +4,7 @@ import ECConfig.Config;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
+import arc.func.Cons;
 import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
@@ -69,8 +70,12 @@ public class ECPowerTurret extends PowerTurret {
         consumesPower = true;//消耗电力
         outputsPower = true;//输出电力
 
-        config(Integer.class, (ECPowerTurretBuild tile, Integer index) -> tile.index = index);
-        configClear((ECPowerTurretBuild tile) -> tile.index = 0);
+        config(Integer.class, (PowerTurretBuild b, Integer index) -> {
+            if (b instanceof ECPowerTurretBuild tile) tile.index = index;
+        });
+        configClear( (PowerTurretBuild b) -> {
+            if (b instanceof ECPowerTurretBuild tile) tile.index = 0;
+        });
 
         ECData.register(root,this,1);
     }
@@ -156,6 +161,11 @@ public class ECPowerTurret extends PowerTurret {
 
     }
 
+    @Override
+    public <E extends Building> void configClear(Cons<E> cons) {
+        super.configClear(cons);
+    }
+
     public class ECPowerTurretBuild extends PowerTurretBuild{
 
         public int index = 0;
@@ -166,6 +176,7 @@ public class ECPowerTurret extends PowerTurret {
         public Object config() {
             return index;
         }
+
 
         /*/
         @Override

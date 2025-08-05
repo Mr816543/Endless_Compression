@@ -25,9 +25,6 @@ public class ECItemBridge extends ItemBridge {
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("range")
             .linearConfig("itemCapacity").addConfigSimple(1f/ ECSetting.LINEAR_MULTIPLIER,"transportTime");
-    public static Config configLow = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("range")
-            .linearConfig();
     public ItemBridge root;
     public int level;
 
@@ -56,7 +53,7 @@ public class ECItemBridge extends ItemBridge {
         this.root = root;
         this.level = level;
 
-        ECTool.compress(root, this,ItemBridge.class, UnlockableContent.class ,configLow, level);
+        ECTool.compress(root, this,ItemBridge.class, UnlockableContent.class ,config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this,root,level);
@@ -101,6 +98,7 @@ public class ECItemBridge extends ItemBridge {
                 Item item = take();
 
                 if (item!=null){
+                    amount = Math.min(amount,items.get(item));
                     if (amount > 0 && other.acceptStack(item,amount,this)>0){
                         amount = other.acceptStack(item,amount,this);
                         items.remove(item,amount);

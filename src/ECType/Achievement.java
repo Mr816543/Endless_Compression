@@ -24,10 +24,12 @@ import mindustry.type.Item;
 import mindustry.type.ItemStack;
 import mindustry.ui.Styles;
 import mindustry.world.meta.Stat;
+import mindustry.world.meta.Stats;
 
 import static mindustry.content.TechTree.*;
 
 public class Achievement extends Item {
+    public static final Stat statAward = new Stat("achievement.award");
     // 可配置变量
     public float windowHeight = 80f;         // 弹窗固定高度
     public float pad = 10f;                  // 内边距
@@ -54,6 +56,10 @@ public class Achievement extends Item {
 
     public static int showing = 0;
 
+    public boolean hasAward = false;
+
+    public boolean ban = true;
+
     public Achievement(String name) {
         super(name);
         title = localizedName = Core.bundle.get("string.achievement") + ":" + Core.bundle.get("achievement."+name+".title",name);
@@ -75,6 +81,7 @@ public class Achievement extends Item {
     @Override
     public void init() {
         hidden = true;
+        ban = Core.settings.getBool(name,true);
         initTechNode();
     }
 
@@ -96,11 +103,23 @@ public class Achievement extends Item {
     }
 
     public boolean working(UnlockableContent content){
-        return Core.settings.getBool("achievementsWork");
+        return Core.settings.getBool("achievementsWork") && unlockedNow() && !Core.settings.getBool(name,false);
     }
 
     @Override
     public void setStats() {
+        super.setStats();
+        stats.remove(Stat.explosiveness);
+        stats.remove(Stat.flammability);
+        stats.remove(Stat.radioactivity);
+        stats.remove(Stat.charge);
+        if (hasAward&&unlockedNow()) stats.add(statAward, table -> {
+            table.button(ban?Core.bundle.get("stat.false"):Core.bundle.get("stat.true"), Styles.flatTogglet,()->{
+                ban = !ban;
+                Core.settings.put(name,ban);
+            }).size(75,30);
+            table.setSize(75,30);
+        });
     }
 
     @Override
@@ -112,8 +131,16 @@ public class Achievement extends Item {
     public void unlock() {
         if (!unlockedNow()) {
             show();
+            stats = new Stats();
+            setStats();
             super.unlock();
         }
+    }
+
+    @Override
+    public void clearUnlock() {
+        super.clearUnlock();
+        //Core.settings.put(name,false);
     }
 
     public void show() {

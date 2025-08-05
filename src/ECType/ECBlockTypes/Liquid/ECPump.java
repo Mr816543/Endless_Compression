@@ -60,8 +60,7 @@ public class ECPump extends Pump{
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
-        Core.settings.defaults(name,true);
-        compressLiquid = Core.settings.getBool(name);
+        compressLiquid = Core.settings.getBool(name,false);
         super.init();
     }
 

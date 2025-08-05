@@ -56,8 +56,7 @@ public class ECDrill extends Drill {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
-        Core.settings.defaults(name,true);
-        compressOre = Core.settings.getBool(name);
+        compressOre = Core.settings.getBool(name,false);
         super.init();
     }
 
