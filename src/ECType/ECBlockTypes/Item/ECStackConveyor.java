@@ -122,8 +122,8 @@ public class ECStackConveyor extends StackConveyor {
 
 
                 int max = Math.min(other.acceptStack(item,items.get(item),this),items.get(item));
-                other.handleStack(item,max,null);
-                items.remove(lastItem, max);
+                other.handleStack(item,max,this);
+                items.remove(item, max);
                 return true;
             } else {
                 return false;

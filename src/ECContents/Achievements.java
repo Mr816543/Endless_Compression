@@ -1,6 +1,8 @@
 package ECContents;
 
 import ECType.Achievement;
+import ECType.ECBlockTypes.Crafter.ECBeamDrill;
+import ECType.ECBlockTypes.Crafter.ECBurstDrill;
 import ECType.ECBlockTypes.Crafter.ECDrill;
 import ECType.ECBlockTypes.Defend.ECCoreBlock;
 import ECType.ECBlockTypes.Liquid.ECPump;
@@ -35,11 +37,13 @@ public class Achievements {
     public static Seq<Achievement> achievements = new Seq<>();
 
     public static Achievement
-            startGame, c1, c2, c3, c4, c5, c6, c7, c8, c9, drillStrengthen, pumpStrengthen,
+            startGame, c1, c2, c3, c4, c5, c6, c7, c8, c9,
+            drillStrengthen,beamDrillStrengthen,burstDrillStrengthen,
+            pumpStrengthen,
             explosiveArt, explosiveArtBig, explosiveArtMax, cleanPower, killer, compressCore;
 
 
-    public static int drillMinLevel = 5;
+    public static int drillMinLevel = 4;
 
 
     public static void load() {
@@ -141,7 +145,7 @@ public class Achievements {
         }};
         drillStrengthen = new Achievement("drillStrengthen") {
             {
-                root = c5;
+                root = c4;
                 iconFrom = Blocks.mechanicalDrill;
                 index = 0;
                 hasAward = true;
@@ -183,10 +187,101 @@ public class Achievements {
                         content instanceof ECDrill drill && drill.level >= 2;
             }
         };
+        beamDrillStrengthen = new Achievement("beamDrillStrengthen") {
+            {
+                root = drillStrengthen;
+                iconFrom = Blocks.plasmaBore;
+                index = 0;
+                hasAward = true;
+                setEvent(UnlockEvent.class, e -> {
+                    if (e.content instanceof ECBeamDrill drill && drill.level >= drillMinLevel) {
+                        boolean unlocked = true;
+                        for (Block block : Vars.content.blocks()) {
+                            if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                                if (d.locked()) {
+                                    unlocked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (unlocked) {
+                            unlock();
+                        }
+                    }
+                });
+                setEvent(WorldLoadEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECBeamDrill d && d.level <= drillMinLevel) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
+            }
+
+            @Override
+            public boolean working(UnlockableContent content) {
+                return super.working(content) &&
+                        content instanceof ECBeamDrill drill && drill.level >= 2;
+            }
+        };
+        burstDrillStrengthen = new Achievement("burstDrillStrengthen") {
+            {
+                root = drillStrengthen;
+                iconFrom = Blocks.plasmaBore;
+                index = 0;
+                hasAward = true;
+                setEvent(UnlockEvent.class, e -> {
+                    if (e.content instanceof ECBurstDrill drill && drill.level >= drillMinLevel) {
+                        boolean unlocked = true;
+                        for (Block block : Vars.content.blocks()) {
+                            if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                                if (d.locked()) {
+                                    unlocked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (unlocked) {
+                            unlock();
+                        }
+                    }
+                });
+                setEvent(WorldLoadEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECBurstDrill d && d.level <= drillMinLevel) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
+            }
+
+            @Override
+            public boolean working(UnlockableContent content) {
+                return super.working(content) &&
+                        content instanceof ECBurstDrill drill && drill.level >= 2;
+            }
+        };
+
+
+
         pumpStrengthen = new Achievement("pumpStrengthen") {
 
             {
-                root = c5;
+                root = c4;
                 iconFrom = Blocks.mechanicalPump;
                 index = 0;
                 hasAward = true;

@@ -190,7 +190,7 @@ public class Achievement extends Item {
         // 执行动画序列
         toast.actions(
 
-                Actions.run(()-> Sounds.message.play()),
+                Actions.run(()-> Sounds.uiNotify.play()),
 
                 // 滑入动画
                 Actions.moveTo(endX, yPos, slideDuration, Interp.smooth),

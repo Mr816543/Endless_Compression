@@ -1,10 +1,7 @@
 package ECContents;
 
 import ECConfig.ECTool;
-import ECType.ECBlockTypes.Crafter.ECAttributeCrafter;
-import ECType.ECBlockTypes.Crafter.ECDrill;
-import ECType.ECBlockTypes.Crafter.ECGenericCrafter;
-import ECType.ECBlockTypes.Crafter.ECSeparator;
+import ECType.ECBlockTypes.Crafter.*;
 import ECType.ECBlockTypes.Defend.*;
 import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
 import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
@@ -147,6 +144,14 @@ public class ECBlocks {
                 case "Drill" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECDrill((Drill) root, i);
                 }
+                //冲击钻头
+                case "BurstDrill"->{
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
+                }
+                //墙钻
+                case "BeamDrill" ->{
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECBeamDrill((BeamDrill) root, i);
+                }
 
                 //泵
                 case "Pump" -> {
@@ -246,6 +251,10 @@ public class ECBlocks {
                 }
                 //交叉器  有缓冲,不想做
 
+                //物品管道
+                case "Duct" ->{
+                    for (int i = 1; i <= 9; i++) new ECDuct((Duct) root,i);
+                }
 
                 //发射台
                 case "LaunchPad" ->{

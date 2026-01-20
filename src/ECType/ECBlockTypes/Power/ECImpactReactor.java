@@ -15,7 +15,7 @@ public class ECImpactReactor extends ImpactReactor {
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("powerProduction");
+            .scaleConfig().linearConfig().addConfigSimple(9f,"powerProduction");
 
 
     public ECImpactReactor(ImpactReactor root,int level) throws IllegalAccessException {

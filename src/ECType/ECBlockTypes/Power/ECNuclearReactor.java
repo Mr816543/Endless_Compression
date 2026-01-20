@@ -17,7 +17,7 @@ public class ECNuclearReactor extends NuclearReactor {
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("explosionRadius").linearConfig("explosionDamage","powerProduction");
+            .scaleConfig("explosionRadius").linearConfig("explosionDamage").addConfigSimple(9f,"powerProduction");
 
 
     public ECNuclearReactor(NuclearReactor root,int level) throws IllegalAccessException {

@@ -37,5 +37,8 @@ public class ECStorageBlock extends StorageBlock {
     @Override
     public void init() {
         super.init();
+        if (ECData.get(root,level-1).itemCapacity>Integer.MAX_VALUE/5f){
+            itemCapacity = Integer.MAX_VALUE;
+        }
     }
 }

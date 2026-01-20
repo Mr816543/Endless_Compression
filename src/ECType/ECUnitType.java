@@ -10,6 +10,7 @@ import arc.math.Mathf;
 import arc.struct.Seq;
 import mindustry.ai.types.MinerAI;
 import mindustry.content.UnitTypes;
+import mindustry.gen.UnitEntity;
 import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
@@ -77,5 +78,12 @@ public class ECUnitType extends UnitType {
     @Override
     public ItemStack[] researchRequirements() {
         return ECTool.compressItemStack(root.researchRequirements(),level);
+    }
+
+    public static class ECUnitEntity extends UnitEntity{
+        @Override
+        public void update() {
+            super.update();
+        }
     }
 }

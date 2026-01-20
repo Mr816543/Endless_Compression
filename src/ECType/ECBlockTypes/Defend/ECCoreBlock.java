@@ -41,6 +41,13 @@ public class ECCoreBlock extends CoreBlock {
         ECData.register(root, this, level);
     }
 
+    @Override
+    public void init() {
+        super.init();
+        if (ECData.get(root,level-1).itemCapacity>Integer.MAX_VALUE/5f){
+            itemCapacity = Integer.MAX_VALUE;
+        }
+    }
 
     @Override
     public boolean canPlaceOn(Tile tile, Team team, int rotation) {

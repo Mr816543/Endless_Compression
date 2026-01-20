@@ -11,7 +11,7 @@ public class ECSolarGenerator extends SolarGenerator {
 
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("powerProduction");
+            .scaleConfig().linearConfig().addConfigSimple(10f,"powerProduction");
     public SolarGenerator root;
     public int level;
 
