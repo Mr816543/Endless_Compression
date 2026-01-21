@@ -22,8 +22,8 @@ import mindustry.world.meta.StatUnit;
 public class ECDuct extends Duct {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("range")
-            .linearConfig("itemCapacity").addConfigSimple(1f/ ECSetting.LINEAR_MULTIPLIER,"transportTime");
+            .scaleConfig()
+            .linearConfig("itemCapacity");
     public Duct root;
     public int level;
 
@@ -32,7 +32,6 @@ public class ECDuct extends Duct {
 
         this.root = root;
         this.level = level;
-
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);

@@ -30,6 +30,7 @@ import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.heat.HeatBlock;
 import mindustry.world.blocks.heat.HeatConsumer;
+import mindustry.world.blocks.production.HeatCrafter;
 import mindustry.world.consumers.ConsumePower;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawDefault;
@@ -447,9 +448,13 @@ public class ECMultiCrafter extends Block {
                 r.outputLiquids[i] = new LiquidStack(ECData.get(r.outputLiquids[i].liquid, num), r.outputLiquids[i].amount);
             }
 
+            r.inputPower = inputPower * Mathf.pow(9, num);
             r.outputPower = outputPower * Mathf.pow(9, num);
 
-            r.outputHeat = outputHeat * Mathf.pow(5, num);
+            r.inputHeat = inputHeat * Mathf.pow(9, num);
+            r.outputHeat = outputHeat * Mathf.pow(9, num);
+
+            r.warmupRate = warmupRate * Mathf.pow(9, num);
 
 
             return r;
@@ -563,6 +568,8 @@ public class ECMultiCrafter extends Block {
         public OrderedMap<String, Func<Building, Bar>> barMap = new OrderedMap<>();
         public boolean canConsume = false;
 
+        public float warmup = 0;
+
         public float sleepTimer = 0;
 
         @Override
@@ -648,7 +655,8 @@ public class ECMultiCrafter extends Block {
                 canConsume = canConsume(r);
 
                 if (canConsume) {
-                    progress += delta() / r.crafterTime;
+                    progress += delta() / r.crafterTime * efficiencyScale();
+                    warmup = Mathf.approachDelta(warmup, warmupTarget(), r.warmupRate);
                     //Log.info("working");
                     for (int i = 0; progress >= 1f && i < 9; i++) {
                         //Log.info("finish");
@@ -657,6 +665,9 @@ public class ECMultiCrafter extends Block {
                         unitCraft(r);
                         progress -= 1f;
                     }
+                }else {
+                    progress = 0;
+                    warmup = Mathf.approachDelta(warmup, 0, r.warmupRate);
                 }
 
                 dumpRecipe(r);
@@ -664,6 +675,12 @@ public class ECMultiCrafter extends Block {
             }
 
 
+        }
+
+
+        public float warmupTarget(){
+            if (recipes.get(index).inputHeat == 0) return 1f;
+            return Mathf.clamp(heat / recipes.get(index).inputHeat);
         }
 
         @Override
@@ -871,14 +888,22 @@ public class ECMultiCrafter extends Block {
             lastHeatUpdate = Vars.state.updateId;
             Recipe r = recipes.get(index);
             if (r.inputHeat > 0) {
-                heat = calculateHeat(sideHeat, cameFrom);
+                heat = calculateHeat(sideHeat);
                 return;
             }
             if (r.outputHeat > 0) {
                 if (canConsume) {
-                    heat = Mathf.approachDelta(heat, r.outputHeat, r.warmupRate * delta());
+                    if (heat >= r.outputHeat * 9){
+                        heat = Mathf.approachDelta(heat, r.outputHeat, r.warmupRate * delta() * heat/r.outputHeat);
+                    }else {
+                        heat = Mathf.approachDelta(heat, r.outputHeat, r.warmupRate * delta());
+                    }
                 } else {
-                    heat = Mathf.approachDelta(heat, 0, r.warmupRate * delta());
+                    if (heat >= r.outputHeat * 9){
+                        heat = Mathf.approachDelta(heat, 0, r.warmupRate * delta() * heat/r.outputHeat);
+                    }else {
+                        heat = Mathf.approachDelta(heat, 0, r.warmupRate * delta());
+                    }
                 }
             }
 
@@ -984,24 +1009,32 @@ public class ECMultiCrafter extends Block {
         public void write(Writes write) {
             super.write(write);
             write.i(index);//保存当前配方索引
+            write.f(heat);
         }
 
         @Override
         public void read(Reads read, byte revision) {
             super.read(read, revision);
             index = read.i();//读取保存的索引
+            heat = read.f();
         }
 
         @Override
         public void writeSync(Writes write) {
             super.writeSync(write);
-            if (Core.settings.getBool("ECSync")) write.i(index);//保存当前配方索引
+            if (Core.settings.getBool("ECSync")) {
+                write.i(index);//保存当前配方索引
+                write.f(heat);
+                }
         }
 
         @Override
         public void readSync(Reads read, byte revision) {
             super.readSync(read, revision);
-            if (Core.settings.getBool("ECSync")) index = read.i();
+            if (Core.settings.getBool("ECSync")) {
+                index = read.i();
+                heat = read.f();
+            }
         }
 
         @Override
@@ -1048,7 +1081,7 @@ public class ECMultiCrafter extends Block {
 
         @Override
         public float warmup() {
-            return heat;
+            return warmup;
         }
 
         @Override
@@ -1080,7 +1113,13 @@ public class ECMultiCrafter extends Block {
 
         @Override
         public float efficiencyScale() {
-            return scaleLiquidConsumption ? efficiencyMultiplier() : super.efficiencyScale();
+            if (scaleLiquidConsumption) return efficiencyMultiplier();
+            if (recipes.get(index).inputHeat>0){
+                float heatRequirement = recipes.get(index).inputHeat;
+                float over = Math.max(heat - heatRequirement, 0f);
+                return Math.min(Mathf.clamp(heat / heatRequirement) + over / heatRequirement * ( block instanceof ECHeatCrafter b ? b.root.overheatScale:1f), ( block instanceof ECHeatCrafter b ? b.root.maxEfficiency:4f));
+            }
+            return super.efficiencyScale();
         }
 
         @Override

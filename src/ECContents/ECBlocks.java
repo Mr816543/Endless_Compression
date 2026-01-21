@@ -38,6 +38,7 @@ import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.distribution.*;
+import mindustry.world.blocks.heat.HeatProducer;
 import mindustry.world.blocks.liquid.ArmoredConduit;
 import mindustry.world.blocks.liquid.Conduit;
 import mindustry.world.blocks.liquid.LiquidBridge;
@@ -101,6 +102,10 @@ public class ECBlocks {
                 case "Separator" ->{
                     for (int i = 1 ; i <= MAX_LEVEL;i++) new ECSeparator((Separator)root,i);
                 }
+                //热生产厂
+                case "HeatProducer" -> new ECHeatProducer((HeatProducer) root);
+                //热消耗厂
+                case "HeatCrafter" -> new ECHeatCrafter((HeatCrafter) root);
 
                 //消耗类发电厂
                 case "ConsumeGenerator" -> {
@@ -148,9 +153,13 @@ public class ECBlocks {
                 case "BurstDrill"->{
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
                 }
-                //墙钻
+                //等离子钻机
                 case "BeamDrill" ->{
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECBeamDrill((BeamDrill) root, i);
+                }
+                //墙钻
+                case "WallCrafter" ->{
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECWallCrafter((WallCrafter) root, i);
                 }
 
                 //泵
@@ -254,6 +263,10 @@ public class ECBlocks {
                 //物品管道
                 case "Duct" ->{
                     for (int i = 1; i <= 9; i++) new ECDuct((Duct) root,i);
+                }
+                //物品管道
+                case "DuctRouter" ->{
+                    for (int i = 1; i <= 9; i++) new ECDuctRouter((DuctRouter) root,i);
                 }
 
                 //发射台

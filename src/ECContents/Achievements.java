@@ -4,6 +4,7 @@ import ECType.Achievement;
 import ECType.ECBlockTypes.Crafter.ECBeamDrill;
 import ECType.ECBlockTypes.Crafter.ECBurstDrill;
 import ECType.ECBlockTypes.Crafter.ECDrill;
+import ECType.ECBlockTypes.Crafter.ECWallCrafter;
 import ECType.ECBlockTypes.Defend.ECCoreBlock;
 import ECType.ECBlockTypes.Liquid.ECPump;
 import ECType.ECBlockTypes.Power.ECNuclearReactor;
@@ -38,7 +39,7 @@ public class Achievements {
 
     public static Achievement
             startGame, c1, c2, c3, c4, c5, c6, c7, c8, c9,
-            drillStrengthen,beamDrillStrengthen,burstDrillStrengthen,
+            drillStrengthen,beamDrillStrengthen,burstDrillStrengthen,wallCrafterStrengthen,
             pumpStrengthen,
             explosiveArt, explosiveArtBig, explosiveArtMax, cleanPower, killer, compressCore;
 
@@ -153,7 +154,7 @@ public class Achievements {
                     if (e.content instanceof ECDrill drill && drill.level >= drillMinLevel) {
                         boolean unlocked = true;
                         for (Block block : Vars.content.blocks()) {
-                            if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                            if (block instanceof ECDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
                                 if (d.locked()) {
                                     unlocked = false;
                                     break;
@@ -168,7 +169,7 @@ public class Achievements {
                 setEvent(WorldLoadEvent.class, e -> {
                     boolean unlocked = true;
                     for (Block block : Vars.content.blocks()) {
-                        if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                        if (block instanceof ECDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
                             if (d.locked()) {
                                 unlocked = false;
                                 break;
@@ -197,7 +198,7 @@ public class Achievements {
                     if (e.content instanceof ECBeamDrill drill && drill.level >= drillMinLevel) {
                         boolean unlocked = true;
                         for (Block block : Vars.content.blocks()) {
-                            if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                            if (block instanceof ECBeamDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
                                 if (d.locked()) {
                                     unlocked = false;
                                     break;
@@ -212,7 +213,7 @@ public class Achievements {
                 setEvent(WorldLoadEvent.class, e -> {
                     boolean unlocked = true;
                     for (Block block : Vars.content.blocks()) {
-                        if (block instanceof ECBeamDrill d && d.level <= drillMinLevel) {
+                        if (block instanceof ECBeamDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
                             if (d.locked()) {
                                 unlocked = false;
                                 break;
@@ -241,7 +242,7 @@ public class Achievements {
                     if (e.content instanceof ECBurstDrill drill && drill.level >= drillMinLevel) {
                         boolean unlocked = true;
                         for (Block block : Vars.content.blocks()) {
-                            if (block instanceof ECDrill d && d.level <= drillMinLevel) {
+                            if (block instanceof ECBurstDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
                                 if (d.locked()) {
                                     unlocked = false;
                                     break;
@@ -256,7 +257,7 @@ public class Achievements {
                 setEvent(WorldLoadEvent.class, e -> {
                     boolean unlocked = true;
                     for (Block block : Vars.content.blocks()) {
-                        if (block instanceof ECBurstDrill d && d.level <= drillMinLevel) {
+                        if (block instanceof ECBurstDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
                             if (d.locked()) {
                                 unlocked = false;
                                 break;
@@ -275,6 +276,51 @@ public class Achievements {
                         content instanceof ECBurstDrill drill && drill.level >= 2;
             }
         };
+        wallCrafterStrengthen = new Achievement("wallCrafterStrengthen") {
+            {
+                root = drillStrengthen;
+                iconFrom = Blocks.largeCliffCrusher;
+                index = 0;
+                hasAward = true;
+                setEvent(UnlockEvent.class, e -> {
+                    if (e.content instanceof ECWallCrafter drill && drill.level >= drillMinLevel) {
+                        boolean unlocked = true;
+                        for (Block block : Vars.content.blocks()) {
+                            if (block instanceof ECWallCrafter d && d.level <= drillMinLevel && d.root.isVanilla()) {
+                                if (d.locked()) {
+                                    unlocked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (unlocked) {
+                            unlock();
+                        }
+                    }
+                });
+                setEvent(WorldLoadEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECWallCrafter d && d.level <= drillMinLevel && d.root.isVanilla()) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
+            }
+
+            @Override
+            public boolean working(UnlockableContent content) {
+                return super.working(content) &&
+                        content instanceof ECWallCrafter drill && drill.level >= 2;
+            }
+        };
+
 
 
 
@@ -289,7 +335,7 @@ public class Achievements {
                     if (e.content instanceof ECPump pump && pump.level >= drillMinLevel) {
                         boolean unlocked = true;
                         for (Block block : Vars.content.blocks()) {
-                            if (block instanceof ECPump p && p.level <= drillMinLevel) {
+                            if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()) {
                                 if (p.locked()) {
                                     unlocked = false;
                                     break;
@@ -304,7 +350,7 @@ public class Achievements {
                 setEvent(WorldLoadEvent.class, e -> {
                     boolean unlocked = true;
                     for (Block block : Vars.content.blocks()) {
-                        if (block instanceof ECPump p && p.level <= drillMinLevel) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()) {
                             if (p.locked()) {
                                 unlocked = false;
                                 break;
