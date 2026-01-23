@@ -5,6 +5,7 @@ import ECType.ECBlockTypes.Crafter.*;
 import ECType.ECBlockTypes.Defend.*;
 import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
 import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
+import ECType.ECBlockTypes.Power.ECVariableReactor;
 import ECType.ECBlockTypes.Item.*;
 import ECType.ECBlockTypes.Liquid.*;
 import ECType.ECBlockTypes.Power.*;
@@ -30,10 +31,7 @@ import mindustry.type.Item;
 import mindustry.world.Block;
 import mindustry.world.Edges;
 import mindustry.world.Tile;
-import mindustry.world.blocks.defense.ForceProjector;
-import mindustry.world.blocks.defense.MendProjector;
-import mindustry.world.blocks.defense.OverdriveProjector;
-import mindustry.world.blocks.defense.Wall;
+import mindustry.world.blocks.defense.*;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
@@ -71,10 +69,6 @@ public class ECBlocks {
     public static void load() throws IllegalAccessException {
 
         blocks = Vars.content.blocks().copy();
-
-
-
-
         for (int i = 1; i <= MAX_LEVEL; i++) {
             ECCompressCrafter compressCrafter = new ECCompressCrafter(i);
             if (Core.settings.getBool(compressCrafter.name + "-unlocked")) unlockedLevel += 1;
@@ -89,7 +83,8 @@ public class ECBlocks {
         for (Block root : blocks) {
             if (root.buildVisibility == BuildVisibility.debugOnly) continue;
             if (root.isModded()) continue;
-            if (root.isHidden() && root.buildVisibility != BuildVisibility.sandboxOnly && root.buildVisibility != BuildVisibility.legacyLaunchPadOnly) continue;
+            if (root.isHidden() && root.buildVisibility != BuildVisibility.sandboxOnly && root.buildVisibility != BuildVisibility.legacyLaunchPadOnly)
+                continue;
 
             String cn = ECTool.getClassName(root.getClass());
 
@@ -99,8 +94,8 @@ public class ECBlocks {
                 //环境工厂
                 case "AttributeCrafter" -> new ECAttributeCrafter((AttributeCrafter) root);
                 //分离机
-                case "Separator" ->{
-                    for (int i = 1 ; i <= MAX_LEVEL;i++) new ECSeparator((Separator)root,i);
+                case "Separator" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECSeparator((Separator) root, i);
                 }
                 //热生产厂
                 case "HeatProducer" -> new ECHeatProducer((HeatProducer) root);
@@ -120,19 +115,30 @@ public class ECBlocks {
                 }
                 //钍反应堆
                 case "NuclearReactor" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECNuclearReactor((NuclearReactor) root,i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECNuclearReactor((NuclearReactor) root, i);
                 }
                 //冲击反应堆
                 case "ImpactReactor" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECImpactReactor((ImpactReactor) root,i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECImpactReactor((ImpactReactor) root, i);
                 }
+                //可变反应堆
+                case "VariableReactor" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECVariableReactor((VariableReactor) root, i);
+                }
+
+
+                //可变反应堆
+                case "HeaterGenerator" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECHeaterGenerator((HeaterGenerator) root, i);
+                }
+
                 //地热
                 case "ThermalGenerator" -> {
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECThermalGenerator((ThermalGenerator) root,i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECThermalGenerator((ThermalGenerator) root, i);
                 }
                 //太阳能
-                case "SolarGenerator" ->{
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECSolarGenerator((SolarGenerator) root,i);
+                case "SolarGenerator" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECSolarGenerator((SolarGenerator) root, i);
                 }
 
                 //电力节点
@@ -143,6 +149,10 @@ public class ECBlocks {
                 case "Battery" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECBattery((Battery) root, i);
                 }
+                //激光节点
+                case "BeamNode" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECBeamNode((BeamNode) root, i);
+                }
 
 
                 //钻头
@@ -150,15 +160,15 @@ public class ECBlocks {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECDrill((Drill) root, i);
                 }
                 //冲击钻头
-                case "BurstDrill"->{
+                case "BurstDrill" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
                 }
                 //等离子钻机
-                case "BeamDrill" ->{
+                case "BeamDrill" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECBeamDrill((BeamDrill) root, i);
                 }
                 //墙钻
-                case "WallCrafter" ->{
+                case "WallCrafter" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECWallCrafter((WallCrafter) root, i);
                 }
 
@@ -182,8 +192,8 @@ public class ECBlocks {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECLiquidRouter((LiquidRouter) root, i);
                 }
                 //液体桥
-                case "LiquidBridge" ->{
-                    for (int i = 1 ; i<=MAX_LEVEL;i++) new ECLiquidBridge((LiquidBridge)root,i);
+                case "LiquidBridge" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECLiquidBridge((LiquidBridge) root, i);
                 }
 
                 //物品仓库
@@ -193,7 +203,7 @@ public class ECBlocks {
                 //装卸器
                 case "Unloader" -> {
                     if (!Core.settings.getBool("banContent"))
-                      for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
+                        for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
                 }
                 //分类器
                 //case "Sorter" -> new ECSorter((Sorter) root);
@@ -220,60 +230,60 @@ public class ECBlocks {
                     for (int i = 1; i <= 5; i++) new ECConveyor((Conveyor) root, i);
                 }
                 case "StackConveyor" -> {
-                        for (int i = 1; i <= MAX_LEVEL; i++) new ECStackConveyor((StackConveyor) root, i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECStackConveyor((StackConveyor) root, i);
                 }
                 case "ArmoredConveyor" -> {
-                        for (int i = 1; i <= 5; i++)
-                            new ECConveyor((Conveyor) root, i) {
-                                {
-                                    noSideBlend = true;
-                                }
+                    for (int i = 1; i <= 5; i++)
+                        new ECConveyor((Conveyor) root, i) {
+                            {
+                                noSideBlend = true;
+                            }
 
+                            @Override
+                            public boolean blends(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
+                                return (otherblock.outputsItems() && blendsArmored(tile, rotation, otherx, othery, otherrot, otherblock)) ||
+                                        (lookingAt(tile, rotation, otherx, othery, otherblock) && otherblock.hasItems);
+                            }
+
+                            @Override
+                            public boolean blendsArmored(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
+                                return Point2.equals(tile.x + Geometry.d4(rotation).x, tile.y + Geometry.d4(rotation).y, otherx, othery)
+                                        || ((!otherblock.rotatedOutput(otherx, othery, tile) && Edges.getFacingEdge(otherblock, otherx, othery, tile) != null &&
+                                        Edges.getFacingEdge(otherblock, otherx, othery, tile).relativeTo(tile) == rotation) ||
+                                        (otherblock instanceof Conveyor && otherblock.rotatedOutput(otherx, othery, tile) && Point2.equals(otherx + Geometry.d4(otherrot).x, othery + Geometry.d4(otherrot).y, tile.x, tile.y)));
+                            }
+
+                            public class ECArmoredConveyorBuild extends ECConveyorBuild {
                                 @Override
-                                public boolean blends(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
-                                    return (otherblock.outputsItems() && blendsArmored(tile, rotation, otherx, othery, otherrot, otherblock)) ||
-                                            (lookingAt(tile, rotation, otherx, othery, otherblock) && otherblock.hasItems);
+                                public boolean acceptItem(Building source, Item item) {
+                                    return super.acceptItem(source, item) && (source.block instanceof Conveyor || Edges.getFacingEdge(source.tile, tile).relativeTo(tile) == rotation);
                                 }
-
-                                @Override
-                                public boolean blendsArmored(Tile tile, int rotation, int otherx, int othery, int otherrot, Block otherblock) {
-                                    return Point2.equals(tile.x + Geometry.d4(rotation).x, tile.y + Geometry.d4(rotation).y, otherx, othery)
-                                            || ((!otherblock.rotatedOutput(otherx, othery, tile) && Edges.getFacingEdge(otherblock, otherx, othery, tile) != null &&
-                                            Edges.getFacingEdge(otherblock, otherx, othery, tile).relativeTo(tile) == rotation) ||
-                                            (otherblock instanceof Conveyor && otherblock.rotatedOutput(otherx, othery, tile) && Point2.equals(otherx + Geometry.d4(otherrot).x, othery + Geometry.d4(otherrot).y, tile.x, tile.y)));
-                                }
-
-                                public class ECArmoredConveyorBuild extends ECConveyorBuild {
-                                    @Override
-                                    public boolean acceptItem(Building source, Item item) {
-                                        return super.acceptItem(source, item) && (source.block instanceof Conveyor || Edges.getFacingEdge(source.tile, tile).relativeTo(tile) == rotation);
-                                    }
-                                }
-                            };
+                            }
+                        };
                 }
                 //传送带桥
-                case "ItemBridge" ->{
+                case "ItemBridge" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECItemBridge((ItemBridge) root, i);
                 }
-                case "BufferedItemBridge" ->{
+                case "BufferedItemBridge" -> {
                     for (int i = 1; i <= 5; i++) new ECItemBridge((BufferedItemBridge) root, i);
                 }
                 //交叉器  有缓冲,不想做
 
                 //物品管道
-                case "Duct" ->{
-                    for (int i = 1; i <= 9; i++) new ECDuct((Duct) root,i);
+                case "Duct" -> {
+                    for (int i = 1; i <= 9; i++) new ECDuct((Duct) root, i);
                 }
                 //物品管道
-                case "DuctRouter" ->{
-                    for (int i = 1; i <= 9; i++) new ECDuctRouter((DuctRouter) root,i);
+                case "DuctRouter" -> {
+                    for (int i = 1; i <= 9; i++) new ECDuctRouter((DuctRouter) root, i);
                 }
 
                 //发射台
-                case "LaunchPad" ->{
+                case "LaunchPad" -> {
 
 
-                    if (Core.settings.getBool("testContent") && false){
+                    if (Core.settings.getBool("testContent") && false) {
                         ECTool.print(root.name);
                         if ("launch-pad".equals(root.name)) {
 
@@ -283,7 +293,7 @@ public class ECBlocks {
                             String detailsOld = root.details;
 
 
-                            OldLaunchPad launchPad = new OldLaunchPad("launch-pad"){{
+                            OldLaunchPad launchPad = new OldLaunchPad("launch-pad") {{
                                 requirements(Category.effect, BuildVisibility.notLegacyLaunchPadOnly, with(Items.copper, 350, Items.silicon, 140, Items.lead, 200, Items.titanium, 150));
                                 size = 3;
                                 itemCapacity = 100;
@@ -299,12 +309,13 @@ public class ECBlocks {
 
                                 consumePower(4f);
                             }};
-                            TechTree.TechNode node = TechTree.node(launchPad,() ->{});
-                            node.parent = Blocks.advancedLaunchPad.techNode != null? Blocks.advancedLaunchPad.techNode:Blocks.advancedLaunchPad.techNodes.get(0);
+                            TechTree.TechNode node = TechTree.node(launchPad, () -> {
+                            });
+                            node.parent = Blocks.advancedLaunchPad.techNode != null ? Blocks.advancedLaunchPad.techNode : Blocks.advancedLaunchPad.techNodes.get(0);
                             node.parent.children.add(node);
 
 
-                            for (int i = 1; i <= MAX_LEVEL; i++) new ECOldLaunchPad(launchPad, i , root);
+                            for (int i = 1; i <= MAX_LEVEL; i++) new ECOldLaunchPad(launchPad, i, root);
 
                         }
 
@@ -312,7 +323,6 @@ public class ECBlocks {
 
 
                 }
-
 
 
                 //单位工厂
@@ -328,6 +338,11 @@ public class ECBlocks {
                 case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
 
+
+                //雷达
+                case "Radar" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECRadar((Radar) root, i);
+                }
 
                 //城墙
                 case "Wall" -> {

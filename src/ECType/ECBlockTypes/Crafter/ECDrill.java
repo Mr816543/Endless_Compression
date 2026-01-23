@@ -10,6 +10,8 @@ import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.util.Strings;
+import mindustry.content.Blocks;
+import mindustry.game.Team;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
@@ -144,6 +146,19 @@ public class ECDrill extends Drill {
         }
     }
 
+    @Override
+    public boolean canPlaceOn(Tile tile, Team team, int rotation) {
+        if(isMultiblock()){
+            for(Tile other : tile.getLinkedTilesAs(this, tempTiles)){
+                if(canMine(other)){
+                    return true;
+                }
+            }
+            return false;
+        }else{
+            return canMine(tile);
+        }
+    }
 
     public class ECDrillBuild extends DrillBuild {
 

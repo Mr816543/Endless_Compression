@@ -878,7 +878,7 @@ public class ECMultiCrafter extends Block {
                     LiquidStack output = r.outputLiquids[i];
                     int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
                     //ECTool.print(r.liquidOutputDirections.length);
-                    ECTool.dumpLiquids(output.liquid, b.liquids.get(output.liquid), dir,this);
+                    ECTool.dumpLiquids(output.liquid, 1f, dir,this);
                 }
 
         }
@@ -924,6 +924,12 @@ public class ECMultiCrafter extends Block {
             }
             for (LiquidStack input : r.inputLiquids) {
                 addBar(input.liquid.name, entity -> new Bar(() -> input.liquid.localizedName + " : " + entity.liquids.get(input.liquid) + " / " + liquidCapacity, () -> input.liquid.color, () -> entity.liquids.get(input.liquid) / liquidCapacity));
+            }
+            for (ItemStack output : r.outputItems) {
+                addBar(output.item.name, entity -> new Bar(() -> output.item.localizedName + " : " + entity.items.get(output.item) + " / " + itemCapacity, () -> Pal.items, () -> (float) entity.items.get(output.item) / itemCapacity));
+            }
+            for (LiquidStack output : r.outputLiquids) {
+                addBar(output.liquid.name, entity -> new Bar(() -> output.liquid.localizedName + " : " + entity.liquids.get(output.liquid) + " / " + liquidCapacity, () -> output.liquid.color, () -> entity.liquids.get(output.liquid) / liquidCapacity));
             }
             for (UnitStack input : r.inputUnits) {
                 addBar(input.unitType.name, entity -> new Bar(() -> input.unitType.localizedName + " : " + getUnits(input.unitType) + " / " + input.amount, () -> Pal.items, () -> (float) getUnits(input.unitType) / input.amount));

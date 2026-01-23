@@ -15,11 +15,13 @@ import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
 import mindustry.ui.Styles;
+import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.production.BurstDrill;
 import mindustry.world.blocks.production.Drill;
 import mindustry.world.consumers.ConsumeLiquidBase;
+import mindustry.world.meta.BlockGroup;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValues;
@@ -145,6 +147,18 @@ public class ECBurstDrill extends BurstDrill {
                 drawPlaceText(Core.bundle.get("bar.drilltierreq"), x, y, valid);
             }
         }
+    }
+
+    @Override
+    public boolean canReplace(Block other){
+        if(other.alwaysReplace) return true;
+        if(other.privileged) return false;
+        return other.replaceable &&
+                (other != this || (rotate && quickRotate)) &&
+                (((this.group != BlockGroup.none && other.group == this.group) || other == this)
+                        || (other == root) || (other instanceof ECBurstDrill d && d.root == this.root&&d.level<level))
+                &&
+                (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
     public class ECDrillBuild extends BurstDrillBuild {

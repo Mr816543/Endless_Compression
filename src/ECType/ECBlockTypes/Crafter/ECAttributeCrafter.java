@@ -3,7 +3,9 @@ package ECType.ECBlockTypes.Crafter;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
+import mindustry.game.Team;
 import mindustry.world.Block;
+import mindustry.world.Tile;
 import mindustry.world.blocks.production.AttributeCrafter;
 import mindustry.world.blocks.production.GenericCrafter;
 import mindustry.world.meta.BlockGroup;
@@ -40,6 +42,13 @@ public class ECAttributeCrafter extends ECGenericCrafter{
         ECTool.setIcon(root, this, 0);
 
         ECData.register(root, this, 1);
+    }
+
+
+    @Override
+    public boolean canPlaceOn(Tile tile, Team team, int rotation){
+        //make sure there's enough efficiency at this location
+        return baseEfficiency + tile.getLinkedTilesAs(this, tempTiles).sumf(other -> other.floor().attributes.get(attribute)) >= minEfficiency;
     }
 
 }

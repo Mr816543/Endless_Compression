@@ -10,13 +10,16 @@ import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.math.geom.Geometry;
+import arc.util.Log;
 import arc.util.Strings;
 import arc.util.Tmp;
+import mindustry.game.Team;
 import mindustry.graphics.Drawf;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
 import mindustry.ui.Styles;
+import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.environment.StaticWall;
@@ -24,6 +27,7 @@ import mindustry.world.blocks.production.BeamDrill;
 import mindustry.world.blocks.production.Drill;
 import mindustry.world.consumers.ConsumeLiquid;
 import mindustry.world.consumers.ConsumeLiquidBase;
+import mindustry.world.meta.BlockGroup;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValues;
@@ -108,6 +112,19 @@ public class ECBeamDrill extends BeamDrill {
                 new Bar(() -> Core.bundle.format("bar.drillspeed", Strings.fixed(e.lastDrillSpeed * 60 * outputMultiple *
                         (Achievements.beamDrillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
                         , 2)), () -> Pal.ammo, () -> e.warmup));
+    }
+
+
+    @Override
+    public boolean canReplace(Block other){
+        if(other.alwaysReplace) return true;
+        if(other.privileged) return false;
+        return other.replaceable &&
+                (other != this || (rotate && quickRotate)) &&
+                (((this.group != BlockGroup.none && other.group == this.group) || other == this)
+                        || (other == root) || (other instanceof ECBeamDrill d && d.root == this.root&&d.level<level))
+                &&
+                (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
 

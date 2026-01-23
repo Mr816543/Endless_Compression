@@ -1,6 +1,7 @@
 package ECConfig;
 
 
+import ECType.ECBlockTypes.Crafter.ECBeamDrill;
 import ECType.ECBlockTypes.Item.ECMassDriver;
 import ECType.ECLiquid;
 import ECType.ECUnitType;
@@ -36,6 +37,7 @@ import mindustry.ui.Styles;
 import mindustry.world.Block;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.*;
+import mindustry.world.meta.BlockGroup;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -429,6 +431,9 @@ public class ECTool {
                     if (c.usage > 0) {
                         c.usage *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                     }
+                    if (c.capacity > 0){
+                        c.capacity *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
+                    }
                     consumes.add(c);
                 } else if (copyAll){
                     consumes.add(consume);
@@ -558,6 +563,12 @@ public class ECTool {
                     if (other != null && other.block.hasLiquids && build.canDumpLiquid(other, liquid) && other.liquids != null) {
                         float ofract = other.liquids.get(liquid) / other.block.liquidCapacity;
                         float fract = build.liquids.get(liquid) / build.block.liquidCapacity;
+                        /*/
+                        if (build.block.liquidCapacity/other.block.liquidCapacity >= 8.9 || build.block.liquidCapacity > Float.MAX_VALUE/9){
+                            fract = 1f;
+                            ofract = 0f;
+                        }
+                        //*/
                         if (ofract < fract) {
 
 
@@ -644,6 +655,7 @@ public class ECTool {
         Log.info(o);
     }
 
+    //生命值防溢出
     public static void loadHealth(Block b,Block root,int level){
         if (root.health>0){
             b.health = root.health * Mathf.pow(5,level);
@@ -663,6 +675,7 @@ public class ECTool {
             b.health = Mathf.round(b.size * b.size * b.scaledHealth, 5);
         }
     }
+
 
     //废弃
     /*/

@@ -427,7 +427,7 @@ public class Achievements {
                 super.init();
                 Events.on(EventType.UnitDestroyEvent.class, e -> {
                     if (e.unit.team != Vars.player.team()) {
-                        if (Vars.state.rules.mode() == Gamemode.survival) {
+                        if (Vars.state.rules.mode() != Gamemode.sandbox && Vars.state.rules.mode() != Gamemode.editor) {
                             UnitType unit = e.unit.type();
                             Core.settings.put(unit.name, Core.settings.getInt(unit.name, 0) + 1);
                         }
