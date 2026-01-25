@@ -49,6 +49,9 @@ public class ECDuct extends Duct {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
         super.init();
+        if (root.bridgeReplacement != null){
+            bridgeReplacement = ECData.get(root.bridgeReplacement,level);
+        }
     }
 
 
@@ -82,7 +85,7 @@ public class ECDuct extends Duct {
 
         @Override
         public boolean moveForward(Item item) {
-            Building other = next;
+            Building other = front();
             if (other != null && other.team == this.team) {
 
 
@@ -98,7 +101,12 @@ public class ECDuct extends Duct {
                     items.remove(item,move);
                     return true;
 
-                }else {
+                }else if(other.acceptItem(this,item)) {
+                    other.handleItem(this,item);
+                    items.remove(item,1);
+                    return true;
+                }
+                else {
                     return false;
                 }
 
@@ -114,7 +122,7 @@ public class ECDuct extends Duct {
 
         @Override
         public boolean acceptItem(Building source, Item item){
-            if (source == this) return true;
+            if (source == this && (current == null || current == item)) return true;
             return ((current == null && items.total() < itemCapacity )||(current == item && items.total() < itemCapacity))&&
                     (armored ?
                             //armored acceptance

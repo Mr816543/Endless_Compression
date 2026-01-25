@@ -174,9 +174,6 @@ public class ECWallCrafter extends WallCrafter {
 
         @Override
         public void updateTile(){
-
-
-
             if (output == null) {
                 return;
             }
@@ -223,9 +220,11 @@ public class ECWallCrafter extends WallCrafter {
             }
 
             totalTime += edelta() * warmup * (eff <= 0f ? 0f : 1f);
-
-
         }
 
+        @Override
+        public boolean dump(Item item) {
+            return ECTool.dump(this, item);
+        }
     }
 }

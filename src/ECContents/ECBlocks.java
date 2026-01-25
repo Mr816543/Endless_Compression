@@ -12,6 +12,7 @@ import ECType.ECBlockTypes.Power.*;
 import ECType.ECBlockTypes.SandBox.ECItemSource;
 import ECType.ECBlockTypes.SandBox.ECLiquidSource;
 import ECType.ECBlockTypes.SandBox.ECPowerSource;
+import ECType.ECBlockTypes.Turret.ECBuildTurret;
 import ECType.ECBlockTypes.Turret.ECItemTurret;
 import ECType.ECBlockTypes.Turret.ECLiquidTurret;
 import ECType.ECBlockTypes.Turret.ECPowerTurret;
@@ -49,9 +50,7 @@ import mindustry.world.blocks.sandbox.PowerSource;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.blocks.storage.Unloader;
-import mindustry.world.blocks.units.Reconstructor;
-import mindustry.world.blocks.units.RepairTurret;
-import mindustry.world.blocks.units.UnitFactory;
+import mindustry.world.blocks.units.*;
 import mindustry.world.meta.BuildVisibility;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
@@ -274,9 +273,29 @@ public class ECBlocks {
                 case "Duct" -> {
                     for (int i = 1; i <= 9; i++) new ECDuct((Duct) root, i);
                 }
-                //物品管道
+                //物品管道路由器
                 case "DuctRouter" -> {
                     for (int i = 1; i <= 9; i++) new ECDuctRouter((DuctRouter) root, i);
+                }
+                //物品管道桥
+                case "DuctBridge" -> {
+                    for (int i = 1; i <= 9; i++) new ECDuctBridge((DuctBridge) root, i);
+                }
+                //物品管道溢流门
+                case "OverflowDuct" -> {
+                    for (int i = 1; i <= 9; i++) new ECOverflowDuct((OverflowDuct) root, i);
+                }
+                //物品管道装卸器
+                case "DirectionalUnloader" -> {
+                    for (int i = 1; i <= 9; i++) new ECDirectionalUnloader((DirectionalUnloader) root, i);
+                }
+                //货运无人机
+                case "UnitCargoLoader" -> {
+                    for (int i = 1; i <= 9; i++) new ECUnitCargoLoader((UnitCargoLoader) root, i);
+                }
+                //货运无人机卸货点
+                case "UnitCargoUnloadPoint" -> {
+                    for (int i = 1; i <= 9; i++) new ECUnitCargoUnloadPoint((UnitCargoUnloadPoint) root, i);
                 }
 
                 //发射台
@@ -356,6 +375,10 @@ public class ECBlocks {
                 case "RepairTurret" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECRepairTurret((RepairTurret) root, i);
                 }
+                //单位维修塔
+                case "RepairTower" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECRepairTower((RepairTower) root, i);
+                }
                 //力墙
                 case "ForceProjector" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECForceProjector((ForceProjector) root, i);
@@ -364,6 +387,19 @@ public class ECBlocks {
                 case "OverdriveProjector" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECOverdriveProjector((OverdriveProjector) root, i);
                 }
+                //再生
+                case "RegenProjector" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECRegenProjector((RegenProjector) root, i);
+                }
+                //建造塔
+                case "BuildTurret" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECBuildTurret((BuildTurret) root, i);
+                }
+                //震爆塔
+                case "ShockwaveTower" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECShockwaveTower((ShockwaveTower) root, i);
+                }
+
                 case "" -> {
                 }
             }
