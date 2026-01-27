@@ -32,6 +32,8 @@ import mindustry.type.Item;
 import mindustry.world.Block;
 import mindustry.world.Edges;
 import mindustry.world.Tile;
+import mindustry.world.blocks.campaign.LandingPad;
+import mindustry.world.blocks.campaign.LaunchPad;
 import mindustry.world.blocks.defense.*;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
@@ -299,6 +301,7 @@ public class ECBlocks {
                 }
 
                 //发射台
+                /*/
                 case "LaunchPad" -> {
 
 
@@ -342,7 +345,16 @@ public class ECBlocks {
 
 
                 }
+                //*/
 
+                //新发射台
+                case "LaunchPad" -> {
+                    for (int i = 1; i <= 9; i++) new ECLaunchPad((LaunchPad) root, i);
+                }
+                //新接收台
+                case "LandingPad" -> {
+                    for (int i = 1; i <= 9; i++) new ECLandingPad((LandingPad) root, i);
+                }
 
                 //单位工厂
                 case "UnitFactory" -> new ECUnitFactory((UnitFactory) root);

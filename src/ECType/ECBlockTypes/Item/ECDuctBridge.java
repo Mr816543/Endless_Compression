@@ -6,6 +6,7 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import arc.util.Log;
 import mindustry.gen.Building;
 import mindustry.gen.Teamc;
 import mindustry.type.Item;
@@ -72,8 +73,7 @@ public class ECDuctBridge extends DuctBridge {
 
                     while(progress > speed){
                         Item next = items.first();
-                        if(next != null && link.items.total() < link.block.itemCapacity && link.acceptItem(this,next)){
-
+                        if(next != null && link.items.total() < link.block.itemCapacity){
                             int num = (int) Math.min(outputMultiple,items.get(next));
                             num = Math.min(num,link.acceptStack(next,num,this));
                             link.handleStack(next, num,this);
@@ -123,6 +123,7 @@ public class ECDuctBridge extends DuctBridge {
                 }
 
                 int move = other.acceptStack(item,items.get(item),this);
+                if (!other.acceptItem(this,item)) move = 0;
                 if (move>0){
                     other.handleStack(item,move,this);
                     items.remove(item,move);
@@ -140,5 +141,7 @@ public class ECDuctBridge extends DuctBridge {
                 return false;
             }
         }
+
+
     }
 }

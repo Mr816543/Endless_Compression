@@ -93,7 +93,7 @@ public class ECOverflowDuct extends OverflowDuct {
                 }
                 else {
                     int moves = target.acceptStack(current,items.get(current),this);
-
+                    if (!target.acceptItem(this,current)) moves =0;
                     if (moves > 0){
                         target.handleStack(current,moves,this);
                         items.remove(current,moves);

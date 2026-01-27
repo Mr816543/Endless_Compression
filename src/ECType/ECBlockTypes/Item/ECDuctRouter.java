@@ -82,6 +82,8 @@ public class ECDuctRouter extends DuctRouter {
                                 }
                             }
 
+                            if (!target.acceptItem(this,current)) moves = 0;
+
                             if (moves > 0){
                                 target.handleStack(current,moves,this);
                                 items.remove(current,moves);

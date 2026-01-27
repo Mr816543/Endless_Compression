@@ -60,6 +60,8 @@ public class ECSettings {
                     Core.settings.getBool("achievementsWork");
                     settingsTable.checkPref("showDialog", true);
                     Core.settings.getBool("showDialog");
+                    settingsTable.checkPref("simpleLaunch", false);
+                    Core.settings.getBool("simpleLaunch");
 
                 });
             }

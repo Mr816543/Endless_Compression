@@ -42,7 +42,7 @@ public class ECConveyor extends Conveyor {
     @Override
     public void init() {
         super.init();
-        junctionReplacement = ECData.get(Blocks.junction,level);
+        junctionReplacement = ECData.get(Blocks.invertedSorter,level);
         bridgeReplacement = ECData.get(Blocks.itemBridge,level);
     }
 

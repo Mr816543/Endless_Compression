@@ -96,6 +96,7 @@ public class ECDuct extends Duct {
                 }
 
                 int move = other.acceptStack(item,items.get(item),this);
+                if (!other.acceptItem(this,item)) move = 0;
                 if (move>0){
                     other.handleStack(item,move,this);
                     items.remove(item,move);
