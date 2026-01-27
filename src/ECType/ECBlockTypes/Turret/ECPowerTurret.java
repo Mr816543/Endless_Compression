@@ -2,7 +2,9 @@ package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
 import ECConfig.ECData;
+import ECConfig.ECSetting;
 import ECConfig.ECTool;
+import ECType.ECItem;
 import arc.Core;
 import arc.func.Cons;
 import arc.graphics.Color;
@@ -13,6 +15,7 @@ import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
@@ -23,6 +26,7 @@ import mindustry.entities.bullet.BulletType;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
+import mindustry.type.Item;
 import mindustry.type.Liquid;
 import mindustry.ui.Bar;
 import mindustry.ui.Styles;
@@ -213,6 +217,13 @@ public class ECPowerTurret extends PowerTurret {
             return getAmmo(index);
         }
 
+        @Override
+        public float range() {
+            if(peekAmmo() != null){
+                return (range + peekAmmo().rangeChange) * Mathf.pow(ECSetting.SCALE_MULTIPLIER,index) ;
+            }
+            return range;
+        }
 
         @Override
         public void write(Writes write) {

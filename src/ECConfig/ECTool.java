@@ -674,6 +674,7 @@ public class ECTool {
             b.scaledHealth = scaledHealth * Mathf.pow(5,level);
             b.health = Mathf.round(b.size * b.size * b.scaledHealth, 5);
         }
+        if (b.health<0)b.health = Integer.MAX_VALUE;
     }
 
 

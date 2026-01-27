@@ -47,7 +47,8 @@ public class ECLiquidRouter extends LiquidRouter{
 
         @Override
         public void updateTile() {
-            ECTool.dumpLiquids(liquids.current(),2F / outputMultiple,-1,this);
+            super.updateTile();
+            ECTool.dumpLiquids(liquids.current(),2F,-1,this);
         }
     }
 }

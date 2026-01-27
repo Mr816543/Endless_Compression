@@ -39,7 +39,7 @@ public class ECMassDriver extends MassDriver {
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this, root, level);
-        requirements(root.category, ECTool.compressItemStack(root.requirements, level));
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;

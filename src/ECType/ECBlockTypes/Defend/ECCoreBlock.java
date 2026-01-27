@@ -2,15 +2,19 @@ package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
 import ECConfig.ECData;
+import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import ECContents.Achievements;
 import ECContents.ECItems;
 import arc.Core;
+import arc.math.Mathf;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.world.Tile;
 import mindustry.world.blocks.storage.CoreBlock;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
 
 import static mindustry.Vars.*;
 
@@ -20,16 +24,17 @@ public class ECCoreBlock extends CoreBlock {
             .scaleConfig("unitCapModifier").linearConfig("itemCapacity", "armor");
     public CoreBlock root;
     public int level;
+    public float IFR ;
 
     public ECCoreBlock(CoreBlock root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
+        this.IFR = Mathf.pow(1/ ECSetting.LINEAR_MULTIPLIER,level);
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this, root, level);
-        requirements(root.category, ECTool.compressItemStack(root.requirements, level));
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         unitType = ECData.get(root.unitType, level);
 
@@ -39,6 +44,15 @@ public class ECCoreBlock extends CoreBlock {
         isFirstTier = false;
 
         ECData.register(root, this, level);
+    }
+
+    @Override
+    public void setStats() {
+        super.setStats();
+        float ifr = (1 - IFR)*100;
+        stats.add(new Stat("IFR"),ifr, StatUnit.percent);
+        int echealth = (int) (health*Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level));
+        stats.add(new Stat("echealth"), echealth == Integer.MAX_VALUE ? Core.bundle.get("infinite"):echealth+"",StatUnit.none);
     }
 
     @Override
@@ -168,6 +182,17 @@ public class ECCoreBlock extends CoreBlock {
             return (int) l;
         }
 
+        @Override
+        public float handleDamage(float amount) {
+            return amount * IFR;
+        }
+
+        @Override
+        public void heal(float amount) {
+            this.health += amount * IFR;
+            this.clampHealth();
+            this.healthChanged();
+        }
 
         //改了onProximityUpdate就不需要改这个了
         /*/

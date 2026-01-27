@@ -111,6 +111,31 @@ public class ECItemTurret extends ItemTurret {
     }
 
     public class ECItemTurretBuild extends ItemTurretBuild{
+
+        @Override
+        public void drawSelect() {
+            super.drawSelect();
+        }
+
+        @Override
+        public float range(){
+            if(peekAmmo() != null){
+
+                int level = 0;
+
+                for (Item item : ammoTypes.keys()){
+                    if (ammoTypes.get(item) != peekAmmo()) continue;
+                    if (item instanceof ECItem ecItem) {
+                        level = ecItem.level;
+                    }
+
+                }
+                return (range + peekAmmo().rangeChange )* Mathf.pow(ECSetting.SCALE_MULTIPLIER,level) ;
+            }
+            return range;
+        }
+    }
+        /*/
         @Override
         public float range() {
             if(peekAmmo() != null){
@@ -129,10 +154,10 @@ public class ECItemTurret extends ItemTurret {
                     return (range + peekAmmo().rangeChange) * Mathf.pow(ECSetting.SCALE_MULTIPLIER,level);
                 }
 
-                return range + peekAmmo().rangeChange;
+                return range + peekAmmo().rangeChange *  Mathf.pow(ECSetting.SCALE_MULTIPLIER,);
             }
             return range;
         }
-    }
+        //*/
 
 }

@@ -24,7 +24,7 @@ public class ECHeaterGenerator extends HeaterGenerator {
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this, root, level);
-        requirements(root.category, ECTool.compressItemStack(root.requirements, level));
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         outputLiquid = new LiquidStack(ECData.get(root.outputLiquid.liquid,level), root.outputLiquid.amount);
 
