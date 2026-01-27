@@ -203,7 +203,6 @@ public class ECBlocks {
                 }
                 //装卸器
                 case "Unloader" -> {
-                    if (!Core.settings.getBool("banContent"))
                         for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
                 }
                 //分类器
@@ -366,7 +365,9 @@ public class ECBlocks {
 
                 //炮台
                 case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
-                case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
+                case "LiquidTurret" -> {
+                    if (!Core.settings.getBool("banContent")) new ECLiquidTurret((LiquidTurret) root);
+                }
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
 
 
