@@ -8,6 +8,7 @@ import ECContents.Achievements;
 import ECContents.ECItems;
 import arc.Core;
 import arc.math.Mathf;
+import arc.util.Log;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.Item;
@@ -187,11 +188,24 @@ public class ECCoreBlock extends CoreBlock {
             return amount * IFR;
         }
 
+
         @Override
         public void heal(float amount) {
             this.health += amount * IFR;
             this.clampHealth();
             this.healthChanged();
+        }
+
+        @Override
+        public void healFract(float amount) {
+            this.health += amount * this.maxHealth;
+            this.clampHealth();
+            this.healthChanged();
+        }
+
+        @Override
+        public float maxHealth() {
+            return super.maxHealth() / IFR;
         }
 
         //改了onProximityUpdate就不需要改这个了

@@ -39,6 +39,9 @@ public class ECRepairTurret extends RepairTurret {
         ECData.register(root,this,level);
     }
 
+    public class ECRepairTurretBuild extends RepairPointBuild{
+
+    }
 
 
 }

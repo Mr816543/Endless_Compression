@@ -9,6 +9,7 @@ import arc.math.Mathf;
 import mindustry.world.Block;
 import mindustry.world.blocks.power.NuclearReactor;
 import mindustry.world.blocks.power.PowerNode;
+import mindustry.world.meta.Stat;
 
 public class ECNuclearReactor extends NuclearReactor {
 
@@ -47,5 +48,12 @@ public class ECNuclearReactor extends NuclearReactor {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root,level);
         super.init();
+    }
+
+    @Override
+    public void setStats() {
+        super.setStats();
+        stats.add(Stat.damage,explosionDamage);
+        stats.add(Stat.range,explosionRadius);
     }
 }

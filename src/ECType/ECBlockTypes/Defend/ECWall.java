@@ -6,6 +6,7 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
+import arc.util.Log;
 import mindustry.world.blocks.defense.Wall;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
@@ -61,5 +62,18 @@ public class ECWall extends Wall {
             this.clampHealth();
             this.healthChanged();
         }
+
+        @Override
+        public void healFract(float amount) {
+            this.health += amount * this.maxHealth;
+            this.clampHealth();
+            this.healthChanged();
+        }
+
+        @Override
+        public float maxHealth() {
+            return super.maxHealth() / IFR;
+        }
+
     }
 }

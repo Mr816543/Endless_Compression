@@ -22,7 +22,7 @@ public class ECMendProjector extends MendProjector {
     public int level;
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("range","phaseRangeBoost").linearConfig("healPercent","phaseBoost");
+            .scaleConfig("range","phaseRangeBoost","healPercent").linearConfig("phaseBoost");
 
     public ECMendProjector(MendProjector root,int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);

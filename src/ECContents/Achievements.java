@@ -1,5 +1,6 @@
 package ECContents;
 
+import ECConfig.ECData;
 import ECType.Achievement;
 import ECType.ECBlockTypes.Crafter.ECBeamDrill;
 import ECType.ECBlockTypes.Crafter.ECBurstDrill;
@@ -26,12 +27,12 @@ import mindustry.content.UnitTypes;
 import mindustry.ctype.UnlockableContent;
 import mindustry.game.EventType;
 import mindustry.game.Gamemode;
+import mindustry.type.Item;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
 import mindustry.world.meta.Stat;
 
-import static mindustry.game.EventType.UnlockEvent;
-import static mindustry.game.EventType.WorldLoadEvent;
+import static mindustry.game.EventType.*;
 
 public class Achievements {
 
@@ -54,6 +55,7 @@ public class Achievements {
                 unlock();
             });
         }};
+
         c1 = new Achievement("c1") {{
             root = startGame;
             iconFrom = Items.copper;
@@ -61,6 +63,16 @@ public class Achievements {
             setEvent(UnlockEvent.class, e -> {
                 if (e.content instanceof ECItem item && item.level >= 1) {
                     unlock();
+                }
+            });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
                 }
             });
         }};
@@ -73,6 +85,16 @@ public class Achievements {
                     unlock();
                 }
             });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
+                }
+            });
         }};
         c3 = new Achievement("c3") {{
             root = c2;
@@ -81,6 +103,16 @@ public class Achievements {
             setEvent(UnlockEvent.class, e -> {
                 if (e.content instanceof ECItem item && item.level >= 3) {
                     unlock();
+                }
+            });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
                 }
             });
         }};
@@ -93,6 +125,16 @@ public class Achievements {
                     unlock();
                 }
             });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
+                }
+            });
         }};
         c5 = new Achievement("c5") {{
             root = c4;
@@ -101,6 +143,16 @@ public class Achievements {
             setEvent(UnlockEvent.class, e -> {
                 if (e.content instanceof ECItem item && item.level >= 5) {
                     unlock();
+                }
+            });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
                 }
             });
         }};
@@ -113,6 +165,16 @@ public class Achievements {
                     unlock();
                 }
             });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
+                }
+            });
         }};
         c7 = new Achievement("c7") {{
             root = c6;
@@ -121,6 +183,16 @@ public class Achievements {
             setEvent(UnlockEvent.class, e -> {
                 if (e.content instanceof ECItem item && item.level >= 7) {
                     unlock();
+                }
+            });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
                 }
             });
         }};
@@ -133,6 +205,16 @@ public class Achievements {
                     unlock();
                 }
             });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
+                }
+            });
         }};
         c9 = new Achievement("c9") {{
             root = c8;
@@ -143,7 +225,18 @@ public class Achievements {
                     unlock();
                 }
             });
+            setEvent(EventType.ContentInitEvent.class,e -> {
+                if (locked()){
+                    for (Item item : ECItems.items){
+                        if (ECData.get(item,index).unlocked()) {
+                            unlock();
+                            break;
+                        }
+                    }
+                }
+            });
         }};
+
         drillStrengthen = new Achievement("drillStrengthen") {
             {
                 root = c4;
@@ -167,6 +260,20 @@ public class Achievements {
                     }
                 });
                 setEvent(WorldLoadEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
+                setEvent(ContentInitEvent.class, e -> {
                     boolean unlocked = true;
                     for (Block block : Vars.content.blocks()) {
                         if (block instanceof ECDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
@@ -224,6 +331,20 @@ public class Achievements {
                         unlock();
                     }
                 });
+                setEvent(ContentInitEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECBeamDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
             }
 
             @Override
@@ -255,6 +376,20 @@ public class Achievements {
                     }
                 });
                 setEvent(WorldLoadEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECBurstDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
+                setEvent(ContentInitEvent.class, e -> {
                     boolean unlocked = true;
                     for (Block block : Vars.content.blocks()) {
                         if (block instanceof ECBurstDrill d && d.level <= drillMinLevel && d.root.isVanilla()) {
@@ -312,6 +447,20 @@ public class Achievements {
                         unlock();
                     }
                 });
+                setEvent(ContentInitEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECWallCrafter d && d.level <= drillMinLevel && d.root.isVanilla()) {
+                            if (d.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
             }
 
             @Override
@@ -320,10 +469,6 @@ public class Achievements {
                         content instanceof ECWallCrafter drill && drill.level >= 2;
             }
         };
-
-
-
-
         pumpStrengthen = new Achievement("pumpStrengthen") {
 
             {
@@ -361,6 +506,20 @@ public class Achievements {
                         unlock();
                     }
                 });
+                setEvent(ContentInitEvent.class, e -> {
+                    boolean unlocked = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()) {
+                            if (p.locked()) {
+                                unlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unlocked) {
+                        unlock();
+                    }
+                });
 
             }
 
@@ -370,6 +529,7 @@ public class Achievements {
                         content instanceof ECPump pump && pump.level >= 2;
             }
         };
+
         explosiveArt = new Achievement("explosiveArt") {{
             root = c2;
             iconFrom = Blocks.thoriumReactor;
@@ -410,6 +570,7 @@ public class Achievements {
                 }
             });
         }};
+
         killer = new Achievement("killer") {
             {
                 root = startGame;
@@ -470,6 +631,7 @@ public class Achievements {
                 });
             }
         };
+
         compressCore = new Achievement("compressCore") {{
             root = killer;
             iconFrom = Blocks.coreShard;

@@ -7,12 +7,13 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import ECType.ECWeapons.*;
 import arc.Core;
+import arc.func.Prov;
 import arc.math.Mathf;
 import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.Strings;
-import mindustry.ai.types.MinerAI;
-import mindustry.content.UnitTypes;
 import mindustry.gen.Payloadc;
+import mindustry.gen.Unit;
 import mindustry.gen.UnitEntity;
 import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
@@ -31,7 +32,7 @@ public class ECUnitType extends UnitType {
 
     public int level;
 
-    public static Config config = new Config().linearConfig("armor","buildSpeed","mineSpeed").scaleConfig("speed","maxRange","mineTier");
+    public static Config config = new Config().addConfigSimple(null,"constructor").linearConfig("armor","buildSpeed","mineSpeed").scaleConfig("speed","maxRange","mineTier");
 
     public float IFR ;
 
@@ -47,8 +48,10 @@ public class ECUnitType extends UnitType {
         description = root.description;
         details = root.details;
 
+
         loadWeapons(root, level);
 
+        constructor = (Prov<Unit>) ECUnitEntity::new;
         ECData.register(root,this,level);
     }
 
@@ -159,12 +162,12 @@ public class ECUnitType extends UnitType {
         return ECTool.compressItemStack(root.researchRequirements(),level);
     }
 
+
     public class ECUnitEntity extends UnitEntity{
         @Override
         public void update() {
             super.update();
         }
-
         @Override
         public void rawDamage(float amount) {
             super.rawDamage(amount * IFR);
@@ -173,6 +176,19 @@ public class ECUnitType extends UnitType {
         @Override
         public void heal(float amount) {
             super.heal(amount * IFR);
+            Log.info(health+" : "+ "+"+amount * IFR);
+        }
+
+
+        @Override
+        public void healFract(float amount) {
+            this.health += amount * this.maxHealth;
+            this.clampHealth();
+        }
+
+        @Override
+        public float maxHealth() {
+            return super.maxHealth()/IFR;
         }
     }
 }

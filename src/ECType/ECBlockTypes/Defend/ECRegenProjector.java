@@ -41,5 +41,10 @@ public class ECRegenProjector extends RegenProjector {
 
 
     public class ECRegenProjectorBuild extends RegenProjectorBuild {
+
+        @Override
+        public void updateTile() {
+            super.updateTile();
+        }
     }
 }
