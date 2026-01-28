@@ -6,6 +6,7 @@ import ECType.ECBlockTypes.Item.ECMassDriver;
 import ECType.ECLiquid;
 import ECType.ECUnitType;
 import arc.Core;
+import arc.func.Prov;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
@@ -29,18 +30,16 @@ import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.bullet.LiquidBulletType;
 import mindustry.gen.Building;
-import mindustry.type.Item;
-import mindustry.type.ItemStack;
-import mindustry.type.Liquid;
-import mindustry.type.LiquidStack;
+import mindustry.gen.EntityMapping;
+import mindustry.gen.Unit;
+import mindustry.type.*;
 import mindustry.ui.Styles;
 import mindustry.world.Block;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.*;
 import mindustry.world.meta.BlockGroup;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 
 public class ECTool {
 
@@ -639,13 +638,19 @@ public class ECTool {
 
     //通用物品组增强方法
     public static ItemStack[] compressItemStack(ItemStack[] root, int level) {
+        return compressItemStack(root,level,true);
+    }
+    public static ItemStack[] compressItemStack(ItemStack[] root, int level,boolean reduce) {
 
         ItemStack[] child = root.clone();
 
         for (int i = 0; i < child.length; i++) {
             ItemStack itemStack = child[i];
             if (!ECData.hasECContent(itemStack.item)) continue;
-            child[i] = new ItemStack(ECData.get(itemStack.item, level), itemStack.amount);
+            int amount = itemStack.amount;
+            if (reduce)
+                amount = (int) (amount * Mathf.pow(1f-1f/ECSetting.LINEAR_MULTIPLIER,level));
+            child[i] = new ItemStack(ECData.get(itemStack.item, level), amount);
         }
 
         return child;
@@ -675,9 +680,8 @@ public class ECTool {
             b.scaledHealth = scaledHealth * Mathf.pow(5,level);
             b.health = Mathf.round(b.size * b.size * b.scaledHealth, 5);
         }
-        if (b.health<0)b.health = Integer.MAX_VALUE;
+        if (ECData.get(root,level-1).health>=Integer.MAX_VALUE/5f) b.health = Integer.MAX_VALUE;
     }
-
 
     //废弃
     /*/

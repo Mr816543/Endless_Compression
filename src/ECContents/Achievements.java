@@ -23,6 +23,7 @@ import arc.util.Align;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.content.Items;
+import mindustry.content.Planets;
 import mindustry.content.UnitTypes;
 import mindustry.ctype.UnlockableContent;
 import mindustry.game.EventType;
@@ -478,45 +479,90 @@ public class Achievements {
                 hasAward = true;
                 setEvent(UnlockEvent.class, e -> {
                     if (e.content instanceof ECPump pump && pump.level >= drillMinLevel) {
-                        boolean unlocked = true;
+                        boolean unlockedS = true;
                         for (Block block : Vars.content.blocks()) {
-                            if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()) {
+                            if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()
+                                    && p.root.isOnPlanet(Planets.serpulo)
+                                    && !p.root.isOnPlanet(Planets.erekir)) {
                                 if (p.locked()) {
-                                    unlocked = false;
+                                    unlockedS = false;
                                     break;
                                 }
                             }
                         }
-                        if (unlocked) {
+
+                        boolean unlockedE = true;
+                        for (Block block : Vars.content.blocks()) {
+                            if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()
+                                    && !p.root.isOnPlanet(Planets.serpulo)
+                                    && p.root.isOnPlanet(Planets.erekir)) {
+                                if (p.locked()) {
+                                    unlockedE = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (unlockedS||unlockedE) {
                             unlock();
                         }
                     }
                 });
                 setEvent(WorldLoadEvent.class, e -> {
-                    boolean unlocked = true;
+                    boolean unlockedS = true;
                     for (Block block : Vars.content.blocks()) {
-                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()
+                                && p.root.isOnPlanet(Planets.serpulo)
+                                && !p.root.isOnPlanet(Planets.erekir)) {
                             if (p.locked()) {
-                                unlocked = false;
+                                unlockedS = false;
                                 break;
                             }
                         }
                     }
-                    if (unlocked) {
+
+                    boolean unlockedE = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()
+                                && !p.root.isOnPlanet(Planets.serpulo)
+                                && p.root.isOnPlanet(Planets.erekir)) {
+                            if (p.locked()) {
+                                unlockedE = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (unlockedS||unlockedE) {
                         unlock();
                     }
                 });
                 setEvent(ContentInitEvent.class, e -> {
-                    boolean unlocked = true;
+                    boolean unlockedS = true;
                     for (Block block : Vars.content.blocks()) {
-                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()
+                                && p.root.isOnPlanet(Planets.serpulo)
+                                && !p.root.isOnPlanet(Planets.erekir)) {
                             if (p.locked()) {
-                                unlocked = false;
+                                unlockedS = false;
                                 break;
                             }
                         }
                     }
-                    if (unlocked) {
+
+                    boolean unlockedE = true;
+                    for (Block block : Vars.content.blocks()) {
+                        if (block instanceof ECPump p && p.level <= drillMinLevel && p.root.isVanilla()
+                                && !p.root.isOnPlanet(Planets.serpulo)
+                                && p.root.isOnPlanet(Planets.erekir)) {
+                            if (p.locked()) {
+                                unlockedE = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (unlockedS||unlockedE) {
                         unlock();
                     }
                 });

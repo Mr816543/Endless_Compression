@@ -24,6 +24,9 @@ import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValues;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
 import static mindustry.Vars.tilesize;
 
 public class ECUnitType extends UnitType {
@@ -32,43 +35,43 @@ public class ECUnitType extends UnitType {
 
     public int level;
 
-    public static Config config = new Config().addConfigSimple(null,"constructor").linearConfig("armor","buildSpeed","mineSpeed").scaleConfig("speed","maxRange","mineTier");
+    public static Config config = new Config().addConfigSimple(null).linearConfig("armor","buildSpeed","mineSpeed").scaleConfig("speed","maxRange","mineTier");
 
-    public float IFR ;
 
     public ECUnitType(UnitType root,int level) throws IllegalAccessException {
         super("c"+ level +"-"+root.name);
         this.root = root;
         this.level = level;
-        this.IFR = Mathf.pow(1/ ECSetting.LINEAR_MULTIPLIER,level);
         ECTool.compress(this.root,this,config,level);
         ECTool.loadCompressContentRegion(root,this);
         ECTool.setIcon(root,this,level);
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
-
-
         loadWeapons(root, level);
 
-        constructor = (Prov<Unit>) ECUnitEntity::new;
+        
         ECData.register(root,this,level);
     }
 
     @Override
     public void init() {
         super.init();
+        health = compressHealth();
         itemCapacity *= Mathf.pow(5,level);
+    }
+
+    private float compressHealth() {
+        float lastHealth = ECData.get(root,level-1).health;
+        float h = lastHealth>=Float.MAX_VALUE/ECSetting.LINEAR_MULTIPLIER ?
+                Float.MAX_VALUE:
+                lastHealth*ECSetting.LINEAR_MULTIPLIER;
+        return h;
     }
 
     @Override
     public void setStats() {
         stats.add(Stat.health, health);
-
-        float ifr = (1 - IFR)*100;
-        stats.add(new Stat("IFR"),ifr, StatUnit.percent);
-        int echealth = (int) (health*Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level));
-        stats.add(new Stat("echealth"), echealth == Integer.MAX_VALUE ? Core.bundle.get("infinite"):echealth+"",StatUnit.none);
 
         stats.add(Stat.armor, armor);
         stats.add(Stat.speed, speed * 60f / tilesize, StatUnit.tilesSecond);
@@ -163,32 +166,4 @@ public class ECUnitType extends UnitType {
     }
 
 
-    public class ECUnitEntity extends UnitEntity{
-        @Override
-        public void update() {
-            super.update();
-        }
-        @Override
-        public void rawDamage(float amount) {
-            super.rawDamage(amount * IFR);
-        }
-
-        @Override
-        public void heal(float amount) {
-            super.heal(amount * IFR);
-            Log.info(health+" : "+ "+"+amount * IFR);
-        }
-
-
-        @Override
-        public void healFract(float amount) {
-            this.health += amount * this.maxHealth;
-            this.clampHealth();
-        }
-
-        @Override
-        public float maxHealth() {
-            return super.maxHealth()/IFR;
-        }
-    }
 }

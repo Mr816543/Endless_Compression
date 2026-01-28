@@ -33,7 +33,7 @@ public class ECSeparator extends Separator {
         description = root.description;
         details = root.details;
 
-        results = ECTool.compressItemStack(root.results,level);
+        results = ECTool.compressItemStack(root.results,level,false);
 
         ECData.register(root, this, level);
     }

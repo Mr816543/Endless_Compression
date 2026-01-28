@@ -88,7 +88,7 @@ public class ECUnitFactory extends UnitFactory {
             for (int i = 0 ; i <= ECSetting.MAX_LEVEL;i++){
 
                 UnitType unit = ECData.get(unitPlan.unit,i);
-                ItemStack[] r = ECTool.compressItemStack(unitPlan.requirements,i);
+                ItemStack[] r = ECTool.compressItemStack(unitPlan.requirements,i,false);
                 float time = unitPlan.time;
 
                 plans.add(new UnitPlan(unit,time,r));
