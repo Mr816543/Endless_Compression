@@ -12,10 +12,7 @@ import ECType.ECBlockTypes.Power.*;
 import ECType.ECBlockTypes.SandBox.ECItemSource;
 import ECType.ECBlockTypes.SandBox.ECLiquidSource;
 import ECType.ECBlockTypes.SandBox.ECPowerSource;
-import ECType.ECBlockTypes.Turret.ECBuildTurret;
-import ECType.ECBlockTypes.Turret.ECItemTurret;
-import ECType.ECBlockTypes.Turret.ECLiquidTurret;
-import ECType.ECBlockTypes.Turret.ECPowerTurret;
+import ECType.ECBlockTypes.Turret.*;
 import ECType.ECBlockTypes.Unit.ECReconstructor;
 import ECType.ECBlockTypes.Unit.ECUnitFactory;
 import arc.Core;
@@ -23,11 +20,7 @@ import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
-import mindustry.content.Blocks;
-import mindustry.content.Items;
-import mindustry.content.TechTree;
 import mindustry.gen.Building;
-import mindustry.type.Category;
 import mindustry.type.Item;
 import mindustry.world.Block;
 import mindustry.world.Edges;
@@ -38,6 +31,7 @@ import mindustry.world.blocks.defense.*;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
+import mindustry.world.blocks.defense.turrets.TractorBeamTurret;
 import mindustry.world.blocks.distribution.*;
 import mindustry.world.blocks.heat.HeatProducer;
 import mindustry.world.blocks.liquid.ArmoredConduit;
@@ -56,7 +50,6 @@ import mindustry.world.blocks.units.*;
 import mindustry.world.meta.BuildVisibility;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
-import static mindustry.type.ItemStack.with;
 
 public class ECBlocks {
 
@@ -364,11 +357,16 @@ public class ECBlocks {
 
 
                 //炮台
+                //物品炮台
                 case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
+                //液体炮台
                 case "LiquidTurret" -> {
                     if (!Core.settings.getBool("banContent")) new ECLiquidTurret((LiquidTurret) root);
                 }
+                //能量炮台
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
+                //激光牵引
+                case "TractorBeamTurret" -> new ECTractorBeamTurret((TractorBeamTurret) root);
 
 
                 //雷达

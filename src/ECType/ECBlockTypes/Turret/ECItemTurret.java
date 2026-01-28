@@ -113,11 +113,6 @@ public class ECItemTurret extends ItemTurret {
     public class ECItemTurretBuild extends ItemTurretBuild{
 
         @Override
-        public void drawSelect() {
-            super.drawSelect();
-        }
-
-        @Override
         public float range(){
             if(peekAmmo() != null){
 

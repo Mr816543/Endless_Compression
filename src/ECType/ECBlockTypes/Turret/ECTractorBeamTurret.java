@@ -6,53 +6,55 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import ECType.ECConsumePower;
 import arc.Core;
-import arc.func.Cons;
 import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
+import arc.math.Angles;
 import arc.math.Mathf;
 import arc.scene.ui.Image;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Time;
+import arc.util.Tmp;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
 import mindustry.content.Items;
+import mindustry.content.StatusEffects;
 import mindustry.core.UI;
 import mindustry.ctype.UnlockableContent;
+import mindustry.entities.Units;
 import mindustry.entities.bullet.BulletType;
-import mindustry.gen.Building;
 import mindustry.gen.Icon;
+import mindustry.graphics.Drawf;
+import mindustry.graphics.Layer;
 import mindustry.graphics.Pal;
 import mindustry.type.Liquid;
 import mindustry.ui.Bar;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
-import mindustry.world.blocks.defense.turrets.PowerTurret;
+import mindustry.world.blocks.defense.turrets.TractorBeamTurret;
 import mindustry.world.blocks.power.PowerGraph;
 import mindustry.world.consumers.Consume;
 import mindustry.world.consumers.ConsumeCoolant;
 import mindustry.world.consumers.ConsumeLiquid;
 import mindustry.world.consumers.ConsumePower;
-import mindustry.world.meta.Stat;
-import mindustry.world.meta.StatCat;
-import mindustry.world.meta.StatValues;
 
-public class ECPowerTurret extends PowerTurret {
+import static mindustry.Vars.*;
+import static mindustry.Vars.state;
 
-    public PowerTurret root;
+public class ECTractorBeamTurret extends TractorBeamTurret {
 
-    public ObjectMap<Float,BulletType> ammoTypes = new ObjectMap<>();
-
+    public static Config config = new Config().addConfigSimple(null, "buildType")
+            .scaleConfig("force","scaledForce","rotateSpeed")
+            .linearConfig("damage");
+    public TractorBeamTurret root;
     public ObjectMap<Integer,Float> powerUse = new ObjectMap<>();
 
-    public ObjectMap<Integer,ConsumePower> consumePowers = new ObjectMap<>();
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","shootTypes","consumers","optionalConsumers","nonOptionalConsumers","updateConsumers");
-
-
-    public ECPowerTurret(PowerTurret root) throws IllegalAccessException {
+    public ECTractorBeamTurret(TractorBeamTurret root) throws IllegalAccessException {
         super(root.name);
         this.root = root;
         ECTool.compress(root,this, UnlockableContent.class , config, 0);
@@ -72,55 +74,43 @@ public class ECPowerTurret extends PowerTurret {
         consumesPower = true;//消耗电力
         outputsPower = true;//输出电力
 
-        config(Integer.class, (PowerTurretBuild b, Integer index) -> {
-            if (b instanceof ECPowerTurretBuild tile) tile.index = index;
+        config(Integer.class, (TractorBeamBuild b, Integer index) -> {
+            if (b instanceof ECTractorBeamTurretBuild tile) tile.index = index;
         });
-        configClear( (PowerTurretBuild b) -> {
-            if (b instanceof ECPowerTurretBuild tile) tile.index = 0;
+        configClear( (TractorBeamBuild b) -> {
+            if (b instanceof ECTractorBeamTurretBuild tile) tile.index = 0;
         });
 
         ECData.register(root,this,1);
     }
 
     @Override
-    public void setStats() {
-        super.setStats();
-        stats.remove(Stat.ammo);
-        stats.remove(Stat.powerUse);
-        for (int i = 0 ; i < 10 ; i ++){
-            stats.add(new Stat("ammo"+i, StatCat.function), StatValues.ammo(ObjectMap.of(this, ammoTypes.get(powerUse.get(i)))));
-        }
-    }
-
-    @Override
     public void init() {
-        try {
-            initAmmo();
-            initConsumePower();
-            initCoolant();
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        //consumeBuilder = ECTool.consumeBuilderCopy(root,1);
+        initAmmo();
+        initCoolant();
+        initConsumePower();
         super.init();
     }
 
-    public void initAmmo() throws IllegalAccessException {
-        BulletType rootAmmo = root.shootType.copy();
+    @Override
+    public void setStats() {
+        super.setStats();
+    }
+
+
+    public void initAmmo() {
         float power = 0.01f;
         for (Consume consume : root.consumers){
             if (consume instanceof ConsumePower c){
                 if (c.usage!=0) power = c.usage;
             }
         }
-        ammoTypes.put(power,rootAmmo);
         powerUse.put(0,power);
-       // consumePowers.put(0,new ConsumePower(power, 1f, false));
+        // consumePowers.put(0,new ConsumePower(power, 1f, false));
         for (int i = 1 ; i < 10;i++){
             float usePower = power*Mathf.pow(5f,i);
-            ammoTypes.put(usePower,ECTool.compressBulletType(rootAmmo,i));
             powerUse.put(i,usePower);
-           // consumePowers.put(i,new ConsumePower(usePower, 1f, false));
+            // consumePowers.put(i,new ConsumePower(usePower, 1f, false));
         }
     }
 
@@ -138,7 +128,7 @@ public class ECPowerTurret extends PowerTurret {
         return false;
     }
 
-    public void initCoolant() throws IllegalAccessException {
+    public void initCoolant() {
 
         if (coolant instanceof ConsumeLiquid c){
             Liquid rLiquid = c.liquid;
@@ -159,113 +149,133 @@ public class ECPowerTurret extends PowerTurret {
 
         }
 
-
-
     }
 
-    @Override
-    public <E extends Building> void configClear(Cons<E> cons) {
-        super.configClear(cons);
-    }
 
-    public class ECPowerTurretBuild extends PowerTurretBuild{
+    public class ECTractorBeamTurretBuild extends TractorBeamBuild {
+
 
         public int index = 0;
 
         public int barIndex = -1;
 
-        @Override
-        public Object config() {
-            return index;
-        }
-
-
-        /*/
-        @Override
-        public float getPowerProduction() {
-            return isShooting()? -powerUse.get(index):0f;
-        }
-        //*/
-
-
-        public BulletType getAmmo(int index){
-            return ammoTypes.get(powerUse.get(index));
-        }
 
         @Override
-        public BulletType useAmmo(){
-            //nothing used directly
-            return getAmmo(index);
-        }
+        public void updateTile(){
+            float eff = efficiency * coolantMultiplier, edelta = eff * delta();
 
-        @Override
-        public boolean hasAmmo() {
-            // 获取建筑所在的电网
-            PowerGraph graph = power.graph;
-
-            // 检查电网是否存在
-            if(graph == null) return false;
-
-            // 检查电能产出或 电池存储
-            return graph.getPowerProduced()+ graph.getBatteryStored() >= powerUse.get(index);
-        }
-
-        @Override
-        public BulletType peekAmmo(){
-            return getAmmo(index);
-        }
-
-        @Override
-        public float range() {
-            if(peekAmmo() != null){
-                return (range + peekAmmo().rangeChange) * Mathf.pow(ECSetting.SCALE_MULTIPLIER,index) ;
+            //retarget
+            if(timer(timerTarget, retargetTime)){
+                target = Units.closestEnemy(team, x, y, range(), u -> u.checkTarget(targetAir, targetGround));
             }
-            return range;
-        }
 
-        @Override
-        public void write(Writes write) {
-            super.write(write);
-            write.i(index);//保存当前配方索引
-        }
+            //consume coolant
+            if(target != null && coolant != null){
+                float maxUsed = coolant.amount;
 
-        @Override
-        public void read(Reads read, byte revision) {
-            super.read(read, revision);
-            index = read.i();//读取保存的索引
-        }
+                Liquid liquid = liquids.current();
 
-        @Override//配置菜单
-        public void buildConfiguration(Table table) {
-            table.button(Icon.pencil, Styles.clearTogglei, () -> new ECPowerTurretDialog(this).show()).size(40f);
-        }
+                float used = Math.min(Math.min(liquids.get(liquid), maxUsed * Time.delta), Math.max(0, (1f / coolantMultiplier) / liquid.heatCapacity));
 
-        /*/
-        @Override
-        public void consume() {
-            Consume[] consumes = this.block.consumers;
-            int size = consumes.length;
+                liquids.remove(liquid, used);
 
-            for(int i = 0; i < size; ++i) {
-                Consume cons = consumes[i];
-
-                if (cons instanceof ConsumePower){
-                    consumePowers.get(index).trigger(this);
+                if(Mathf.chance(0.06 * used)){
+                    coolEffect.at(x + Mathf.range(size * tilesize / 2f), y + Mathf.range(size * tilesize / 2f));
                 }
-                else cons.trigger(this);
+
+                coolantMultiplier = 1f + (used * liquid.heatCapacity * coolantMultiplier);
             }
 
-        }
+            any = false;
 
-        //*/
+            //look at target
+            if(target != null && target.within(this, range() + target.hitSize/2f) && target.team() != team && target.checkTarget(targetAir, targetGround) && efficiency > 0.02f){
+                if(!headless){
+                    control.sound.loop(shootSound, this, shootSoundVolume);
+                }
 
-        @Override
-        public void updateTile() {
-            super.updateTile();
+                float dest = angleTo(target);
+                rotation = Angles.moveToward(rotation, dest, rotateSpeed * edelta);
+                lastX = target.x;
+                lastY = target.y;
+                strength = Mathf.lerpDelta(strength, 1f, 0.1f);
+
+                //shoot when possible
+                if(Angles.within(rotation, dest, shootCone)){
+                    if(damage > 0){
+                        target.damageContinuous(damage * eff * timeScale * state.rules.blockDamage(team));
+                    }
+
+                    if(status != StatusEffects.none){
+                        target.apply(status, statusDuration);
+                    }
+
+                    any = true;
+                    target.impulseNet(Tmp.v1.set(this).sub(target).limit((
+                            force * Mathf.pow(ECSetting.SCALE_MULTIPLIER,index)
+                                    + (1f - target.dst(this) / range()) *
+                                    scaledForce * Mathf.pow(ECSetting.SCALE_MULTIPLIER,index)
+                    ) * edelta));
+                }
+            }else{
+                strength = Mathf.lerpDelta(strength, 0, 0.1f);
+            }
+
             if (barIndex != index){
                 updateBars();
                 barIndex = index;
             }
+        }
+
+        @Override
+        public boolean shouldConsume(){
+            return super.shouldConsume() && target != null;
+        }
+
+        @Override
+        public float estimateDps(){
+            if(!any || damage <= 0) return 0f;
+            return damage * 60f * efficiency * coolantMultiplier;
+        }
+
+        @Override
+        public void draw(){
+            Draw.rect(baseRegion, x, y);
+            Drawf.shadow(region, x - (size / 2f), y - (size / 2f), rotation - 90);
+            Draw.rect(region, x, y, rotation - 90);
+
+            //draw laser if applicable
+            if(any && !isPayload()){
+                Draw.z(Layer.bullet);
+                float ang = angleTo(lastX, lastY);
+
+                Draw.mixcol(laserColor, Mathf.absin(4f, 0.6f));
+
+                Drawf.laser(laser, laserStart, laserEnd,
+                        x + Angles.trnsx(ang, shootLength), y + Angles.trnsy(ang, shootLength),
+                        lastX, lastY, strength * efficiency * laserWidth);
+
+                Draw.mixcol();
+            }
+        }
+
+        @Override
+        public void write(Writes write){
+            super.write(write);
+            write.i(index);//保存当前配方索引
+            write.f(rotation);
+        }
+
+        @Override
+        public void read(Reads read, byte revision){
+            super.read(read, revision);
+            index = read.i();//读取保存的索引
+            rotation = read.f();
+        }
+
+        @Override
+        public Object config() {
+            return index;
         }
 
         public void updateBars(){
@@ -279,12 +289,12 @@ public class ECPowerTurret extends PowerTurret {
                 PowerGraph graph = power.graph;
 
                 addBar("power", entity -> new Bar(
-                        () -> buffered ? Core.bundle.format("bar.poweramount", Float.isNaN(entity.power.status * capacity) ? "<ERROR>" : UI.formatAmount((int)(entity.power.status * capacity))) :
-                                Core.bundle.get("bar.power"),
-                        () -> Pal.powerBar,
-                        () -> graph == null ? 0 : Mathf.clamp(
-                                (graph.getPowerProduced()+ graph.getBatteryStored() ) / powerUse.get(index)
-                        )
+                                () -> buffered ? Core.bundle.format("bar.poweramount", Float.isNaN(entity.power.status * capacity) ? "<ERROR>" : UI.formatAmount((int)(entity.power.status * capacity))) :
+                                        Core.bundle.get("bar.power"),
+                                () -> Pal.powerBar,
+                                () -> graph == null ? 0 : Mathf.clamp(
+                                        (graph.getPowerProduced()+ graph.getBatteryStored() ) / powerUse.get(index)
+                                )
 
                         )
                 );
@@ -293,17 +303,33 @@ public class ECPowerTurret extends PowerTurret {
 
 
         }
+
+
+        @Override//配置菜单
+        public void buildConfiguration(Table table) {
+            table.button(Icon.pencil, Styles.clearTogglei, () -> new ECTractorBeamTurretDialog(this).show()).size(40f);
+        }
+
+
+
+        @Override
+        public float range() {
+            return range * Mathf.pow(ECSetting.SCALE_MULTIPLIER,index) ;
+        }
+
+
+
     }
 
 
-    public class ECPowerTurretDialog extends BaseDialog {
-        public ECPowerTurretBuild build;
-        public ECPowerTurret block;
+    public class ECTractorBeamTurretDialog extends BaseDialog {
+        public ECTractorBeamTurretBuild build;
+        public ECTractorBeamTurret block;
 
-        public ECPowerTurretDialog(ECPowerTurretBuild build) {
+        public ECTractorBeamTurretDialog(ECTractorBeamTurretBuild build) {
             super(Core.bundle.get("ECType.Recipe.RecipeDialog"));
             this.build = build;
-            this.block = (ECPowerTurret) build.block;
+            this.block = (ECTractorBeamTurret) build.block;
             setup();
         }
 
@@ -324,7 +350,6 @@ public class ECPowerTurret extends PowerTurret {
             for (int i = 0; i < powerUse.size; i++) {
 
                 float power = powerUse.get(i);
-                BulletType ammo = ammoTypes.get(powerUse.get(i));
 
 
 
