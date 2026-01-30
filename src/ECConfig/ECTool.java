@@ -650,6 +650,7 @@ public class ECTool {
             int amount = itemStack.amount;
             if (reduce)
                 amount = (int) (amount * Mathf.pow(1f-1f/ECSetting.LINEAR_MULTIPLIER,level));
+            if (amount <= 0) amount = 1;
             child[i] = new ItemStack(ECData.get(itemStack.item, level), amount);
         }
 
