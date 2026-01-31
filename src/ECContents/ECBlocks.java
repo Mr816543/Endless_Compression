@@ -20,6 +20,7 @@ import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
+import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.world.Block;
@@ -188,6 +189,9 @@ public class ECBlocks {
                 //液体桥
                 case "LiquidBridge" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECLiquidBridge((LiquidBridge) root, i);
+                }
+                case "DirectionLiquidBridge" ->{
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECDirectionLiquidBridge((DirectionLiquidBridge) root, i);
                 }
 
                 //物品仓库

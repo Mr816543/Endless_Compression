@@ -62,7 +62,7 @@ public class ECAutoUpdate {
                 boolean hasNewVersion = ECTool.Version(LOCAL_MOD_VERSION, latestRelease.getTagName());
                 if (hasNewVersion) {
                     ui.showInfo(Core.bundle.get("update.hasNewVersion") + latestRelease.getTagName()
-                            + "\n（" + Core.bundle.get("update.nowVersion") + LOCAL_MOD_VERSION + "）");
+                            + "\n" + Core.bundle.get("update.nowVersion") + LOCAL_MOD_VERSION );
                     return latestRelease;
                 } else {
                     ui.showInfo(Core.bundle.get("update.hasNotNewVersion") + LOCAL_MOD_VERSION);
@@ -132,9 +132,11 @@ public class ECAutoUpdate {
     public static void autoUpdate() {
         if(!Core.settings.getBool("autoUpdate",false))return;
         ECGitHubRelease latestRelease = checkUpdate();
+        /*/
         if (latestRelease != null) {
             downloadLatestMod(latestRelease);
             ui.showInfo(Core.bundle.get("update.needRestart"));
         }
+        //*/
     }
 }

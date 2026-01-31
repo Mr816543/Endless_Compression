@@ -171,10 +171,13 @@ public class ECBurstDrill extends BurstDrill {
             }
             if (Achievements.burstDrillStrengthen.working(this.block)&&compressOre){
                 if (level > 2 && items.get(dominantItem) >= Mathf.pow(9,level-2)){
-                    items.remove(dominantItem,Mathf.pow(9,level-2));
-                    produced(dominantItem,-Mathf.pow(9,level-2));
-                    items.add(ECData.get(dominantItem,level-2),1);
-                    produced(ECData.get(dominantItem,level-2),1);
+                    int num = items.get(dominantItem)/Mathf.pow(9,level-2);
+                    if (num>0&&items.get(dominantItem)-(num * Mathf.pow(9,level-2))>=0){
+                        items.remove(dominantItem,num * Mathf.pow(9,level-2));
+                        produced(dominantItem,num * -Mathf.pow(9,level-2));
+                        items.add(ECData.get(dominantItem,level-2),num);
+                        produced(ECData.get(dominantItem,level-2),num);
+                    }
                 }
                 dump(ECData.get(dominantItem,level-2));
             }else {

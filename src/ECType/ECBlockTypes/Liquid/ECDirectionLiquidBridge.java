@@ -5,29 +5,32 @@ import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
+import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.util.Time;
-import mindustry.content.Blocks;
+import arc.util.Tmp;
 import mindustry.content.Fx;
-import mindustry.entities.Puddles;
 import mindustry.gen.Building;
+import mindustry.graphics.Layer;
+import mindustry.type.Item;
 import mindustry.type.Liquid;
-import mindustry.world.Tile;
-import mindustry.world.blocks.distribution.ItemBridge;
-import mindustry.world.blocks.liquid.Conduit;
+import mindustry.world.blocks.distribution.DirectionLiquidBridge;
+import mindustry.world.blocks.distribution.DuctBridge;
+import mindustry.world.blocks.liquid.LiquidBlock;
+import mindustry.world.blocks.sandbox.ItemVoid;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
 
-public class ECConduit extends Conduit{
-
-    public Conduit root;
-
-    public int level;
-
-    public float outputMultiple;
+public class ECDirectionLiquidBridge extends DirectionLiquidBridge {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("liquidCapacity");
+            .scaleConfig("range")
+            .linearConfig("liquidCapacity");
+    public DirectionLiquidBridge root;
+    public int level;
+    public float outputMultiple;
 
-    public ECConduit(Conduit root, int level) throws IllegalAccessException {
+    public ECDirectionLiquidBridge(DirectionLiquidBridge root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
@@ -36,54 +39,31 @@ public class ECConduit extends Conduit{
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
         ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
-        ECData.register(root,this,level);
+
+
+        ECData.register(root, this, level);
+    }
+
+    @Override
+    public void init() {
+        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        super.init();
     }
 
 
     @Override
-    public void init() {
-        super.init();
-        if (root.junctionReplacement!=null) junctionReplacement = ECData.get(root.junctionReplacement,level);
-        if (root.bridgeReplacement!=null) bridgeReplacement = ECData.get(root.bridgeReplacement,level);
-        if (root.rotBridgeReplacement!=null) rotBridgeReplacement = ECData.get(root.rotBridgeReplacement,level);
+    public void setStats(){
+        super.setStats();
     }
 
-    public class ECConduitBuild extends ConduitBuild{
-        @Override
-        public void updateTile() {
-            smoothLiquid = Mathf.lerpDelta(smoothLiquid, liquids.currentAmount() / liquidCapacity, 0.05f);
+    public class ECDirectionLiquidBridgeBuild extends DuctBridgeBuild {
 
-            if(liquids.currentAmount() > 0.0001f && timer(timerFlow, 1)){
-                this.moveLiquidForward(leaks, liquids.current());
-                noSleep();
-            }else{
-                sleep();
-            }
-        }
-
-        @Override
-        public float moveLiquidForward(boolean leaks, Liquid liquid) {
-            Tile next = this.tile.nearby(this.rotation);
-            if (next == null) {
-                return 0.0F;
-            } else if (next.build != null) {
-                return this.moveLiquid(next.build, liquid);
-            } else {
-                if (leaks && !next.block().solid && !next.block().hasLiquids) {
-                    float leakAmount = this.liquids.get(liquid) / 1.5F;
-                    Puddles.deposit(next, this.tile, liquid, leakAmount, true, true);
-                    this.liquids.remove(liquid, leakAmount);
-                }
-
-                return 0.0F;
-            }
-        }
 
         @Override
         public float moveLiquid(Building next, Liquid liquid) {

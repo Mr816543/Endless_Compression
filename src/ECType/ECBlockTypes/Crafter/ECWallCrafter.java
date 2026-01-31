@@ -179,10 +179,13 @@ public class ECWallCrafter extends WallCrafter {
             }
             if (Achievements.wallCrafterStrengthen.working(this.block)&&compressOre){
                 if (level > 2 && items.get(output) >= Mathf.pow(9,level-2)){
-                    items.remove(output,Mathf.pow(9,level-2));
-                    produced(output,-Mathf.pow(9,level-2));
-                    items.add(ECData.get(output,level-2),1);
-                    produced(ECData.get(output,level-2),1);
+                    int num = items.get(output)/Mathf.pow(9,level-2);
+                    if (num>0&&items.get(output)-(num * Mathf.pow(9,level-2))>=0){
+                        items.remove(output,num * Mathf.pow(9,level-2));
+                        produced(output,num * -Mathf.pow(9,level-2));
+                        items.add(ECData.get(output,level-2),num);
+                        produced(ECData.get(output,level-2),num);
+                    }
                 }
                 dump(ECData.get(output,level-2));
             }else {

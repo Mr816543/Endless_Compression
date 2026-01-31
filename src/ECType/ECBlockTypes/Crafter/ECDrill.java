@@ -9,6 +9,7 @@ import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
+import arc.util.Log;
 import arc.util.Strings;
 import mindustry.content.Blocks;
 import mindustry.game.Team;
@@ -166,6 +167,7 @@ public class ECDrill extends Drill {
         @Override
         public void updateTile() {
             //*/
+            Log.info(dominantItem==null?"null":dominantItem.localizedName);
 
 
             if (dominantItem == null) {
@@ -173,10 +175,13 @@ public class ECDrill extends Drill {
             }
             if (Achievements.drillStrengthen.working(this.block)&&compressOre){
                 if (level > 2 && items.get(dominantItem) >= Mathf.pow(9,level-2)){
-                    items.remove(dominantItem,Mathf.pow(9,level-2));
-                    produced(dominantItem,-Mathf.pow(9,level-2));
-                    items.add(ECData.get(dominantItem,level-2),1);
-                    produced(ECData.get(dominantItem,level-2),1);
+                    int num = items.get(dominantItem)/Mathf.pow(9,level-2);
+                    if (num>0&&items.get(dominantItem)-(num * Mathf.pow(9,level-2))>=0){
+                        items.remove(dominantItem,num * Mathf.pow(9,level-2));
+                        produced(dominantItem,num * -Mathf.pow(9,level-2));
+                        items.add(ECData.get(dominantItem,level-2),num);
+                        produced(ECData.get(dominantItem,level-2),num);
+                    }
                 }
                 dump(ECData.get(dominantItem,level-2));
             }else {

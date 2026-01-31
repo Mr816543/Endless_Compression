@@ -40,5 +40,8 @@ public class ECArmoredConduit extends ArmoredConduit{
     @Override
     public void init() {
         super.init();
+        if (root.junctionReplacement!=null) junctionReplacement = ECData.get(root.junctionReplacement,level);
+        if (root.bridgeReplacement!=null) bridgeReplacement = ECData.get(root.bridgeReplacement,level);
+        if (root.rotBridgeReplacement!=null) rotBridgeReplacement = ECData.get(root.rotBridgeReplacement,level);
     }
 }
