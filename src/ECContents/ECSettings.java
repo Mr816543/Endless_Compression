@@ -62,6 +62,8 @@ public class ECSettings {
                     Core.settings.getBool("showDialog");
                     settingsTable.checkPref("simpleLaunch", false);
                     Core.settings.getBool("simpleLaunch");
+                    settingsTable.checkPref("autoUpdate", false);
+                    Core.settings.getBool("autoUpdate");
 
                 });
             }

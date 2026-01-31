@@ -1,3 +1,4 @@
+import ECConfig.ECAutoUpdate;
 import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
@@ -36,6 +37,10 @@ public class EC extends Mod {
             Time.run(1f,this::showDialog);
         });
 
+        Events.on(EventType.ClientLoadEvent.class,e->{
+            Time.run(2f, ECAutoUpdate::autoUpdate);
+        });
+
         ECUnitTypes.init();
 
     }
@@ -51,18 +56,11 @@ public class EC extends Mod {
     }
 
     public boolean isUpdatedMod(){
-
         Mods.LoadedMod mod = Vars.mods.locateMod("ec");
-        String[] old = Core.settings.getString("ECVersion","0.0.0").split("\\.");
-        String[] now = mod.meta.version.split("\\.");
-        for (int i = 0 ; i < old.length&&i<now.length;i++){
-            if (Integer.parseInt(now[i]) > Integer.parseInt(old[i])) return true;
-            if (Integer.parseInt(now[i]) < Integer.parseInt(old[i])) return false;
-        }
-        if (now.length > old.length) return true;
-        return false;
-
+        return ECTool.Version(Core.settings.getString("ECVersion","v0.0.0"),mod.meta.version);
     }
+
+
 
     private void checkIconAvailability() {
         if (Items.copper.uiIcon != null) {

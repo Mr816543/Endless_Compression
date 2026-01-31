@@ -684,6 +684,26 @@ public class ECTool {
         if (ECData.get(root,level-1).health>=Integer.MAX_VALUE/5f) b.health = Integer.MAX_VALUE;
     }
 
+    //版本号对比后者是否大于前者
+
+    public static boolean Version(String localVersion, String nowVersion) {
+        // 移除版本标签前缀（如 v）
+        String l = localVersion.replaceAll("[^0-9.]", "");
+        String n = nowVersion.replaceAll("[^0-9.]", "");
+
+        String[] local = l.split("\\.");
+        String[] now = n.split("\\.");
+        int maxLen = Math.max(local.length, now.length);
+
+        for (int i = 0; i < maxLen; i++) {
+            int localVal = i < local.length ? Integer.parseInt(local[i]) : 0;
+            int nowVal = i < now.length ? Integer.parseInt(now[i]) : 0;
+            if (localVal < nowVal) return true;
+            if (localVal > nowVal) return false;
+        }
+        return false;
+    }
+
     //废弃
     /*/
     public static void showToast(TextureRegion icon, String text) {
