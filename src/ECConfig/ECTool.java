@@ -51,7 +51,7 @@ public class ECTool {
                     "despawnUnitCount", "splashDamageRadius", "incendAmount", "lightning",
                     "lightningLength", "lightningLengthRand", "puddles", "puddleRange",
                     "puddleAmount", "lightRadius", "speed", "width", "height", "length",
-                    "puddleSize", "orbSize"
+                    "puddleSize", "orbSize","knockback","oscScl","beamEffectSize"
             );
 
     public static void compress(Object root, Object child, Class<?> fromClazz, Class<?> toClazz, Config c, int level) throws IllegalAccessException {
@@ -685,7 +685,6 @@ public class ECTool {
     }
 
     //版本号对比后者是否大于前者
-
     public static boolean Version(String localVersion, String nowVersion) {
         // 移除版本标签前缀（如 v）
         String l = localVersion.replaceAll("[^0-9.]", "");
@@ -702,6 +701,25 @@ public class ECTool {
             if (localVal > nowVal) return false;
         }
         return false;
+    }
+
+    //方块等级获取
+    public static int getECBlockLevel(Block b) {
+        int l = 0;
+        if (b.minfo.mod != Vars.mods.getMod("ec")) return l;
+        for (Field field : ECTool.getField(b.getClass(), Block.class)){
+            String name = field.getName();
+            if (!Modifier.isPublic(field.getModifiers())) continue;
+            if (Modifier.isFinal(field.getModifiers())) continue;
+            if (name.equals("level")){
+                try {
+                    l = (int) field.get(b);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return l;
     }
 
     //废弃

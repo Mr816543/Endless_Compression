@@ -12,6 +12,7 @@ import arc.util.Log;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.Item;
+import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.meta.Stat;
@@ -86,7 +87,13 @@ public class ECCoreBlock extends CoreBlock {
                 size > tile.block().size ||
                         (size == tile.block().size && tile.block() instanceof ECCoreBlock t && level > t.level)
                         || (tile.block() == root)
-        ) && (!requiresCoreZone || tempTiles.allMatch(o -> o.floor().allowCorePlacement));
+        ) && (!requiresCoreZone || tempTiles.allMatch(o -> o.floor().allowCorePlacement || tile.block() == root ||
+                (tile.block()instanceof ECCoreBlock c && c.root == root && c.level < level)));
+    }
+
+    @Override
+    public boolean canReplace(Block other) {
+        return super.canReplace(other);
     }
 
     public class ECCoreBlockBuild extends CoreBuild {
