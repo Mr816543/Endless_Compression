@@ -35,9 +35,9 @@ dependencies{
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     // HTTP 客户端
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    //implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     // JSON 解析
-    implementation 'com.google.code.gson:gson:2.10.1'
+    //implementation 'com.google.code.gson:gson:2.10.1'
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
 

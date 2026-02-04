@@ -1,4 +1,3 @@
-import ECConfig.ECAutoUpdate;
 import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
@@ -7,12 +6,10 @@ import arc.Core;
 import arc.Events;
 import arc.util.Time;
 import mindustry.Vars;
-import mindustry.content.Blocks;
 import mindustry.content.Items;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
 import mindustry.mod.Mods;
-import mindustry.world.modules.ItemModule;
 
 public class EC extends Mod {
 
@@ -37,9 +34,6 @@ public class EC extends Mod {
             Time.run(1f,this::showDialog);
         });
 
-        Events.on(EventType.ClientLoadEvent.class,e->{
-            Time.run(2f, ECAutoUpdate::autoUpdate);
-        });
 
         ECUnitTypes.init();
 
