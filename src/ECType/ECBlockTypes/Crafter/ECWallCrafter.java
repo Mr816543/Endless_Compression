@@ -178,18 +178,28 @@ public class ECWallCrafter extends WallCrafter {
                 return;
             }
             if (Achievements.wallCrafterStrengthen.working(this.block)&&compressOre){
-                if (level > 2 && items.get(output) >= Mathf.pow(9,level-2)){
-                    int num = items.get(output)/Mathf.pow(9,level-2);
-                    if (num>0&&items.get(output)-(num * Mathf.pow(9,level-2))>=0){
-                        items.remove(output,num * Mathf.pow(9,level-2));
-                        produced(output,num * -Mathf.pow(9,level-2));
-                        items.add(ECData.get(output,level-2),num);
-                        produced(ECData.get(output,level-2),num);
+
+                int powNum = Mathf.pow(9, level - 2);
+                int have = items.get(output);
+                Item cItem = ECData.get(output, level - 2);
+
+                if (level > 2 && have >= powNum){
+                    int num = have / powNum;
+                    if (num > 0&& have - ( num * powNum) >= 0){
+                        items.remove(output,num * powNum);
+                        produced(output,num * -powNum);
+                        items.add(cItem,num);
+                        produced(cItem,num);
                     }
                 }
-                dump(ECData.get(output,level-2));
-            }else {
-                dump();
+                if(timer(timerDump, dumpTime / timeScale)){
+                    dump(cItem);
+                }
+            }
+            else {
+                if(timer(timerDump, dumpTime / timeScale)){
+                    dump();
+                }
             }
 
             boolean cons = shouldConsume();

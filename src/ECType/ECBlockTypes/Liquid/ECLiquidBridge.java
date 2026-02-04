@@ -6,19 +6,12 @@ import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
-import arc.util.Nullable;
 import arc.util.Time;
 import mindustry.content.Fx;
-import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Building;
-import mindustry.type.Item;
 import mindustry.type.Liquid;
-import mindustry.world.blocks.distribution.BufferedItemBridge;
 import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.blocks.liquid.LiquidBridge;
-
-import static mindustry.Vars.content;
-import static mindustry.Vars.world;
 
 public class ECLiquidBridge extends LiquidBridge {
 
@@ -111,7 +104,7 @@ public class ECLiquidBridge extends LiquidBridge {
         @Override
         public void doDump(){
             dumpLiquid(liquids.current(), 1f);
-            ECTool.dumpLiquids(liquids.current(),1f,this);
+            ECTool.dumpLiquid(liquids.current(),1f,this);
         }
     }
 

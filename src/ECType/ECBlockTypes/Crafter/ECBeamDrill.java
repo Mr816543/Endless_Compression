@@ -204,19 +204,29 @@ public class ECBeamDrill extends BeamDrill {
             for(Tile tile : facing){
                 Item dominantItem = tile == null ? null : tile.wallDrop();
 
-                if (Achievements.beamDrillStrengthen.working(this.block)&&compressOre && dominantItem != null){
-                    if (level > 2 && items.get(dominantItem) >= Mathf.pow(9,level-2)){
-                        int num = items.get(dominantItem)/Mathf.pow(9,level-2);
-                        if (num>0&&items.get(dominantItem)-(num * Mathf.pow(9,level-2))>=0){
-                            items.remove(dominantItem,num * Mathf.pow(9,level-2));
-                            produced(dominantItem,num * -Mathf.pow(9,level-2));
-                            items.add(ECData.get(dominantItem,level-2),num);
-                            produced(ECData.get(dominantItem,level-2),num);
+                if (Achievements.beamDrillStrengthen.working(this.block)&&compressOre){
+
+                    int powNum = Mathf.pow(9, level - 2);
+                    int have = items.get(dominantItem);
+                    Item cItem = ECData.get(dominantItem, level - 2);
+
+                    if (level > 2 && have >= powNum){
+                        int num = have / powNum;
+                        if (num > 0&& have - ( num * powNum) >= 0){
+                            items.remove(dominantItem,num * powNum);
+                            produced(dominantItem,num * -powNum);
+                            items.add(cItem,num);
+                            produced(cItem,num);
                         }
                     }
-                    dump(ECData.get(dominantItem,level-2));
-                }else {
-                    dump();
+                    if(timer(timerDump, dumpTime / timeScale)){
+                        dump(cItem);
+                    }
+                }
+                else {
+                    if(timer(timerDump, dumpTime / timeScale)){
+                        dump();
+                    }
                 }
 
             }

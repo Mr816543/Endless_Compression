@@ -3,18 +3,14 @@ package ECContents;
 import ECConfig.ECTool;
 import ECType.ECBlockTypes.Crafter.*;
 import ECType.ECBlockTypes.Defend.*;
-import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
-import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
-import ECType.ECBlockTypes.Power.ECVariableReactor;
+import ECType.ECBlockTypes.Generator.*;
+import ECType.ECBlockTypes.Payload.*;
+import ECType.ECBlockTypes.Power.*;
 import ECType.ECBlockTypes.Item.*;
 import ECType.ECBlockTypes.Liquid.*;
-import ECType.ECBlockTypes.Power.*;
-import ECType.ECBlockTypes.SandBox.ECItemSource;
-import ECType.ECBlockTypes.SandBox.ECLiquidSource;
-import ECType.ECBlockTypes.SandBox.ECPowerSource;
+import ECType.ECBlockTypes.SandBox.*;
 import ECType.ECBlockTypes.Turret.*;
-import ECType.ECBlockTypes.Unit.ECReconstructor;
-import ECType.ECBlockTypes.Unit.ECUnitFactory;
+import ECType.ECBlockTypes.Unit.*;
 import arc.Core;
 import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
@@ -38,6 +34,8 @@ import mindustry.world.blocks.liquid.LiquidBridge;
 import mindustry.world.blocks.liquid.LiquidRouter;
 import mindustry.world.blocks.payloads.Constructor;
 import mindustry.world.blocks.payloads.PayloadDeconstructor;
+import mindustry.world.blocks.payloads.PayloadLoader;
+import mindustry.world.blocks.payloads.PayloadUnloader;
 import mindustry.world.blocks.power.*;
 import mindustry.world.blocks.production.*;
 import mindustry.world.blocks.sandbox.ItemSource;
@@ -201,6 +199,18 @@ public class ECBlocks {
                 case "Unloader" -> {
                         for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
                 }
+                //载荷装载器
+                case "PayloadLoader" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECPayloadLoader((PayloadLoader) root, i);
+                }
+                //载荷卸载器
+                case "PayloadUnloader" -> {
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECPayloadUnloader((PayloadUnloader) root, i);
+                }
+
+
+
+
                 //分类器
                 //case "Sorter" -> new ECSorter((Sorter) root);
                 //溢流门

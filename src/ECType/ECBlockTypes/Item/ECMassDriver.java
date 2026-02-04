@@ -71,16 +71,9 @@ public class ECMassDriver extends MassDriver {
 
     public class ECMassDriverBuild extends MassDriverBuild{
 
-
         @Override
-        public boolean dumpAccumulate(Item item) {
-            boolean res = false;
-
-            for(this.dumpAccum += this.delta(); this.dumpAccum >= 1.0F; --this.dumpAccum) {
-                res |= ECTool.dump( this , item);
-            }
-
-            return res;
+        public boolean dump(Item todump) {
+            return ECTool.dump(this,todump);
         }
     }
 

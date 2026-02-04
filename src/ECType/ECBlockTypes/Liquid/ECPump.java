@@ -5,7 +5,6 @@ import ECConfig.ECData;
 import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import ECContents.Achievements;
-import ECType.ECBlockTypes.Crafter.ECDrill;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -181,7 +180,7 @@ public class ECPump extends Pump{
 
         @Override
         public void dumpLiquid(Liquid liquid, float scaling, int outputDir) {
-            ECTool.dumpLiquids(liquid, scaling, outputDir , this);
+            ECTool.dumpLiquid(liquid, scaling, outputDir , this);
         }
 
     }

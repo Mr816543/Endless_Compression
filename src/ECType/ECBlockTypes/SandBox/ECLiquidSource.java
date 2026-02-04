@@ -5,7 +5,6 @@ import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.type.Liquid;
-import mindustry.world.blocks.sandbox.ItemSource;
 import mindustry.world.blocks.sandbox.LiquidSource;
 import mindustry.world.meta.BuildVisibility;
 
@@ -45,7 +44,7 @@ public class ECLiquidSource extends LiquidSource {
 
         @Override
         public void dumpLiquid(Liquid liquid) {
-            ECTool.dumpLiquids(liquid,this);
+            ECTool.dumpLiquid(liquid,this);
         }
 
         @Override

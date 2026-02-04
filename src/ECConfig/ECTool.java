@@ -1,43 +1,30 @@
 package ECConfig;
 
 
-import ECType.ECBlockTypes.Crafter.ECBeamDrill;
-import ECType.ECBlockTypes.Item.ECMassDriver;
 import ECType.ECLiquid;
 import ECType.ECUnitType;
 import arc.Core;
-import arc.func.Prov;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
 import arc.graphics.TextureData;
 import arc.graphics.g2d.TextureAtlas;
 import arc.graphics.g2d.TextureRegion;
-import arc.math.Interp;
 import arc.math.Mathf;
-import arc.scene.actions.Actions;
-import arc.scene.ui.Image;
-import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
-import arc.util.Align;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.TechTree;
 import mindustry.ctype.Content;
 import mindustry.ctype.UnlockableContent;
-import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.bullet.LiquidBulletType;
 import mindustry.gen.Building;
-import mindustry.gen.EntityMapping;
-import mindustry.gen.Unit;
 import mindustry.type.*;
-import mindustry.ui.Styles;
 import mindustry.world.Block;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.*;
-import mindustry.world.meta.BlockGroup;
 
 import java.lang.reflect.*;
 
@@ -424,7 +411,7 @@ public class ECTool {
                     }
                     consumes.add(c);
 
-                } else if (consume instanceof ConsumePower) {
+                }  else if (consume instanceof ConsumePower) {
 
                     ConsumePower c = new ConsumePower(0, 0, false);
                     ECTool.compress(consume, c, Object.class, Config.NULL, 0);
@@ -547,7 +534,7 @@ public class ECTool {
         return dump(build,null);
     }
     //通用强化抛出流体方法
-    public static void dumpLiquids(Liquid liquid, float scaling, int outputDir, Building build) {
+    public static void dumpLiquid(Liquid liquid, float scaling, int outputDir, Building build) {
         int dump = build.cdump;
         if (!(build.liquids.get(liquid) <= 1.0E-4F)) {
             if (!Vars.net.client() && Vars.state.isCampaign() && build.team == Vars.state.rules.defaultTeam) {
@@ -583,12 +570,12 @@ public class ECTool {
         }
     }
 
-    public static void dumpLiquids(Liquid liquid,float scaling, Building build){
-        dumpLiquids(liquid,scaling,-1,build);
+    public static void dumpLiquid(Liquid liquid, float scaling, Building build){
+        dumpLiquid(liquid,scaling,-1,build);
     }
 
-    public static void dumpLiquids(Liquid liquid, Building build){
-        dumpLiquids(liquid,2F,build);
+    public static void dumpLiquid(Liquid liquid, Building build){
+        dumpLiquid(liquid,2F,build);
     }
 
     //通用科技节点添加方法
@@ -720,6 +707,21 @@ public class ECTool {
             }
         }
         return l;
+    }
+
+    //获取私有属性
+    public static <T extends UnlockableContent> Object get(T root,String V) throws IllegalAccessException {
+        for (Field field : ECTool.getField(root)){
+            String name = field.getName();
+            //if (!Modifier.isPublic(field.getModifiers())) continue;
+            //if (Modifier.isFinal(field.getModifiers())) continue;
+            //关闭访问权限检查（核心步骤！）
+            field.setAccessible(true);
+            if (name.equals(V)){
+                return field.get(root);
+            }
+        }
+        return null;
     }
 
     //废弃

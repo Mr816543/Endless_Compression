@@ -116,7 +116,7 @@ public class ECSolidPump extends SolidPump {
 
             pumpTime += warmup * edelta();
 
-            ECTool.dumpLiquids(result,2F / outputMultiple,-1,this);
+            ECTool.dumpLiquid(result,2F / outputMultiple,-1,this);
         }
 
 

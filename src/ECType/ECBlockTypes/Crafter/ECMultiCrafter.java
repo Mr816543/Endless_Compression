@@ -13,6 +13,7 @@ import arc.scene.ui.layout.Table;
 import arc.struct.IntSet;
 import arc.struct.OrderedMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
@@ -29,12 +30,14 @@ import mindustry.ui.dialogs.BaseDialog;
 import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.heat.HeatBlock;
+import mindustry.world.blocks.heat.HeatConductor;
 import mindustry.world.blocks.heat.HeatConsumer;
-import mindustry.world.blocks.production.HeatCrafter;
 import mindustry.world.consumers.ConsumePower;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawDefault;
 import mindustry.world.meta.*;
+
+import java.util.Arrays;
 
 
 public class ECMultiCrafter extends Block {
@@ -651,7 +654,6 @@ public class ECMultiCrafter extends Block {
                     updateBar();
                 }
                 updateHeat();
-
                 canConsume = canConsume(r);
 
                 if (canConsume) {
@@ -670,7 +672,9 @@ public class ECMultiCrafter extends Block {
                     warmup = Mathf.approachDelta(warmup, 0, r.warmupRate);
                 }
 
-                dumpRecipe(r);
+                if(timer(timerDump, dumpTime / timeScale)){
+                    dumpRecipe(r);
+                }
 
             }
 
@@ -870,22 +874,22 @@ public class ECMultiCrafter extends Block {
         public void dumpRecipe(Recipe r) {
             Building b = this;
             for (ItemStack output : r.outputItems) {
-                for (int i = 0; i < 9 && b.items.get(output.item) > 0; i++) {
-                    ECTool.dump(this,output.item);
-                }
+                ECTool.dump(this,output.item);
             }
                 for(int i = 0; i < r.outputLiquids.length; i++){
                     LiquidStack output = r.outputLiquids[i];
                     int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
                     //ECTool.print(r.liquidOutputDirections.length);
-                    ECTool.dumpLiquids(output.liquid, 1f, dir,this);
+                    ECTool.dumpLiquid(output.liquid, 1f, dir,this);
                 }
 
         }
 
         public void updateHeat() {
+
             if (lastHeatUpdate == Vars.state.updateId) return;
             lastHeatUpdate = Vars.state.updateId;
+
             Recipe r = recipes.get(index);
             if (r.inputHeat > 0) {
                 heat = calculateHeat(sideHeat);
@@ -907,6 +911,104 @@ public class ECMultiCrafter extends Block {
                 }
             }
 
+        }
+
+        @Override
+        public float calculateHeat(float[] sideHeat) {
+            return this.calculateHeat(sideHeat, null);
+        }
+
+        /**
+         * 计算当前建筑从相邻热源建筑接收的总热量，并按方向分配到各侧面
+         * @param sideHeat 用于存储四个方向（右、上、左、下）接收热量的数组
+         * @param cameFrom 用于记录热量传递路径来源的建筑ID集合，避免循环传递
+         * @return 当前建筑从所有相邻热源接收的总热量
+         */
+        @Override
+        public float calculateHeat(float[] sideHeat, IntSet cameFrom) {
+
+
+            // 初始化各方向热量数组，清空历史数据
+            Arrays.fill(sideHeat, 0.0F);
+            // 若传入了路径记录集合，清空其历史数据
+            if (cameFrom != null) {
+                cameFrom.clear();
+            }
+
+            // 累计当前建筑接收的总热量
+            float totalHeat = 0.0F;
+            // 获取当前建筑所有相邻建筑的迭代器
+
+            // 遍历所有相邻建筑，处理热源传递逻辑
+            for (Building adjacentBuilding : this.proximity) {
+                // 过滤无效相邻建筑：空对象、不同阵营、非热源块
+                if (adjacentBuilding == null || adjacentBuilding.team != this.team || !(adjacentBuilding instanceof HeatBlock heaterBlock)) {
+                    continue;
+                }
+
+                Block adjacentBlock = adjacentBuilding.block;
+
+                // 判断相邻热源是否为可分割热量的导热块
+                boolean isSplitHeat = adjacentBlock instanceof HeatConductor hc && hc.splitHeat;
+
+
+                // 过滤不符合热量传递方向的建筑：旋转建筑需匹配相对方向，分割热量需匹配特定朝向
+                boolean isRotatedBlock = adjacentBlock.rotate;
+                int relativeDirection = this.relativeTo(adjacentBuilding);
+                boolean directionMismatch = isRotatedBlock &&
+                        ((isSplitHeat && relativeDirection != adjacentBuilding.rotation) ||
+                                (!isSplitHeat && (relativeDirection + 2) % 4 != adjacentBuilding.rotation));
+                if (directionMismatch) {
+                    continue;
+                }
+
+                // 若相邻建筑是导热块且已记录当前建筑为来源，跳过（避免循环传递）
+                boolean isHeatConductorBuild = adjacentBuilding instanceof HeatConductor.HeatConductorBuild;
+                if (isHeatConductorBuild) {
+                    HeatConductor.HeatConductorBuild conductorBuild = (HeatConductor.HeatConductorBuild) adjacentBuilding;
+                    if (conductorBuild.cameFrom.contains(this.id())&&recipes.get(index).outputHeat>0) {
+                        continue;
+                    }
+                }
+
+                // 计算热量传递的核心参数
+                // 距离系数：基于建筑中心距离的衰减因子，距离越远系数越小
+                float distanceFactor = Math.min(Math.abs(adjacentBuilding.x - this.x), Math.abs(adjacentBuilding.y - this.y)) / 8.0F;
+                // 接触点数：基于建筑尺寸和距离计算的有效接触面积，决定传递热量的多少
+                int contactPoints = Math.min(
+                        (int) ((this.block.size / 2.0F) + (adjacentBlock.size / 2.0F) - distanceFactor),
+                        Math.min(adjacentBlock.size, this.block.size)
+                );
+                // 基础传递热量：热源单位尺寸热量 × 接触点数
+                float transferHeat = heaterBlock.heat() / adjacentBlock.size * contactPoints;
+                // 若为分割热量，将基础热量均分为3份（仅传递1份）
+                if (isSplitHeat) {
+                    transferHeat /= 3.0F;
+                }
+
+                // 按相对方向将热量累加到对应侧面，并更新总热量
+                int directionIndex = Mathf.mod(relativeDirection, 4);
+                sideHeat[directionIndex] += transferHeat;
+                totalHeat += transferHeat;
+
+                // 记录热量传递路径，防止循环传递
+                if (cameFrom != null) {
+                    cameFrom.add(adjacentBuilding.id);
+                    // 若相邻建筑是导热块，继承其所有来源路径
+                    if (isHeatConductorBuild) {
+                        HeatConductor.HeatConductorBuild conductorBuild = (HeatConductor.HeatConductorBuild) adjacentBuilding;
+                        cameFrom.addAll(conductorBuild.cameFrom);
+                    }
+                }
+
+                // 若热源是导热块，触发其内部热量更新逻辑
+                if (heaterBlock instanceof HeatConductor.HeatConductorBuild conductorBuild) {
+                    conductorBuild.updateHeat();
+                }
+            }
+
+            // 返回当前建筑接收的总热量
+            return totalHeat;
         }
 
         public void updateBar() {
@@ -1092,8 +1194,12 @@ public class ECMultiCrafter extends Block {
 
         @Override
         public float heat() {
-            //如果需求热量,就不应该往外输出热量
-            if (recipes.get(index).inputHeat > 0) return 0f;
+            if (recipes.get(index).inputHeat > 0) {
+                return 0f;
+            }
+            if (recipes.get(index).outputHeat > 0){
+
+            }
             return heat;
         }
 
