@@ -166,9 +166,6 @@ public class ECDrill extends Drill {
 
         @Override
         public void updateTile() {
-            //*/
-            Log.info(dominantItem==null?"null":dominantItem.localizedName);
-
 
             if (dominantItem == null) {
                 return;

@@ -1,3 +1,4 @@
+import ECConfig.EntityProfiler;
 import ECConfig.GradualDisplayName;
 import ECContents.*;
 import ECConfig.ECTool;
@@ -12,6 +13,8 @@ import mindustry.mod.Mod;
 import mindustry.mod.Mods;
 
 public class EC extends Mod {
+
+    private final EntityProfiler profiler = new EntityProfiler();
 
     @Override
     public void init() {
@@ -34,8 +37,11 @@ public class EC extends Mod {
             Time.run(1f,this::showDialog);
         });
 
+        profiler.init();
 
         ECUnitTypes.init();
+
+
 
     }
 

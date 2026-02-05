@@ -64,7 +64,10 @@ public class ECSettings {
                     Core.settings.getBool("simpleLaunch");
                     //settingsTable.checkPref("autoUpdate", false);
                     //Core.settings.getBool("autoUpdate");
-
+                    settingsTable.sliderPref("sampleTimes",5,1,30,1,i->i+"s");
+                    settings.getInt("sampleTimes");
+                    settingsTable.checkPref("entityProfiler", false);
+                    Core.settings.getBool("entityProfiler");
                 });
             }
         }
