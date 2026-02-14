@@ -19,7 +19,6 @@ import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.production.BurstDrill;
-import mindustry.world.blocks.production.Drill;
 import mindustry.world.consumers.ConsumeLiquidBase;
 import mindustry.world.meta.BlockGroup;
 import mindustry.world.meta.Stat;
@@ -161,7 +160,7 @@ public class ECBurstDrill extends BurstDrill {
                 (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
-    public class ECDrillBuild extends BurstDrillBuild {
+    public class ECBurstDrillBuild extends BurstDrillBuild {
 
 
         @Override

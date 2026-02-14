@@ -61,6 +61,7 @@ public class ECBlocks {
     public static void load() throws IllegalAccessException {
 
         blocks = Vars.content.blocks().copy();
+        //*/
         for (int i = 1; i <= MAX_LEVEL; i++) {
             ECCompressCrafter compressCrafter = new ECCompressCrafter(i);
             if (Core.settings.getBool(compressCrafter.name + "-unlocked")) unlockedLevel += 1;
@@ -70,7 +71,7 @@ public class ECBlocks {
             ecMultipleCompressCrafters.add(multipleCompressCrafter);
 
         }
-
+        //*/
 
         for (Block root : blocks) {
             if (root.buildVisibility == BuildVisibility.debugOnly) continue;
@@ -153,6 +154,7 @@ public class ECBlocks {
                 }
                 //冲击钻头
                 case "BurstDrill" -> {
+                    if (!Core.settings.getBool("banContent"))
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
                 }
                 //等离子钻机
@@ -381,9 +383,7 @@ public class ECBlocks {
                 //物品炮台
                 case "ItemTurret" -> new ECItemTurret((ItemTurret) root);
                 //液体炮台
-                case "LiquidTurret" -> {
-                    if (!Core.settings.getBool("banContent")) new ECLiquidTurret((LiquidTurret) root);
-                }
+                case "LiquidTurret" -> new ECLiquidTurret((LiquidTurret) root);
                 //能量炮台
                 case "PowerTurret" -> new ECPowerTurret((PowerTurret) root);
                 //激光牵引

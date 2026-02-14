@@ -36,6 +36,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
         this.level = level;
         multiDrawer = true;
         localizedName = level + Core.bundle.get("ECMultipleCompressCrafter.name");
+        loadIcon();
     }
 
 
@@ -259,14 +260,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
 
     @Override
     public void loadIcon() {
-        /*/
-        if (Core.atlas.has("ec-Compressor")) {
-            fullIcon = uiIcon = Core.atlas.find("ec-Compressor");
-        } else {
-            Core.app.post(this::loadIcon);
-        }
-        //*/
-
+        if (fullIcon!=null&&uiIcon!=null)return;
         Pixmap A = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("ECMultipleCompressCrafter").child("MultipleCompressor.png")).getTextureData().getPixmap();
         Pixmap B = ECTool.numberPixmap[size-1][level];
 

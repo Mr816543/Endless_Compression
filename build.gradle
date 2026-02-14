@@ -11,13 +11,13 @@ repositories{
 }
 
 java{
-    targetCompatibility = 8
-    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.VERSION_25
 }
 
 ext{
     //the build number that this mod is made for
-    mindustryVersion = 'v154.3'
+    mindustryVersion = 'v155.3'
     jabelVersion = "93fde537c7"
     //windows sucks
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")

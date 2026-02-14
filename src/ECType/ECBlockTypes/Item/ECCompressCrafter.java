@@ -41,7 +41,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
         localizedName = level + Core.bundle.get("ECCompressCrafter.name");
         description = Core.bundle.get("ECCompressCrafter.description");
         details = Core.bundle.get("ECCompressCrafter.details");
-
+        loadIcon();
 
     }
 
@@ -354,7 +354,7 @@ public class ECCompressCrafter extends ECMultiCrafter {
             Core.app.post(this::loadIcon);
         }
         //*/
-
+        if (fullIcon!=null&&uiIcon!=null)return;
         Pixmap A = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("ECCompressCrafter").child("ECCompressCrafter.png")).getTextureData().getPixmap();
         Pixmap B = ECTool.numberPixmap[size-1][level];
 

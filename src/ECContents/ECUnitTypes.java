@@ -32,7 +32,6 @@ import mindustry.type.UnitType;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
 import static ECConfig.ECTool.numberPixmap;
-import static ECConfig.ECTool.print;
 
 public class ECUnitTypes {
     public static Seq<UnitType> unitTypes;
