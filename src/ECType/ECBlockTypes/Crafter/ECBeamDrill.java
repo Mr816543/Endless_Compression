@@ -9,6 +9,7 @@ import arc.math.Mathf;
 import arc.math.geom.Geometry;
 import arc.util.Strings;
 import arc.util.Tmp;
+import mindustry.Vars;
 import mindustry.graphics.Drawf;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
@@ -228,7 +229,27 @@ public class ECBeamDrill extends BeamDrill implements EC {
                     if (timer(timerDump, dumpTime / timeScale)) {
                         dump(cItem);
                     }
-                } else {
+                }
+                else if (team== Vars.state.rules.waveTeam) {
+
+                    int powNum = Mathf.pow(9, level);
+                    int have = items.get(dominantItem);
+                    Item cItem = ECData.get(dominantItem, level);
+
+                    if (have >= powNum) {
+                        int num = have / powNum;
+                        if (num > 0 && have - (num * powNum) >= 0) {
+                            items.remove(dominantItem, num * powNum);
+                            produced(dominantItem, num * -powNum);
+                            items.add(cItem, num);
+                            produced(cItem, num);
+                        }
+                    }
+                    if (timer(timerDump, dumpTime / timeScale)) {
+                        dump(cItem);
+                    }
+                }
+                else {
                     if (timer(timerDump, dumpTime / timeScale)) {
                         dump();
                     }

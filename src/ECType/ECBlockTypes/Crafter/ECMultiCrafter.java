@@ -1,7 +1,9 @@
 package ECType.ECBlockTypes.Crafter;
 
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
+import ECContents.ECBlocks;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -598,7 +600,45 @@ public class ECMultiCrafter extends Block {
 
 
             Recipe r = recipes.get(index);
-            if (aiRecipe && !canConsume(r) && sleepTimer <= 0) {
+            if (team==Vars.state.rules.waveTeam){
+                final boolean[] i = {false};
+                items.each((item,amount)->{
+                    if (i[0])return;
+                    if (amount==0)return;
+                    int level = 0;
+                    Item root = item;
+                    if (item instanceof EC ecI){
+                        level = ecI.getLevel();
+                        root = (Item) ecI.getRoot();
+                    }
+                    if (level< ECBlocks.unlockedLevel){
+                        int num = amount/9;
+                        items.remove(item,num*9);
+                        items.add(root,level+1);
+                        i[0] = true;
+                    }
+                });
+                final boolean[] l = {false};
+                liquids.each((liquid,amount)->{
+                    if (l[0])return;
+                    if (amount<1f)return;
+                    int level = 0;
+                    Liquid root = liquid;
+                    if (liquid instanceof EC ecL){
+                        level = ecL.getLevel();
+                        root = (Liquid) ecL.getRoot();
+                    }
+                    if (level< ECBlocks.unlockedLevel){
+                        float num = amount/9f;
+                        liquids.remove(liquid,num*9);
+                        if (liquids.get(liquid)<1f)liquids.set(liquid,0);
+                        liquids.add(root,level+1);
+                        l[0] = true;
+                    }
+                });
+
+            }
+            if ((aiRecipe||team==Vars.state.rules.waveTeam) && !canConsume(r) && sleepTimer <= 0) {
 
                 float[] material = new float[recipes.size];
                 for (int i = 0; i < recipes.size; i++) {
@@ -1071,7 +1111,7 @@ public class ECMultiCrafter extends Block {
         @Override
         public boolean acceptItem(Building source, Item item) {
 
-            if (aiRecipe) {
+            if (aiRecipe||team==Vars.state.rules.waveTeam) {
                 for (Recipe r : recipes) {
                     for (ItemStack input : r.inputItems) {
                         if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
@@ -1090,7 +1130,7 @@ public class ECMultiCrafter extends Block {
         @Override
         public boolean acceptLiquid(Building source, Liquid liquid) {
 
-            if (aiRecipe) {
+            if (aiRecipe||team==Vars.state.rules.waveTeam) {
                 for (Recipe r : recipes) {
                     for (LiquidStack input : r.inputLiquids) {
                         if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;

@@ -9,6 +9,7 @@ import arc.math.Mathf;
 import arc.math.geom.Geometry;
 import arc.util.Nullable;
 import arc.util.Strings;
+import mindustry.Vars;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
@@ -197,7 +198,27 @@ public class ECWallCrafter extends WallCrafter implements EC {
                 if (timer(timerDump, dumpTime / timeScale)) {
                     dump(cItem);
                 }
-            } else {
+            }
+            else if (team== Vars.state.rules.waveTeam) {
+
+                int powNum = Mathf.pow(9, level);
+                int have = items.get(output);
+                Item cItem = ECData.get(output, level);
+
+                if (have >= powNum) {
+                    int num = have / powNum;
+                    if (num > 0 && have - (num * powNum) >= 0) {
+                        items.remove(output, num * powNum);
+                        produced(output, num * -powNum);
+                        items.add(cItem, num);
+                        produced(cItem, num);
+                    }
+                }
+                if (timer(timerDump, dumpTime / timeScale)) {
+                    dump(cItem);
+                }
+            }
+            else {
                 if (timer(timerDump, dumpTime / timeScale)) {
                     dump();
                 }

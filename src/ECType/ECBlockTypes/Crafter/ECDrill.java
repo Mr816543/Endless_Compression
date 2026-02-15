@@ -7,6 +7,7 @@ import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.util.Strings;
+import mindustry.Vars;
 import mindustry.game.Team;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
@@ -193,7 +194,27 @@ public class ECDrill extends Drill implements EC {
                 if (timer(timerDump, dumpTime / timeScale)) {
                     dump(cItem);
                 }
-            } else {
+            }
+            else if (team== Vars.state.rules.waveTeam) {
+
+                int powNum = Mathf.pow(9, level);
+                int have = items.get(dominantItem);
+                Item cItem = ECData.get(dominantItem, level);
+
+                if (have >= powNum) {
+                    int num = have / powNum;
+                    if (num > 0 && have - (num * powNum) >= 0) {
+                        items.remove(dominantItem, num * powNum);
+                        produced(dominantItem, num * -powNum);
+                        items.add(cItem, num);
+                        produced(cItem, num);
+                    }
+                }
+                if (timer(timerDump, dumpTime / timeScale)) {
+                    dump(cItem);
+                }
+            }
+            else {
                 if (timer(timerDump, dumpTime / timeScale)) {
                     dump();
                 }

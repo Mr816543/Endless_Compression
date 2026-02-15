@@ -18,6 +18,8 @@ public class ECSettings {
 
                     settingsTable.sliderPref("ECDifficulty", 2, 0, 3, 1, i -> Core.bundle.get("setting.ECDifficulty.level-" + i));
                     settings.getInt("ECDifficulty");
+                    settingsTable.checkPref("compressedEnemyBuilding", false);
+                    Core.settings.getBool("compressedEnemyBuilding");
                     settingsTable.checkPref("ECSync", true);
                     Core.settings.getBool("ECSync");
                     settingsTable.checkPref("asFrame", false);

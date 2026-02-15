@@ -67,6 +67,7 @@ public class ECCompressCrafter extends ECMultiCrafter implements EC {
             crafter.updateRecipes();
             crafter.updateRecipes();
         }
+        ECBlocks.unlockedLevel = level;
     }
 
     public void initRecipes() {

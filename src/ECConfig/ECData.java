@@ -76,8 +76,10 @@ public class ECData {
     }
 
     public static Block get(Block root, int level) {
-        if (ECBlocks.get(root) == null) return root;
-        return ECBlocks.get(root).get(level);
+        Seq<Block> blocks = ECBlocks.get(root);
+        if (blocks == null) return root;
+        if (blocks.size<=level) return blocks.get(blocks.size-1);
+        return blocks.get(level);
     }
 
     public static Seq<UnlockableContent> getAllContentKeys() {

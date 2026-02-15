@@ -1,9 +1,8 @@
 package ECContents;
 
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECSetting;
-import ECType.ECBlockTypes.Item.ECCompressCrafter;
-import ECType.ECBlockTypes.Item.ECMultipleCompressCrafter;
 import ECType.ECUnitType;
 import arc.Core;
 import arc.Events;
@@ -15,16 +14,22 @@ import arc.struct.Seq;
 import arc.util.Time;
 import mindustry.Vars;
 import mindustry.game.EventType;
+import mindustry.game.Gamemode;
 import mindustry.game.SpawnGroup;
+import mindustry.game.Team;
+import mindustry.gen.Building;
 import mindustry.gen.Groups;
 import mindustry.gen.Icon;
 import mindustry.gen.Unit;
 import mindustry.graphics.Layer;
 import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
+import mindustry.world.Block;
+import mindustry.world.blocks.storage.CoreBlock;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
 import static ECConfig.ECTool.numberPixmap;
+import static ECContents.ECBlocks.unlockedLevel;
 
 public class ECUnitTypes {
     public static Seq<UnitType> unitTypes;
@@ -33,6 +38,8 @@ public class ECUnitTypes {
     public static int maxLevel;
     public static TextureRegion[][] levelTextureRegions;
     public static int difficulty;
+    public static int waveLevel;
+    public static int n = 0;
 
     public static void load() throws IllegalAccessException {
         unitTypes = Vars.content.units().copy();
@@ -44,7 +51,7 @@ public class ECUnitTypes {
 
         difficulty = Core.settings.getInt("ECDifficulty", 2);
 
-        Events.on(EventType.WorldLoadEvent.class, e -> {
+        Events.on(EventType.WorldLoadEndEvent.class, e -> {
             spawns = Vars.state.rules.spawns.copy();
             newSpawns = compressWaves(spawns);
             if (Core.settings.getInt("ECDifficulty") > 0) {
@@ -54,6 +61,10 @@ public class ECUnitTypes {
 
         Events.on(EventType.SaveWriteEvent.class, e -> {
             Vars.state.rules.spawns = spawns;
+
+            if (waveLevel != unlockedLevel) {
+                newSpawns = compressWaves(spawns);
+            }
 
             if (difficulty != Core.settings.getInt("ECDifficulty", -1)) {
                 difficulty = Core.settings.getInt("ECDifficulty");
@@ -110,13 +121,8 @@ public class ECUnitTypes {
         Seq<SpawnGroup> newSpawns = new Seq<>();
         maxLevel = -2 + difficulty;
 
-        int maxCrafterLevel = 0;
-        for (ECCompressCrafter crafter : ECBlocks.ecCompressCrafters) {
-            if (crafter.level > maxCrafterLevel && crafter.unlockedNow()) maxCrafterLevel = crafter.level;
-        }
-        for (ECMultipleCompressCrafter crafter : ECBlocks.ecMultipleCompressCrafters) {
-            if (crafter.level > maxCrafterLevel && crafter.unlockedNow()) maxCrafterLevel = crafter.level;
-        }
+        int maxCrafterLevel = unlockedLevel;
+        waveLevel = unlockedLevel;
         maxLevel += maxCrafterLevel;
         maxLevel = Math.max(Math.min(maxLevel, 9), 0);
 
@@ -160,7 +166,91 @@ public class ECUnitTypes {
             });
         });
 
+        Events.on(EventType.WorldLoadEvent.class, e -> {
+            if (Core.settings.getBool("compressedEnemyBuilding")) {
+                if (Vars.state.rules.mode() == Gamemode.pvp) return;
+                if (Vars.state.rules.waveTeam.core() instanceof EC) return;
+                int playerLevel = Vars.player.team().core() instanceof EC ecC ? ecC.getLevel() : 0;
 
+                updateEnemyCore(playerLevel);
+                updateEnemyBuild(playerLevel);
+            } else {
+                downEnemyCore();
+                downEnemyBuild();
+            }
+
+
+        });
+
+
+    }
+
+    private static void updateEnemyCore(int level) {
+        Team et = Vars.state.rules.waveTeam;
+        Seq<CoreBlock.CoreBuild> cores = et.cores().copy();
+        for (CoreBlock.CoreBuild c : cores) {
+            Block r = c.block instanceof EC ecB ? (Block) ecB.getRoot() : c.block;
+            Block up = ECData.get(r, level);
+            if (r == up) continue;
+            c.tile.setBlock(up, et);
+            Groups.unit.each(unit -> {
+                if (unit.dead) return;
+                if (unit.team != et) return;
+                if (unit.type == ((CoreBlock) c.block).unitType) {
+                    unit.killed();
+                }
+            });
+        }
+    }
+
+    private static void updateEnemyBuild(int level) {
+        Team et = Vars.state.rules.waveTeam;
+        Seq<Building> builds = new Seq<>();
+        Vars.world.tiles.eachTile(tile -> {
+            if (tile.team() == et) builds.add(tile.build);
+        });
+        for (Building c : builds) {
+
+            if (c instanceof CoreBlock.CoreBuild) continue;
+
+            Block r = c.block instanceof EC ecB ? (Block) ecB.getRoot() : c.block;
+            Block up = ECData.get(r, level);
+            if (r == up) continue;
+            c.tile.setBlock(up, et);
+        }
+    }
+
+    private static void downEnemyCore() {
+        Team et = Vars.state.rules.waveTeam;
+        Seq<CoreBlock.CoreBuild> cores = et.cores().copy();
+        for (CoreBlock.CoreBuild c : cores) {
+            Block r = c.block instanceof EC ecB ? (Block) ecB.getRoot() : c.block;
+            if (r == c.block) continue;
+            c.tile.setBlock(r, et);
+            Groups.unit.each(unit -> {
+                if (unit.dead) return;
+                if (unit.team != et) return;
+                if (unit.type == ((CoreBlock) c.block).unitType) {
+                    unit.killed();
+                }
+            });
+        }
+    }
+
+    private static void downEnemyBuild() {
+        Team et = Vars.state.rules.waveTeam;
+        Seq<Building> builds = new Seq<>();
+        Vars.world.tiles.eachTile(tile -> {
+            if (tile.team() == et) builds.add(tile.build);
+        });
+        for (Building c : builds) {
+
+            if (c instanceof CoreBlock.CoreBuild) continue;
+
+            Block r = c.block instanceof EC ecB ? (Block) ecB.getRoot() : c.block;
+            if (r == c.block) continue;
+            c.tile.setBlock(r, et);
+        }
     }
 
     public static void drawLevel(Unit unit) {

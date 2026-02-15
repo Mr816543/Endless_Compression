@@ -68,7 +68,7 @@ public class ECBlocks {
         //*/
         for (int i = 1; i <= MAX_LEVEL; i++) {
             ECCompressCrafter compressCrafter = new ECCompressCrafter(i);
-            if (Core.settings.getBool(compressCrafter.name + "-unlocked")) unlockedLevel += 1;
+            if (Core.settings.getBool(compressCrafter.name + "-unlocked")) unlockedLevel = compressCrafter.level;
             ecCompressCrafters.add(compressCrafter);
 
             ECMultipleCompressCrafter multipleCompressCrafter = new ECMultipleCompressCrafter(i);
