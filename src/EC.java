@@ -1,11 +1,10 @@
+import ECConfig.ECTool;
 import ECConfig.EntityProfiler;
 import ECConfig.GradualDisplayName;
 import ECContents.*;
-import ECConfig.ECTool;
 import ECType.CustomDialog;
 import arc.Core;
 import arc.Events;
-import arc.util.Log;
 import arc.util.Time;
 import mindustry.Vars;
 import mindustry.content.Items;
@@ -16,6 +15,7 @@ import mindustry.mod.Mods;
 public class EC extends Mod {
 
     private final EntityProfiler profiler = new EntityProfiler();
+    public long StartTime;
 
     @Override
     public void init() {
@@ -34,8 +34,8 @@ public class EC extends Mod {
             Achievements.clearAllAchievements();
         }
 
-        Events.on(EventType.ClientLoadEvent.class,e->{
-            Time.run(1f,this::showDialog);
+        Events.on(EventType.ClientLoadEvent.class, e -> {
+            Time.run(1f, this::showDialog);
         });
 
         profiler.init();
@@ -43,30 +43,25 @@ public class EC extends Mod {
         ECUnitTypes.init();
 
 
-
     }
 
     private void showDialog() {
         CustomDialog c = new CustomDialog();
-        if (isUpdatedMod()){
+        if (isUpdatedMod()) {
             c.show();
-        }else if (Core.settings.getBool("showDialog")){
+        } else if (Core.settings.getBool("showDialog")) {
             c.show();
         }
-        Core.settings.put("ECVersion",Vars.mods.locateMod("ec").meta.version);
+        Core.settings.put("ECVersion", Vars.mods.locateMod("ec").meta.version);
     }
 
-    public boolean isUpdatedMod(){
+    public boolean isUpdatedMod() {
         Mods.LoadedMod mod = Vars.mods.locateMod("ec");
-        return ECTool.Version(Core.settings.getString("ECVersion","v0.0.0"),mod.meta.version);
+        return ECTool.Version(Core.settings.getString("ECVersion", "v0.0.0"), mod.meta.version);
     }
-
-
 
     private void checkIconAvailability() {
         if (Items.copper.uiIcon != null) {
-
-
 
 
             //Log.info("Copper UI icon is loaded!");
@@ -84,7 +79,7 @@ public class EC extends Mod {
         StartTime();
         Mods.LoadedMod mod = Vars.mods.locateMod("ec");
         String version = mod.meta.version;
-        ECTool.print("[EC]Loading...\nversion:"+version);
+        ECTool.print("[EC]Loading...\nversion:" + version);
 
         ECTool.loadNumberPixmap();
         loadTime("NumberPixmap");
@@ -190,26 +185,22 @@ public class EC extends Mod {
         //*/
 
 
-
         //Log.info(Items.copper.uiIcon.texture.getTextureData().getPixmap());
 
 
     }
 
-    public long StartTime;
-
-    public void StartTime(){
+    public void StartTime() {
         StartTime = System.nanoTime();
     }
 
-    public void loadTime(String s){
+    public void loadTime(String s) {
         long NowTime = System.nanoTime();
-        long time = (NowTime-StartTime) / 1000000;
-        float msTime = ((float) ((int)(time*1000))) / 1000;
-        ECTool.print(s + " : " + msTime +" ms");
+        long time = (NowTime - StartTime) / 1000000;
+        float msTime = ((float) ((int) (time * 1000))) / 1000;
+        ECTool.print(s + " : " + msTime + " ms");
         StartTime();
     }
-
 
 
 }

@@ -1,19 +1,18 @@
 package ECType.ECBlockTypes.SandBox;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.world.blocks.sandbox.ItemSource;
-import mindustry.world.blocks.sandbox.PowerSource;
 import mindustry.world.meta.BuildVisibility;
 
-public class ECItemSource extends ItemSource {
-
-    public ItemSource root;
+public class ECItemSource extends ItemSource implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig().linearConfig();
+    public ItemSource root;
 
     public ECItemSource(ItemSource root) throws IllegalAccessException {
         super("compress-" + root.name);
@@ -39,7 +38,18 @@ public class ECItemSource extends ItemSource {
         ECData.register(root, this, 1);
     }
 
-    public class ECItemSourceBuild extends ItemSourceBuild{
+    @Override
+    public int getLevel() {
+        return 1;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECItemSourceBuild extends ItemSourceBuild {
 
         @Override
         public void updateTile() {
@@ -48,9 +58,9 @@ public class ECItemSource extends ItemSource {
             counter += edelta();
 
             if (counter >= 1) {
-                items.set(outputItem,Integer.MAX_VALUE);
-                ECTool.dump(this,outputItem);
-                items.set(outputItem,0);
+                items.set(outputItem, Integer.MAX_VALUE);
+                ECTool.dump(this, outputItem);
+                items.set(outputItem, 0);
                 counter %= 1;
             }
         }

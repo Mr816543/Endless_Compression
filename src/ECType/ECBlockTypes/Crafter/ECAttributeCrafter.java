@@ -1,16 +1,14 @@
 package ECType.ECBlockTypes.Crafter;
 
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.game.Team;
-import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.production.AttributeCrafter;
-import mindustry.world.blocks.production.GenericCrafter;
-import mindustry.world.meta.BlockGroup;
 
-public class ECAttributeCrafter extends ECGenericCrafter{
+public class ECAttributeCrafter extends ECGenericCrafter implements EC {
 
     public ECAttributeCrafter(AttributeCrafter root) throws IllegalAccessException {
         super("compression-" + root.name);
@@ -46,7 +44,7 @@ public class ECAttributeCrafter extends ECGenericCrafter{
 
 
     @Override
-    public boolean canPlaceOn(Tile tile, Team team, int rotation){
+    public boolean canPlaceOn(Tile tile, Team team, int rotation) {
         //make sure there's enough efficiency at this location
         return baseEfficiency + tile.getLinkedTilesAs(this, tempTiles).sumf(other -> other.floor().attributes.get(attribute)) >= minEfficiency;
     }

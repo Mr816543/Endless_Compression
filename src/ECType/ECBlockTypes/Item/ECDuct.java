@@ -1,25 +1,21 @@
 package ECType.ECBlockTypes.Item;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
-import arc.util.Log;
-import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Building;
 import mindustry.gen.Teamc;
 import mindustry.type.Item;
 import mindustry.world.Edges;
-import mindustry.world.blocks.distribution.BufferedItemBridge;
 import mindustry.world.blocks.distribution.Duct;
-import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 
-public class ECDuct extends Duct {
+public class ECDuct extends Duct implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
@@ -35,7 +31,7 @@ public class ECDuct extends Duct {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
+        ECTool.loadHealth(this, root, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -47,38 +43,49 @@ public class ECDuct extends Duct {
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
-        if (root.bridgeReplacement != null){
-            bridgeReplacement = ECData.get(root.bridgeReplacement,level);
+        if (root.bridgeReplacement != null) {
+            bridgeReplacement = ECData.get(root.bridgeReplacement, level);
         }
     }
 
 
     @Override
-    public void setStats(){
+    public void setStats() {
         super.setStats();
         stats.remove(Stat.itemsMoved);
-        stats.add(Stat.itemsMoved, 60f / speed * Mathf.pow(5,level), StatUnit.itemsSecond);
+        stats.add(Stat.itemsMoved, 60f / speed * Mathf.pow(5, level), StatUnit.itemsSecond);
     }
 
-    public class ECDuctBuild extends DuctBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECDuctBuild extends DuctBuild {
 
 
         @Override
-        public void updateTile(){
+        public void updateTile() {
             progress += edelta() / speed * 2f;
 
-            if(current != null && next != null){
-                if(progress >= (1f - 1f/speed) && moveForward(current)){
+            if (current != null && next != null) {
+                if (progress >= (1f - 1f / speed) && moveForward(current)) {
                     current = null;
-                    progress %= (1f - 1f/speed);
+                    progress %= (1f - 1f / speed);
                 }
-            }else{
+            } else {
                 progress = 0;
             }
 
-            if(current == null && items.total() > 0){
+            if (current == null && items.total() > 0) {
                 current = items.first();
             }
         }
@@ -90,24 +97,23 @@ public class ECDuct extends Duct {
 
 
                 if (other instanceof ItemVoid.ItemVoidBuild) {
-                    other.flowItems().add(item,items.get(item));
+                    other.flowItems().add(item, items.get(item));
                     items.set(item, 0);
                     return true;
                 }
 
-                int move = other.acceptStack(item,items.get(item),this);
-                if (!other.acceptItem(this,item)) move = 0;
-                if (move>0){
-                    other.handleStack(item,move,this);
-                    items.remove(item,move);
+                int move = other.acceptStack(item, items.get(item), this);
+                if (!other.acceptItem(this, item)) move = 0;
+                if (move > 0) {
+                    other.handleStack(item, move, this);
+                    items.remove(item, move);
                     return true;
 
-                }else if(other.acceptItem(this,item)) {
-                    other.handleItem(this,item);
-                    items.remove(item,1);
+                } else if (other.acceptItem(this, item)) {
+                    other.handleItem(this, item);
+                    items.remove(item, 1);
                     return true;
-                }
-                else {
+                } else {
                     return false;
                 }
 
@@ -122,9 +128,9 @@ public class ECDuct extends Duct {
         }
 
         @Override
-        public boolean acceptItem(Building source, Item item){
+        public boolean acceptItem(Building source, Item item) {
             if (source == this && (current == null || current == item)) return true;
-            return ((current == null && items.total() < itemCapacity )||(current == item && items.total() < itemCapacity))&&
+            return ((current == null && items.total() < itemCapacity) || (current == item && items.total() < itemCapacity)) &&
                     (armored ?
                             //armored acceptance
                             ((source.block.rotate && source.front() == this && source.block.hasItems && source.block.isDuct) ||
@@ -135,27 +141,27 @@ public class ECDuct extends Duct {
         }
 
         @Override
-        public int removeStack(Item item, int amount){
+        public int removeStack(Item item, int amount) {
             int removed = super.removeStack(item, amount);
-            if(item == current) current = null;
+            if (item == current) current = null;
             return removed;
         }
 
         @Override
-        public void handleStack(Item item, int amount, Teamc source){
+        public void handleStack(Item item, int amount, Teamc source) {
             items.add(item, amount);
             noSleep();
             current = item;
             progress = -1f;
-            if (source instanceof Building){
-                recDir = relativeToEdge(((Building)source).tile);
-            }else {
+            if (source instanceof Building) {
+                recDir = relativeToEdge(((Building) source).tile);
+            } else {
                 recDir = relativeToEdge(tile);
             }
         }
 
         @Override
-        public void handleItem(Building source, Item item){
+        public void handleItem(Building source, Item item) {
             current = item;
             progress = -1f;
             recDir = relativeToEdge(source.tile);

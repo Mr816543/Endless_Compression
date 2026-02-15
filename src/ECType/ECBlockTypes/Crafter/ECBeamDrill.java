@@ -1,19 +1,14 @@
 package ECType.ECBlockTypes.Crafter;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import ECContents.Achievements;
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.math.geom.Geometry;
-import arc.util.Log;
 import arc.util.Strings;
 import arc.util.Tmp;
-import mindustry.game.Team;
 import mindustry.graphics.Drawf;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
@@ -24,7 +19,6 @@ import mindustry.world.Tile;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.environment.StaticWall;
 import mindustry.world.blocks.production.BeamDrill;
-import mindustry.world.blocks.production.Drill;
 import mindustry.world.consumers.ConsumeLiquid;
 import mindustry.world.consumers.ConsumeLiquidBase;
 import mindustry.world.meta.BlockGroup;
@@ -34,10 +28,10 @@ import mindustry.world.meta.StatValues;
 
 import static mindustry.Vars.*;
 
-public class ECBeamDrill extends BeamDrill {
+public class ECBeamDrill extends BeamDrill implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("drillEffectChance","range").linearConfig("itemCapacity", "rotateSpeed");
+            .scaleConfig("drillEffectChance", "range").linearConfig("itemCapacity", "rotateSpeed");
     public BeamDrill root;
     public int level;
     public float outputMultiple;
@@ -66,25 +60,25 @@ public class ECBeamDrill extends BeamDrill {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
-        compressOre = Core.settings.getBool(name,false);
+        compressOre = Core.settings.getBool(name, false);
         super.init();
     }
 
 
     @Override
-    public void setStats(){
+    public void setStats() {
         super.setStats();
 
         stats.remove(Stat.drillTier);
         stats.remove(Stat.drillSpeed);
         stats.remove(Stat.booster);
 
-        if (level> 2 && Achievements.beamDrillStrengthen.working(this)) stats.add(new Stat("compressore"),table -> {
-            table.button(compressOre?Core.bundle.get("stat.true"):Core.bundle.get("stat.false"), Styles.flatTogglet,()->{
+        if (level > 2 && Achievements.beamDrillStrengthen.working(this)) stats.add(new Stat("compressore"), table -> {
+            table.button(compressOre ? Core.bundle.get("stat.true") : Core.bundle.get("stat.false"), Styles.flatTogglet, () -> {
                 compressOre = !compressOre;
-                Core.settings.put(name,compressOre);
-            }).size(75,30);
-            table.setSize(75,30);
+                Core.settings.put(name, compressOre);
+            }).size(75, 30);
+            table.setSize(75, 30);
         });
 
         stats.add(Stat.drillTier, StatValues.drillables(drillTime, 0f, size * outputMultiple, drillMultipliers, b ->
@@ -94,61 +88,61 @@ public class ECBeamDrill extends BeamDrill {
 
         stats.add(Stat.drillSpeed, 60f / drillTime * size * outputMultiple, StatUnit.itemsSecond);
 
-        if(optionalBoostIntensity != 1 && findConsumer(f -> f instanceof ConsumeLiquidBase && f.booster) instanceof ConsumeLiquidBase consBase){
+        if (optionalBoostIntensity != 1 && findConsumer(f -> f instanceof ConsumeLiquidBase && f.booster) instanceof ConsumeLiquidBase consBase) {
             stats.remove(Stat.booster);
             stats.add(Stat.booster,
                     StatValues.speedBoosters("{0}" + StatUnit.timesSpeed.localized(),
                             consBase.amount, optionalBoostIntensity, false,
-                            l -> (consumesLiquid(l) && (findConsumer(f -> f instanceof ConsumeLiquid).booster || ((ConsumeLiquid)findConsumer(f -> f instanceof ConsumeLiquid)).liquid != l)))
+                            l -> (consumesLiquid(l) && (findConsumer(f -> f instanceof ConsumeLiquid).booster || ((ConsumeLiquid) findConsumer(f -> f instanceof ConsumeLiquid)).liquid != l)))
             );
         }
     }
 
     @Override
-    public void setBars(){
+    public void setBars() {
         super.setBars();
         removeBar("drillspeed");
         addBar("drillspeed", (BeamDrillBuild e) ->
                 new Bar(() -> Core.bundle.format("bar.drillspeed", Strings.fixed(e.lastDrillSpeed * 60 * outputMultiple *
-                        (Achievements.beamDrillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
+                                (Achievements.beamDrillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
                         , 2)), () -> Pal.ammo, () -> e.warmup));
     }
 
 
     @Override
-    public boolean canReplace(Block other){
-        if(other.alwaysReplace) return true;
-        if(other.privileged) return false;
+    public boolean canReplace(Block other) {
+        if (other.alwaysReplace) return true;
+        if (other.privileged) return false;
         return other.replaceable &&
                 (other != this || (rotate && quickRotate)) &&
                 (((this.group != BlockGroup.none && other.group == this.group) || other == this)
-                        || (other == root) || (other instanceof ECBeamDrill d && d.root == this.root&&d.level<level))
+                        || (other == root) || (other instanceof ECBeamDrill d && d.root == this.root && d.level < level))
                 &&
                 (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
 
     @Override
-    public void drawPlace(int x, int y, int rotation, boolean valid){
+    public void drawPlace(int x, int y, int rotation, boolean valid) {
         Item item = null, invalidItem = null;
         boolean multiple = false;
         int count = 0;
 
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             nearbySide(x, y, rotation, i, Tmp.p1);
 
             int j = 0;
             Item found = null;
-            for(; j < range; j++){
-                int rx = Tmp.p1.x + Geometry.d4x(rotation)*j, ry = Tmp.p1.y + Geometry.d4y(rotation)*j;
+            for (; j < range; j++) {
+                int rx = Tmp.p1.x + Geometry.d4x(rotation) * j, ry = Tmp.p1.y + Geometry.d4y(rotation) * j;
                 Tile other = world.tile(rx, ry);
-                if(other != null && other.solid()){
+                if (other != null && other.solid()) {
                     Item drop = other.wallDrop();
-                    if(drop != null){
-                        if(drop.hardness <= tier && (blockedItems == null || !blockedItems.contains(drop))){
+                    if (drop != null) {
+                        if (drop.hardness <= tier && (blockedItems == null || !blockedItems.contains(drop))) {
                             found = drop;
                             count++;
-                        }else{
+                        } else {
                             invalidItem = drop;
                         }
                     }
@@ -156,9 +150,9 @@ public class ECBeamDrill extends BeamDrill {
                 }
             }
 
-            if(found != null){
+            if (found != null) {
                 //check if multiple items will be drilled
-                if(item != found && item != null){
+                if (item != found && item != null) {
                     multiple = true;
                 }
                 item = found;
@@ -167,64 +161,75 @@ public class ECBeamDrill extends BeamDrill {
             int len = Math.min(j, range - 1);
             Drawf.dashLine(found == null ? Pal.remove : Pal.placing,
                     Tmp.p1.x * tilesize,
-                    Tmp.p1.y *tilesize,
-                    (Tmp.p1.x + Geometry.d4x(rotation)*len) * tilesize,
-                    (Tmp.p1.y + Geometry.d4y(rotation)*len) * tilesize
+                    Tmp.p1.y * tilesize,
+                    (Tmp.p1.x + Geometry.d4x(rotation) * len) * tilesize,
+                    (Tmp.p1.y + Geometry.d4y(rotation) * len) * tilesize
             );
         }
 
-        if(item != null){
+        if (item != null) {
             float width = drawPlaceText(Core.bundle.formatFloat("bar.drillspeed", 60f / getDrillTime(item) * count * outputMultiple *
-                    (Achievements.beamDrillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
-                    , 2) , x, y, valid);
-            if(!multiple){
+                            (Achievements.beamDrillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
+                    , 2), x, y, valid);
+            if (!multiple) {
 
-                if (Achievements.beamDrillStrengthen.working(this)&&compressOre){
-                    item = ECData.get(item, level-2);
+                if (Achievements.beamDrillStrengthen.working(this) && compressOre) {
+                    item = ECData.get(item, level - 2);
                 }
 
-                float dx = x * tilesize + offset - width/2f - 4f, dy = y * tilesize + offset + size * tilesize / 2f + 5, s = iconSmall / 4f;
+                float dx = x * tilesize + offset - width / 2f - 4f, dy = y * tilesize + offset + size * tilesize / 2f + 5, s = iconSmall / 4f;
                 Draw.mixcol(Color.darkGray, 1f);
                 Draw.rect(item.fullIcon, dx, dy - 1, s, s);
                 Draw.reset();
                 Draw.rect(item.fullIcon, dx, dy, s, s);
             }
-        }else if(invalidItem != null){
+        } else if (invalidItem != null) {
             drawPlaceText(Core.bundle.get("bar.drilltierreq"), x, y, false);
         }
 
     }
 
-    public class ECBeamDrillBuild extends BeamDrillBuild{
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECBeamDrillBuild extends BeamDrillBuild {
 
 
         @Override
-        public void updateTile(){
+        public void updateTile() {
 
-            for(Tile tile : facing){
+            for (Tile tile : facing) {
                 Item dominantItem = tile == null ? null : tile.wallDrop();
 
-                if (Achievements.beamDrillStrengthen.working(this.block)&&compressOre){
+                if (Achievements.beamDrillStrengthen.working(this.block) && compressOre) {
 
                     int powNum = Mathf.pow(9, level - 2);
                     int have = items.get(dominantItem);
                     Item cItem = ECData.get(dominantItem, level - 2);
 
-                    if (level > 2 && have >= powNum){
+                    if (level > 2 && have >= powNum) {
                         int num = have / powNum;
-                        if (num > 0&& have - ( num * powNum) >= 0){
-                            items.remove(dominantItem,num * powNum);
-                            produced(dominantItem,num * -powNum);
-                            items.add(cItem,num);
-                            produced(cItem,num);
+                        if (num > 0 && have - (num * powNum) >= 0) {
+                            items.remove(dominantItem, num * powNum);
+                            produced(dominantItem, num * -powNum);
+                            items.add(cItem, num);
+                            produced(cItem, num);
                         }
                     }
-                    if(timer(timerDump, dumpTime / timeScale)){
+                    if (timer(timerDump, dumpTime / timeScale)) {
                         dump(cItem);
                     }
-                }
-                else {
-                    if(timer(timerDump, dumpTime / timeScale)){
+                } else {
+                    if (timer(timerDump, dumpTime / timeScale)) {
                         dump();
                     }
                 }
@@ -232,7 +237,7 @@ public class ECBeamDrill extends BeamDrill {
             }
 
 
-            if(lasers[0] == null) updateLasers();
+            if (lasers[0] == null) updateLasers();
 
             warmup = Mathf.approachDelta(warmup, Mathf.num(efficiency > 0), 1f / 60f);
 
@@ -245,10 +250,10 @@ public class ECBeamDrill extends BeamDrill {
 
             time += edelta() * multiplier;
 
-            if(time >= drillTime){
-                for(Tile tile : facing){
+            if (time >= drillTime) {
+                for (Tile tile : facing) {
                     Item drop = tile == null ? null : tile.wallDrop();
-                    if(items.total() < itemCapacity && drop != null){
+                    if (items.total() < itemCapacity && drop != null) {
                         items.add(drop, (int) (1 * outputMultiple));
                         produced(drop, (int) (1 * outputMultiple));
                     }
@@ -268,14 +273,12 @@ public class ECBeamDrill extends BeamDrill {
         @Override
         public void drawSelect() {
             drawItemSelection(
-                    (Achievements.beamDrillStrengthen.working(this.block)&&compressOre ? ECData.get(lastItem, level-2) : lastItem)
+                    (Achievements.beamDrillStrengthen.working(this.block) && compressOre ? ECData.get(lastItem, level - 2) : lastItem)
             );
         }
 
 
     }
-
-
 
 
 }

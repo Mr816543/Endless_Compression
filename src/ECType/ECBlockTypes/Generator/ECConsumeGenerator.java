@@ -1,5 +1,6 @@
 package ECType.ECBlockTypes.Generator;
 
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import ECType.ECBlockTypes.Crafter.ECMultiCrafter;
@@ -13,18 +14,18 @@ import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawLiquidOutputs;
 import mindustry.world.draw.DrawMulti;
 
-public class ECConsumeGenerator extends ECMultiCrafter {
+public class ECConsumeGenerator extends ECMultiCrafter implements EC {
 
     public ConsumeGenerator root;
 
 
     public ECConsumeGenerator(ConsumeGenerator root) throws IllegalAccessException {
-        super("compress-"+root.name);
+        super("compress-" + root.name);
 
 
         this.root = root;
 
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,1));
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, 1));
         localizedName = Core.bundle.get("Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
@@ -36,7 +37,7 @@ public class ECConsumeGenerator extends ECMultiCrafter {
 
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, 0);
-        ECData.register(root,this,1);
+        ECData.register(root, this, 1);
     }
 
 
@@ -57,25 +58,26 @@ public class ECConsumeGenerator extends ECMultiCrafter {
             if (root.drawer instanceof DrawMulti drawMulti) {
                 drawer = new DrawMulti();
                 ((DrawMulti) drawer).drawers = new DrawBlock[drawMulti.drawers.length];
-                for (int i = 0 ; i < drawMulti.drawers.length;i++){
+                for (int i = 0; i < drawMulti.drawers.length; i++) {
 
-                    if (drawMulti.drawers[i] instanceof DrawLiquidOutputs){
-                        (((DrawMulti) drawer).drawers)[i] = new DrawLiquidOutputs(){
-                            public ECMultiCrafter expectMultiCrafter(Block block){
-                                if(!(block instanceof ECMultiCrafter crafter))
+                    if (drawMulti.drawers[i] instanceof DrawLiquidOutputs) {
+                        (((DrawMulti) drawer).drawers)[i] = new DrawLiquidOutputs() {
+                            public ECMultiCrafter expectMultiCrafter(Block block) {
+                                if (!(block instanceof ECMultiCrafter crafter))
                                     throw new ClassCastException("This drawer requires the block to be a MultiCrafter. Use a different drawer.");
                                 return crafter;
                             }
+
                             @Override
                             public void load(Block block) {
                                 ECMultiCrafter crafter = this.expectMultiCrafter(block);
-                                for (Recipe r:crafter.recipes){
+                                for (Recipe r : crafter.recipes) {
 
                                     if (r.outputLiquids != null) {
                                         this.liquidOutputRegions = new TextureRegion[2][r.outputLiquids.length];
 
-                                        for(int i = 0; i < r.outputLiquids.length; ++i) {
-                                            for(int j = 1; j <= 2; ++j) {
+                                        for (int i = 0; i < r.outputLiquids.length; ++i) {
+                                            for (int j = 1; j <= 2; ++j) {
                                                 this.liquidOutputRegions[j - 1][i] = Core.atlas.find(block.name + "-" + r.outputLiquids[i].liquid.name + "-output" + j);
                                             }
                                         }
@@ -95,11 +97,11 @@ public class ECConsumeGenerator extends ECMultiCrafter {
 
 
             if (root.outputLiquid != null) {
-                outputLiquids = new LiquidStack[]{new LiquidStack(root.outputLiquid.liquid,root.outputLiquid.amount*crafterTime)};
+                outputLiquids = new LiquidStack[]{new LiquidStack(root.outputLiquid.liquid, root.outputLiquid.amount * crafterTime)};
             }
 
 
-            if (root.powerProduction > 0){
+            if (root.powerProduction > 0) {
                 outputPower = root.powerProduction * 1.5f;
             }
 
@@ -108,12 +110,12 @@ public class ECConsumeGenerator extends ECMultiCrafter {
                     inputItems = consumer.items;
                 }
                 if (cons instanceof ConsumeLiquid consumer) {
-                    inputLiquids = new LiquidStack[]{new LiquidStack(consumer.liquid, consumer.amount*crafterTime)};
+                    inputLiquids = new LiquidStack[]{new LiquidStack(consumer.liquid, consumer.amount * crafterTime)};
                 }
                 if (cons instanceof ConsumeLiquids consumer) {
                     inputLiquids = new LiquidStack[consumer.liquids.length];
-                    for (int i = 0 ; i < inputLiquids.length;i++){
-                        inputLiquids[i] = new LiquidStack(consumer.liquids[i].liquid,consumer.liquids[i].amount*crafterTime);
+                    for (int i = 0; i < inputLiquids.length; i++) {
+                        inputLiquids[i] = new LiquidStack(consumer.liquids[i].liquid, consumer.liquids[i].amount * crafterTime);
                     }
                 }
                 if (cons instanceof ConsumePower consumer) {
@@ -124,8 +126,19 @@ public class ECConsumeGenerator extends ECMultiCrafter {
 
         }};
         recipes.add(recipe);
-        for (int i = 1 ; i <=9;i++){
+        for (int i = 1; i <= 9; i++) {
             recipes.add(recipe.createCompressedRecipe(i));
         }
     }
+
+    @Override
+    public int getLevel() {
+        return 1;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 }

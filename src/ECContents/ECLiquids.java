@@ -1,6 +1,5 @@
 package ECContents;
 
-import ECConfig.ECData;
 import ECType.ECCellLiquid;
 import ECType.ECLiquid;
 import arc.Core;
@@ -9,7 +8,7 @@ import mindustry.Vars;
 import mindustry.type.CellLiquid;
 import mindustry.type.Liquid;
 
-import static ECConfig.ECSetting.*;
+import static ECConfig.ECSetting.MAX_LEVEL;
 import static ECConfig.ECTool.mergeRegions;
 
 public class ECLiquids {
@@ -42,11 +41,11 @@ public class ECLiquids {
         }
     }
 
-    public static void setCompressionIcon(Liquid liquid, Liquid comppressLiquid,int num){
-        if (liquid.uiIcon!=null){
-            comppressLiquid.uiIcon = comppressLiquid.fullIcon = mergeRegions(liquid.uiIcon,num);
-        }else {
-            Core.app.post(() -> setCompressionIcon(liquid,comppressLiquid,num));
+    public static void setCompressionIcon(Liquid liquid, Liquid comppressLiquid, int num) {
+        if (liquid.uiIcon != null) {
+            comppressLiquid.uiIcon = comppressLiquid.fullIcon = mergeRegions(liquid.uiIcon, num);
+        } else {
+            Core.app.post(() -> setCompressionIcon(liquid, comppressLiquid, num));
         }
     }
 

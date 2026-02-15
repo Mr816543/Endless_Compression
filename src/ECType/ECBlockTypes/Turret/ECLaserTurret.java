@@ -1,13 +1,13 @@
 package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import mindustry.world.blocks.defense.RegenProjector;
 import mindustry.world.blocks.defense.turrets.LaserTurret;
 
-public class ECLaserTurret extends LaserTurret {
+public class ECLaserTurret extends LaserTurret implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("range")
@@ -36,13 +36,23 @@ public class ECLaserTurret extends LaserTurret {
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root, level,true);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level, true);
         try {
-            shootType = ECTool.compressBulletType(root.shootType,level);
+            shootType = ECTool.compressBulletType(root.shootType, level);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

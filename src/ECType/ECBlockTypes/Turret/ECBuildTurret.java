@@ -1,16 +1,15 @@
 package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.util.Log;
 import mindustry.world.blocks.defense.BuildTurret;
-import mindustry.world.blocks.defense.RegenProjector;
 
-public class ECBuildTurret extends BuildTurret {
+public class ECBuildTurret extends BuildTurret implements EC {
 
-    public static Config config = new Config().addConfigSimple(null, "buildType","unitType")
+    public static Config config = new Config().addConfigSimple(null, "buildType", "unitType")
             .scaleConfig("range")
             .linearConfig("buildSpeed");
     public BuildTurret root;
@@ -39,6 +38,16 @@ public class ECBuildTurret extends BuildTurret {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

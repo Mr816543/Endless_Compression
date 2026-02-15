@@ -41,7 +41,7 @@ public class Achievements {
 
     public static Achievement
             startGame, c1, c2, c3, c4, c5, c6, c7, c8, c9,
-            drillStrengthen,beamDrillStrengthen,burstDrillStrengthen,wallCrafterStrengthen,
+            drillStrengthen, beamDrillStrengthen, burstDrillStrengthen, wallCrafterStrengthen,
             pumpStrengthen,
             explosiveArt, explosiveArtBig, explosiveArtMax, cleanPower, killer, compressCore;
 
@@ -66,10 +66,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -86,10 +86,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -106,10 +106,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -126,10 +126,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -146,10 +146,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -166,10 +166,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -186,10 +186,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -206,10 +206,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -226,10 +226,10 @@ public class Achievements {
                     unlock();
                 }
             });
-            setEvent(EventType.ContentInitEvent.class,e -> {
-                if (locked()){
-                    for (Item item : ECItems.items){
-                        if (ECData.get(item,index).unlocked()) {
+            setEvent(EventType.ContentInitEvent.class, e -> {
+                if (locked()) {
+                    for (Item item : ECItems.items) {
+                        if (ECData.get(item, index).unlocked()) {
                             unlock();
                             break;
                         }
@@ -503,7 +503,7 @@ public class Achievements {
                             }
                         }
 
-                        if (unlockedS||unlockedE) {
+                        if (unlockedS || unlockedE) {
                             unlock();
                         }
                     }
@@ -533,7 +533,7 @@ public class Achievements {
                         }
                     }
 
-                    if (unlockedS||unlockedE) {
+                    if (unlockedS || unlockedE) {
                         unlock();
                     }
                 });
@@ -562,7 +562,7 @@ public class Achievements {
                         }
                     }
 
-                    if (unlockedS||unlockedE) {
+                    if (unlockedS || unlockedE) {
                         unlock();
                     }
                 });

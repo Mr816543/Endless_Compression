@@ -1,6 +1,7 @@
 package ECType.ECBlockTypes.Payload;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
@@ -8,11 +9,11 @@ import mindustry.type.Item;
 import mindustry.type.Liquid;
 import mindustry.world.blocks.payloads.PayloadUnloader;
 
-public class ECPayloadUnloader extends PayloadUnloader {
+public class ECPayloadUnloader extends PayloadUnloader implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
-            .linearConfig("itemCapacity","liquidCapacity","maxPowerUnload");
+            .linearConfig("itemCapacity", "liquidCapacity", "maxPowerUnload");
 
     public PayloadUnloader root;
     public int level;
@@ -42,6 +43,16 @@ public class ECPayloadUnloader extends PayloadUnloader {
         super.init();
     }
 
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECPayloadUnloaderBuild extends PayloadUnloaderBuild {
 
@@ -52,12 +63,12 @@ public class ECPayloadUnloader extends PayloadUnloader {
 
         @Override
         public void dumpLiquid(Liquid liquid, float scaling, int outputDir) {
-            ECTool.dumpLiquid(liquid, scaling, outputDir,this);
+            ECTool.dumpLiquid(liquid, scaling, outputDir, this);
         }
 
         @Override
         public boolean dump(Item todump) {
-            return ECTool.dump(this,todump);
+            return ECTool.dump(this, todump);
         }
     }
 }

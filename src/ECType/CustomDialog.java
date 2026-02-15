@@ -1,24 +1,24 @@
 package ECType;
 
 import arc.Core;
+import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.*;
-import arc.scene.ui.layout.*;
-import arc.scene.*;
-import mindustry.Vars;
+import arc.input.KeyCode;
+import arc.scene.ui.Dialog;
+import arc.scene.ui.Label;
+import arc.scene.ui.ScrollPane;
+import arc.scene.ui.layout.Table;
+import arc.util.Align;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.mod.Mods;
-import mindustry.ui.dialogs.*;
-import arc.graphics.*;
-import arc.input.*;
-import arc.scene.style.*;
-import arc.util.*;
-import static mindustry.Vars.*;
+import mindustry.ui.dialogs.BaseDialog;
+
+import static mindustry.Vars.mods;
 
 public class CustomDialog extends BaseDialog {
     // 尺寸变量
-    float screenWidth,screenHeight, dialogHeight, dialogWidth , titleHeight,contentHeight , footerHeight, iconSize; // 图标尺寸
+    float screenWidth, screenHeight, dialogHeight, dialogWidth, titleHeight, contentHeight, footerHeight, iconSize; // 图标尺寸
     // 间距变量
     float padOuter = 20f; // 外间距
     float padInner = 15f; // 内间距
@@ -28,9 +28,9 @@ public class CustomDialog extends BaseDialog {
 
     // 颜色变量
     Color bgColor = Color.white;
-            //new Color(255f, 255f, 255f, 255f); // 背景
+    //new Color(255f, 255f, 255f, 255f); // 背景
     Color titleColor = Color.lightGray;
-                    //new Color(0.3f, 0.3f, 0.7f, 1f); // 标题背景色
+    //new Color(0.3f, 0.3f, 0.7f, 1f); // 标题背景色
     Color borderColor = Color.valueOf("404049"); // 边框颜色
 
     // 纹理变量（使用游戏内置图标）
@@ -136,7 +136,7 @@ public class CustomDialog extends BaseDialog {
                 // 左侧复选框
                 footer.check(toText("dialog.notShow"), false, value -> {
 
-                    Core.settings.put("showDialog",false);
+                    Core.settings.put("showDialog", false);
 
                 }).left();
 
@@ -156,7 +156,7 @@ public class CustomDialog extends BaseDialog {
     public Dialog show() {
         // 每次显示时更新尺寸
         updateSizes();
-        if (!setupFinish){
+        if (!setupFinish) {
             setup();
             setupFinish = true;
         }
@@ -169,7 +169,7 @@ public class CustomDialog extends BaseDialog {
         screenWidth = Core.graphics.getWidth();
         screenHeight = Core.graphics.getHeight();
 
-        if (Core.app.isMobile()){
+        if (Core.app.isMobile()) {
             screenWidth /= 2.5f;
             screenHeight /= 2f;
         }
@@ -184,7 +184,7 @@ public class CustomDialog extends BaseDialog {
 
     }
 
-    String toText(String key){
-        return Core.bundle.get(key,key);
+    String toText(String key) {
+        return Core.bundle.get(key, key);
     }
 }

@@ -13,7 +13,6 @@ import arc.scene.ui.layout.Table;
 import arc.struct.IntSet;
 import arc.struct.OrderedMap;
 import arc.struct.Seq;
-import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
@@ -192,7 +191,7 @@ public class ECMultiCrafter extends Block {
         });
     }
 
-    public void drawOverlay(float x, float y, int rotation,int index) {
+    public void drawOverlay(float x, float y, int rotation, int index) {
         super.drawOverlay(x, y, rotation);
     }
 
@@ -345,18 +344,18 @@ public class ECMultiCrafter extends Block {
     public String simple(int i) {
         StringBuilder r = new StringBuilder();
         if (i < 1E3) r.append(i);
-        else if (i < 1E6) r.append((int) (i / 1E1)/1E2).append("K");
-        else if (i < 1E9) r.append((int) (i / 1E4)/1E2).append("M");
-        else r.append((int) (i / 1E7)/1E2).append("B");
+        else if (i < 1E6) r.append((int) (i / 1E1) / 1E2).append("K");
+        else if (i < 1E9) r.append((int) (i / 1E4) / 1E2).append("M");
+        else r.append((int) (i / 1E7) / 1E2).append("B");
         return r.toString();
     }
 
-    public String simple(float f){
+    public String simple(float f) {
         StringBuilder r = new StringBuilder();
-        if (f < 1E3) r.append(((int)(f*1E2))/1E2);
-        else if (f < 1E6) r.append((int) (f / 1E1)/1E2).append("K");
-        else if (f < 1E9) r.append((int) (f / 1E4)/1E2).append("M");
-        else r.append((int) (f / 1E7)/1E2).append("B");
+        if (f < 1E3) r.append(((int) (f * 1E2)) / 1E2);
+        else if (f < 1E6) r.append((int) (f / 1E1) / 1E2).append("K");
+        else if (f < 1E9) r.append((int) (f / 1E4) / 1E2).append("M");
+        else r.append((int) (f / 1E7) / 1E2).append("B");
         return r.toString();
     }
 
@@ -526,7 +525,7 @@ public class ECMultiCrafter extends Block {
                         }
 
                         //t.add(new Image(imageForRecipe(r))).size(40f);
-                    })).grow().left().color(r.isUnlocked()?Color.gray:Color.clear);
+                    })).grow().left().color(r.isUnlocked() ? Color.gray : Color.clear);
                 }, Styles.cleart, () -> {//触发事件
                     build.index = finalI;
                     build.progress = 0f;
@@ -574,15 +573,13 @@ public class ECMultiCrafter extends Block {
         public float warmup = 0;
 
         public float sleepTimer = 0;
+        /* 环境工厂 */
+        public float attrsum;
 
         @Override
         public void configured(Unit builder, Object value) {
             super.configured(builder, value);
         }
-
-        /* 环境工厂 */
-        public float attrsum;
-
 
         @Override
         public void displayBars(Table table) {
@@ -667,12 +664,12 @@ public class ECMultiCrafter extends Block {
                         unitCraft(r);
                         progress -= 1f;
                     }
-                }else {
+                } else {
                     progress = 0;
                     warmup = Mathf.approachDelta(warmup, 0, r.warmupRate);
                 }
 
-                if(timer(timerDump, dumpTime / timeScale)){
+                if (timer(timerDump, dumpTime / timeScale)) {
                     dumpRecipe(r);
                 }
 
@@ -682,7 +679,7 @@ public class ECMultiCrafter extends Block {
         }
 
 
-        public float warmupTarget(){
+        public float warmupTarget() {
             if (recipes.get(index).inputHeat == 0) return 1f;
             return Mathf.clamp(heat / recipes.get(index).inputHeat);
         }
@@ -790,7 +787,7 @@ public class ECMultiCrafter extends Block {
             Building b = this;
             for (ItemStack input : r.inputItems) {
                 b.items.remove(input.item, input.amount);
-                produced(input.item,-input.amount);
+                produced(input.item, -input.amount);
             }
             for (LiquidStack input : r.inputLiquids) {
                 b.liquids.remove(input.liquid, input.amount);
@@ -810,7 +807,7 @@ public class ECMultiCrafter extends Block {
             Building b = this;
             for (ItemStack output : r.outputItems) {
                 b.items.add(output.item, output.amount);
-                produced(output.item,output.amount);
+                produced(output.item, output.amount);
             }
             for (LiquidStack output : r.outputLiquids) {
                 b.liquids.add(output.liquid, output.amount);
@@ -874,14 +871,14 @@ public class ECMultiCrafter extends Block {
         public void dumpRecipe(Recipe r) {
             Building b = this;
             for (ItemStack output : r.outputItems) {
-                ECTool.dump(this,output.item);
+                ECTool.dump(this, output.item);
             }
-                for(int i = 0; i < r.outputLiquids.length; i++){
-                    LiquidStack output = r.outputLiquids[i];
-                    int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
-                    //ECTool.print(r.liquidOutputDirections.length);
-                    ECTool.dumpLiquid(output.liquid, 1f, dir,this);
-                }
+            for (int i = 0; i < r.outputLiquids.length; i++) {
+                LiquidStack output = r.outputLiquids[i];
+                int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
+                //ECTool.print(r.liquidOutputDirections.length);
+                ECTool.dumpLiquid(output.liquid, 1f, dir, this);
+            }
 
         }
 
@@ -897,15 +894,15 @@ public class ECMultiCrafter extends Block {
             }
             if (r.outputHeat > 0) {
                 if (canConsume) {
-                    if (heat >= r.outputHeat * 9){
-                        heat = Mathf.approachDelta(heat, r.outputHeat, r.warmupRate * delta() * heat/r.outputHeat);
-                    }else {
+                    if (heat >= r.outputHeat * 9) {
+                        heat = Mathf.approachDelta(heat, r.outputHeat, r.warmupRate * delta() * heat / r.outputHeat);
+                    } else {
                         heat = Mathf.approachDelta(heat, r.outputHeat, r.warmupRate * delta());
                     }
                 } else {
-                    if (heat >= r.outputHeat * 9){
-                        heat = Mathf.approachDelta(heat, 0, r.warmupRate * delta() * heat/r.outputHeat);
-                    }else {
+                    if (heat >= r.outputHeat * 9) {
+                        heat = Mathf.approachDelta(heat, 0, r.warmupRate * delta() * heat / r.outputHeat);
+                    } else {
                         heat = Mathf.approachDelta(heat, 0, r.warmupRate * delta());
                     }
                 }
@@ -920,6 +917,7 @@ public class ECMultiCrafter extends Block {
 
         /**
          * 计算当前建筑从相邻热源建筑接收的总热量，并按方向分配到各侧面
+         *
          * @param sideHeat 用于存储四个方向（右、上、左、下）接收热量的数组
          * @param cameFrom 用于记录热量传递路径来源的建筑ID集合，避免循环传递
          * @return 当前建筑从所有相邻热源接收的总热量
@@ -966,7 +964,7 @@ public class ECMultiCrafter extends Block {
                 boolean isHeatConductorBuild = adjacentBuilding instanceof HeatConductor.HeatConductorBuild;
                 if (isHeatConductorBuild) {
                     HeatConductor.HeatConductorBuild conductorBuild = (HeatConductor.HeatConductorBuild) adjacentBuilding;
-                    if (conductorBuild.cameFrom.contains(this.id())&&recipes.get(index).outputHeat>0) {
+                    if (conductorBuild.cameFrom.contains(this.id()) && recipes.get(index).outputHeat > 0) {
                         continue;
                     }
                 }
@@ -1133,7 +1131,7 @@ public class ECMultiCrafter extends Block {
             if (Core.settings.getBool("ECSync")) {
                 write.i(index);//保存当前配方索引
                 write.f(heat);
-                }
+            }
         }
 
         @Override
@@ -1197,7 +1195,7 @@ public class ECMultiCrafter extends Block {
             if (recipes.get(index).inputHeat > 0) {
                 return 0f;
             }
-            if (recipes.get(index).outputHeat > 0){
+            if (recipes.get(index).outputHeat > 0) {
 
             }
             return heat;
@@ -1226,10 +1224,10 @@ public class ECMultiCrafter extends Block {
         @Override
         public float efficiencyScale() {
             if (scaleLiquidConsumption) return efficiencyMultiplier();
-            if (recipes.get(index).inputHeat>0){
+            if (recipes.get(index).inputHeat > 0) {
                 float heatRequirement = recipes.get(index).inputHeat;
                 float over = Math.max(heat - heatRequirement, 0f);
-                return Math.min(Mathf.clamp(heat / heatRequirement) + over / heatRequirement * ( block instanceof ECHeatCrafter b ? b.root.overheatScale:1f), ( block instanceof ECHeatCrafter b ? b.root.maxEfficiency:4f));
+                return Math.min(Mathf.clamp(heat / heatRequirement) + over / heatRequirement * (block instanceof ECHeatCrafter b ? b.root.overheatScale : 1f), (block instanceof ECHeatCrafter b ? b.root.maxEfficiency : 4f));
             }
             return super.efficiencyScale();
         }
@@ -1249,7 +1247,7 @@ public class ECMultiCrafter extends Block {
 
         @Override
         public void drawSelect() {
-            ((ECMultiCrafter)block).drawOverlay(x,y, rotation,index);
+            ((ECMultiCrafter) block).drawOverlay(x, y, rotation, index);
         }
 
     }

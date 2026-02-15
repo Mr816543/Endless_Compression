@@ -1,17 +1,17 @@
 package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.struct.ObjectMap;
 import mindustry.type.Liquid;
-import mindustry.world.blocks.defense.RegenProjector;
 import mindustry.world.blocks.defense.turrets.ContinuousLiquidTurret;
 
-public class ECContinuousLiquidTurret extends ContinuousLiquidTurret {
+public class ECContinuousLiquidTurret extends ContinuousLiquidTurret implements EC {
 
-    public static Config config = new Config().addConfigSimple(null, "buildType","ammoTypes")
+    public static Config config = new Config().addConfigSimple(null, "buildType", "ammoTypes")
             .scaleConfig("range")
             .linearConfig();
     public ContinuousLiquidTurret root;
@@ -39,19 +39,29 @@ public class ECContinuousLiquidTurret extends ContinuousLiquidTurret {
     @Override
     public void init() {
         ammoTypes = new ObjectMap<>();
-        for (Liquid l : root.ammoTypes.keys()){
-            if (ECData.hasECContent(l)){
+        for (Liquid l : root.ammoTypes.keys()) {
+            if (ECData.hasECContent(l)) {
                 try {
-                    ammoTypes.put(ECData.get(l,level),ECTool.compressBulletType(root.ammoTypes.get(l),level));
+                    ammoTypes.put(ECData.get(l, level), ECTool.compressBulletType(root.ammoTypes.get(l), level));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-            }else {
-                ammoTypes.put(l,root.ammoTypes.get(l));
+            } else {
+                ammoTypes.put(l, root.ammoTypes.get(l));
             }
         }
         //consumeBuilder = ECTool.consumeBuilderCopy(root, level,true);
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

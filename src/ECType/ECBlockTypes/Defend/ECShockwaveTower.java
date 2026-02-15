@@ -1,16 +1,16 @@
 package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import mindustry.world.blocks.defense.RegenProjector;
 import mindustry.world.blocks.defense.ShockwaveTower;
 
-public class ECShockwaveTower extends ShockwaveTower {
+public class ECShockwaveTower extends ShockwaveTower implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("range","shake","shapeRotateSpeed","shapeRadius")
+            .scaleConfig("range", "shake", "shapeRotateSpeed", "shapeRadius")
             .linearConfig("bulletDamage");
     public ShockwaveTower root;
     public int level;
@@ -38,6 +38,16 @@ public class ECShockwaveTower extends ShockwaveTower {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

@@ -1,17 +1,15 @@
 package ECType.ECBlockTypes.Crafter;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.math.Mathf;
 import mindustry.world.Block;
-import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.Separator;
 import mindustry.world.meta.BlockGroup;
 
-public class ECSeparator extends Separator {
+public class ECSeparator extends Separator implements EC {
 
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
@@ -19,7 +17,7 @@ public class ECSeparator extends Separator {
     public Separator root;
     public int level;
 
-    public ECSeparator(Separator root,int level) throws IllegalAccessException {
+    public ECSeparator(Separator root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
@@ -33,15 +31,15 @@ public class ECSeparator extends Separator {
         description = root.description;
         details = root.details;
 
-        results = ECTool.compressItemStack(root.results,level,false);
+        results = ECTool.compressItemStack(root.results, level, false);
 
         ECData.register(root, this, level);
     }
 
     @Override
-    public boolean canReplace(Block other){
-        if(other.alwaysReplace) return true;
-        if(other.privileged) return false;
+    public boolean canReplace(Block other) {
+        if (other.alwaysReplace) return true;
+        if (other.privileged) return false;
         return other.replaceable &&
                 (other != this || (rotate && quickRotate)) &&
                 ((this.group != BlockGroup.none && other.group == this.group) || other == this.root) &&
@@ -54,7 +52,18 @@ public class ECSeparator extends Separator {
         super.init();
     }
 
-    public class ECSeparatorBuild extends SeparatorBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECSeparatorBuild extends SeparatorBuild {
 
     }
 }

@@ -1,9 +1,6 @@
 package ECType.ECBlockTypes.Liquid;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
 import arc.util.Time;
@@ -13,17 +10,12 @@ import mindustry.world.blocks.production.SolidPump;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 
-public class ECSolidPump extends SolidPump {
-    public Pump root;
-
-    public int level;
-
-    public float outputMultiple;
-
+public class ECSolidPump extends SolidPump implements EC {
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("liquidCapacity","health");
-
-
+            .scaleConfig().linearConfig("liquidCapacity", "health");
+    public Pump root;
+    public int level;
+    public float outputMultiple;
     public float itemUseTime = 60f;
 
     public ECSolidPump(SolidPump root, int level) throws IllegalAccessException {
@@ -31,24 +23,24 @@ public class ECSolidPump extends SolidPump {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
+        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
 
-        ECTool.compress(root, this,SolidPump.class, UnlockableContent.class, config, level);
+        ECTool.compress(root, this, SolidPump.class, UnlockableContent.class, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        ECTool.loadHealth(this, root, level);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
-        ECData.register(root,this,level);
+        ECData.register(root, this, level);
     }
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
@@ -66,12 +58,22 @@ public class ECSolidPump extends SolidPump {
     public void drawPlace(int x, int y, int rotation, boolean valid) {
         drawPotentialLinks(x, y);
 
-        if(attribute != null){
+        if (attribute != null) {
             drawPlaceText(Core.bundle.format("bar.efficiency", Math.round(Math.max((sumAttribute(attribute, x, y)) / size / size + percentSolid(x, y) * baseEfficiency, 0f) * 100 * outputMultiple)), x, y, valid);
         }
     }
 
-    public class ECSolidPumpBuild extends SolidPumpBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+    public class ECSolidPumpBuild extends SolidPumpBuild {
 
 
         public float accumulator;
@@ -80,8 +82,8 @@ public class ECSolidPump extends SolidPump {
         public void updateTile() {
 
 
-            if(efficiency > 0){
-                if(accumulator >= itemUseTime){
+            if (efficiency > 0) {
+                if (accumulator >= itemUseTime) {
                     consume();
                     accumulator -= itemUseTime;
                 }
@@ -89,7 +91,7 @@ public class ECSolidPump extends SolidPump {
                 accumulator += delta() * efficiency;
                 superUpdateTile();
 
-            }else{
+            } else {
                 warmup = Mathf.lerpDelta(warmup, 0f, 0.02f);
                 lastPump = 0f;
                 dumpLiquid(result);
@@ -102,24 +104,22 @@ public class ECSolidPump extends SolidPump {
             liquidDrop = result;
             float fraction = Math.max(validTiles + boost + (attribute == null ? 0 : attribute.env()), 0);
 
-            if(efficiency > 0 && typeLiquid() < liquidCapacity - 0.001f){
+            if (efficiency > 0 && typeLiquid() < liquidCapacity - 0.001f) {
                 float maxPump = Math.min(liquidCapacity - typeLiquid(), pumpAmount * delta() * fraction * efficiency * outputMultiple);
                 liquids.add(result, maxPump);
                 lastPump = maxPump / Time.delta;
                 warmup = Mathf.lerpDelta(warmup, 1f, 0.02f);
-                if(Mathf.chance(delta() * updateEffectChance))
+                if (Mathf.chance(delta() * updateEffectChance))
                     updateEffect.at(x + Mathf.range(size * 2f), y + Mathf.range(size * 2f));
-            }else{
+            } else {
                 warmup = Mathf.lerpDelta(warmup, 0f, 0.02f);
                 lastPump = 0f;
             }
 
             pumpTime += warmup * edelta();
 
-            ECTool.dumpLiquid(result,2F / outputMultiple,-1,this);
+            ECTool.dumpLiquid(result, 2F / outputMultiple, -1, this);
         }
-
-
 
 
     }

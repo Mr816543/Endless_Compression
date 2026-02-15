@@ -1,27 +1,15 @@
 package ECType.ECBlockTypes.Liquid;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
-import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.util.Time;
-import arc.util.Tmp;
 import mindustry.content.Fx;
 import mindustry.gen.Building;
-import mindustry.graphics.Layer;
-import mindustry.type.Item;
 import mindustry.type.Liquid;
 import mindustry.world.blocks.distribution.DirectionLiquidBridge;
-import mindustry.world.blocks.distribution.DuctBridge;
-import mindustry.world.blocks.liquid.LiquidBlock;
-import mindustry.world.blocks.sandbox.ItemVoid;
-import mindustry.world.meta.Stat;
-import mindustry.world.meta.StatUnit;
 
-public class ECDirectionLiquidBridge extends DirectionLiquidBridge {
+public class ECDirectionLiquidBridge extends DirectionLiquidBridge implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("range")
@@ -34,11 +22,11 @@ public class ECDirectionLiquidBridge extends DirectionLiquidBridge {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
+        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
+        ECTool.loadHealth(this, root, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -46,21 +34,31 @@ public class ECDirectionLiquidBridge extends DirectionLiquidBridge {
         details = root.details;
 
 
-
         ECData.register(root, this, level);
     }
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
 
     @Override
-    public void setStats(){
+    public void setStats() {
         super.setStats();
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECDirectionLiquidBridgeBuild extends DuctBridgeBuild {
 
@@ -78,9 +76,7 @@ public class ECDirectionLiquidBridge extends DirectionLiquidBridge {
                     flow = Math.min(flow, next.block.liquidCapacity - next.liquids.get(liquid));
                     if (flow > 0.0F && ofract <= fract && next.acceptLiquid(this, liquid)) {
 
-                        float max = Math.min(next.block.liquidCapacity-next.liquids.get(liquid) ,this.liquids.get(liquid) );
-
-
+                        float max = Math.min(next.block.liquidCapacity - next.liquids.get(liquid), this.liquids.get(liquid));
 
 
                         next.handleLiquid(this, liquid, flow);

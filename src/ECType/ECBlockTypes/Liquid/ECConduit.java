@@ -1,68 +1,71 @@
 package ECType.ECBlockTypes.Liquid;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
 import arc.util.Time;
-import mindustry.content.Blocks;
 import mindustry.content.Fx;
 import mindustry.entities.Puddles;
 import mindustry.gen.Building;
 import mindustry.type.Liquid;
 import mindustry.world.Tile;
-import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.blocks.liquid.Conduit;
 
-public class ECConduit extends Conduit{
-
-    public Conduit root;
-
-    public int level;
-
-    public float outputMultiple;
+public class ECConduit extends Conduit implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig().linearConfig("liquidCapacity");
+    public Conduit root;
+    public int level;
+    public float outputMultiple;
 
     public ECConduit(Conduit root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
+        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        ECTool.loadHealth(this, root, level);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
-        ECData.register(root,this,level);
+        ECData.register(root, this, level);
     }
 
 
     @Override
     public void init() {
         super.init();
-        if (root.junctionReplacement!=null) junctionReplacement = ECData.get(root.junctionReplacement,level);
-        if (root.bridgeReplacement!=null) bridgeReplacement = ECData.get(root.bridgeReplacement,level);
-        if (root.rotBridgeReplacement!=null) rotBridgeReplacement = ECData.get(root.rotBridgeReplacement,level);
+        if (root.junctionReplacement != null) junctionReplacement = ECData.get(root.junctionReplacement, level);
+        if (root.bridgeReplacement != null) bridgeReplacement = ECData.get(root.bridgeReplacement, level);
+        if (root.rotBridgeReplacement != null) rotBridgeReplacement = ECData.get(root.rotBridgeReplacement, level);
     }
 
-    public class ECConduitBuild extends ConduitBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECConduitBuild extends ConduitBuild {
         @Override
         public void updateTile() {
             smoothLiquid = Mathf.lerpDelta(smoothLiquid, liquids.currentAmount() / liquidCapacity, 0.05f);
 
-            if(liquids.currentAmount() > 0.0001f && timer(timerFlow, 1)){
+            if (liquids.currentAmount() > 0.0001f && timer(timerFlow, 1)) {
                 this.moveLiquidForward(leaks, liquids.current());
                 noSleep();
-            }else{
+            } else {
                 sleep();
             }
         }
@@ -98,9 +101,7 @@ public class ECConduit extends Conduit{
                     flow = Math.min(flow, next.block.liquidCapacity - next.liquids.get(liquid));
                     if (flow > 0.0F && ofract <= fract && next.acceptLiquid(this, liquid)) {
 
-                        float max = Math.min(next.block.liquidCapacity-next.liquids.get(liquid) ,this.liquids.get(liquid) );
-
-
+                        float max = Math.min(next.block.liquidCapacity - next.liquids.get(liquid), this.liquids.get(liquid));
 
 
                         next.handleLiquid(this, liquid, flow);

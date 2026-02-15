@@ -3,20 +3,24 @@ package ECContents;
 import ECConfig.ECTool;
 import ECType.ECBlockTypes.Crafter.*;
 import ECType.ECBlockTypes.Defend.*;
-import ECType.ECBlockTypes.Generator.*;
-import ECType.ECBlockTypes.Payload.*;
-import ECType.ECBlockTypes.Power.*;
+import ECType.ECBlockTypes.Generator.ECConsumeGenerator;
+import ECType.ECBlockTypes.Generator.ECConsumeItemFilterGenerator;
 import ECType.ECBlockTypes.Item.*;
 import ECType.ECBlockTypes.Liquid.*;
-import ECType.ECBlockTypes.SandBox.*;
+import ECType.ECBlockTypes.Payload.ECPayloadLoader;
+import ECType.ECBlockTypes.Payload.ECPayloadUnloader;
+import ECType.ECBlockTypes.Power.*;
+import ECType.ECBlockTypes.SandBox.ECItemSource;
+import ECType.ECBlockTypes.SandBox.ECLiquidSource;
+import ECType.ECBlockTypes.SandBox.ECPowerSource;
 import ECType.ECBlockTypes.Turret.*;
-import ECType.ECBlockTypes.Unit.*;
+import ECType.ECBlockTypes.Unit.ECReconstructor;
+import ECType.ECBlockTypes.Unit.ECUnitFactory;
 import arc.Core;
 import arc.math.geom.Geometry;
 import arc.math.geom.Point2;
 import arc.struct.Seq;
 import mindustry.Vars;
-import mindustry.content.Blocks;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.world.Block;
@@ -155,7 +159,7 @@ public class ECBlocks {
                 //冲击钻头
                 case "BurstDrill" -> {
                     if (!Core.settings.getBool("banContent"))
-                    for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
+                        for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
                 }
                 //等离子钻机
                 case "BeamDrill" -> {
@@ -189,7 +193,7 @@ public class ECBlocks {
                 case "LiquidBridge" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECLiquidBridge((LiquidBridge) root, i);
                 }
-                case "DirectionLiquidBridge" ->{
+                case "DirectionLiquidBridge" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECDirectionLiquidBridge((DirectionLiquidBridge) root, i);
                 }
 
@@ -199,7 +203,7 @@ public class ECBlocks {
                 }
                 //装卸器
                 case "Unloader" -> {
-                        for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECUnloader((Unloader) root, i);
                 }
                 //载荷装载器
                 case "PayloadLoader" -> {
@@ -209,8 +213,6 @@ public class ECBlocks {
                 case "PayloadUnloader" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECPayloadUnloader((PayloadUnloader) root, i);
                 }
-
-
 
 
                 //分类器

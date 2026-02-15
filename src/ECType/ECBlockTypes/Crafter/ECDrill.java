@@ -1,17 +1,12 @@
 package ECType.ECBlockTypes.Crafter;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import ECContents.Achievements;
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
-import arc.util.Log;
 import arc.util.Strings;
-import mindustry.content.Blocks;
 import mindustry.game.Team;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
@@ -27,7 +22,7 @@ import mindustry.world.meta.StatValues;
 
 import static mindustry.Vars.*;
 
-public class ECDrill extends Drill {
+public class ECDrill extends Drill implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("drillEffectChance").linearConfig("itemCapacity", "rotateSpeed");
@@ -59,7 +54,7 @@ public class ECDrill extends Drill {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
-        compressOre = Core.settings.getBool(name,false);
+        compressOre = Core.settings.getBool(name, false);
         super.init();
     }
 
@@ -71,21 +66,21 @@ public class ECDrill extends Drill {
         stats.remove(Stat.booster);
 
 
-        if (level> 2 && Achievements.drillStrengthen.working(this)) stats.add(new Stat("compressore"),table -> {
-            table.button(compressOre?Core.bundle.get("stat.true"):Core.bundle.get("stat.false"), Styles.flatTogglet,()->{
+        if (level > 2 && Achievements.drillStrengthen.working(this)) stats.add(new Stat("compressore"), table -> {
+            table.button(compressOre ? Core.bundle.get("stat.true") : Core.bundle.get("stat.false"), Styles.flatTogglet, () -> {
                 compressOre = !compressOre;
-                Core.settings.put(name,compressOre);
-            }).size(75,30);
-            table.setSize(75,30);
+                Core.settings.put(name, compressOre);
+            }).size(75, 30);
+            table.setSize(75, 30);
         });
 
-        stats.add(Stat.drillTier, StatValues.drillables(drillTime, hardnessDrillMultiplier, size * size * outputMultiple*
-                        (Achievements.drillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
+        stats.add(Stat.drillTier, StatValues.drillables(drillTime, hardnessDrillMultiplier, size * size * outputMultiple *
+                        (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
                 , drillMultipliers, b -> b instanceof Floor f && !f.wallOre && f.itemDrop != null &&
                         f.itemDrop.hardness <= tier && (blockedItems == null || !blockedItems.contains(f.itemDrop)) && (indexer.isBlockPresent(f) || state.isMenu())));
 
         stats.add(Stat.drillSpeed, 60f / drillTime * size * size * outputMultiple *
-                        (Achievements.drillStrengthen.working(this)&&compressOre ?Mathf.pow(1f/9f,level-2):1)
+                        (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
                 , StatUnit.itemsSecond);
 
         if (liquidBoostIntensity != 1 && findConsumer(f -> f instanceof ConsumeLiquidBase && f.booster) instanceof ConsumeLiquidBase consBase) {
@@ -103,9 +98,9 @@ public class ECDrill extends Drill {
         super.setBars();
         removeBar("drillspeed");
         addBar("drillspeed", (DrillBuild e) ->
-                new Bar(() -> Core.bundle.format("bar.drillspeed", Strings.fixed(e.lastDrillSpeed * 60 * e.timeScale() *outputMultiple*
-                                (Achievements.drillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
-                        , 2 + (int) (level/3f))), () -> Pal.ammo, () -> e.warmup));
+                new Bar(() -> Core.bundle.format("bar.drillspeed", Strings.fixed(e.lastDrillSpeed * 60 * e.timeScale() * outputMultiple *
+                                (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
+                        , 2 + (int) (level / 3f))), () -> Pal.ammo, () -> e.warmup));
     }
 
 
@@ -121,13 +116,13 @@ public class ECDrill extends Drill {
 
         if (returnItem != null) {
             float width = drawPlaceText(Core.bundle.formatFloat("bar.drillspeed", 60f * outputMultiple / getDrillTime(returnItem) * returnCount *
-                            (Achievements.drillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
-                    , 2 + (int) (level/3f)), x, y, valid);
+                            (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
+                    , 2 + (int) (level / 3f)), x, y, valid);
             float dx = x * tilesize + offset - width / 2f - 4f, dy = y * tilesize + offset + size * tilesize / 2f + 5, s = iconSmall / 4f;
             Draw.mixcol(Color.darkGray, 1f);
             Item item = returnItem;
-            if (Achievements.drillStrengthen.working(this)&&compressOre) {
-                item = ECData.get(returnItem, level-2);
+            if (Achievements.drillStrengthen.working(this) && compressOre) {
+                item = ECData.get(returnItem, level - 2);
             }
             Draw.rect(item.fullIcon, dx, dy - 1, s, s);
             Draw.reset();
@@ -149,16 +144,26 @@ public class ECDrill extends Drill {
 
     @Override
     public boolean canPlaceOn(Tile tile, Team team, int rotation) {
-        if(isMultiblock()){
-            for(Tile other : tile.getLinkedTilesAs(this, tempTiles)){
-                if(canMine(other)){
+        if (isMultiblock()) {
+            for (Tile other : tile.getLinkedTilesAs(this, tempTiles)) {
+                if (canMine(other)) {
                     return true;
                 }
             }
             return false;
-        }else{
+        } else {
             return canMine(tile);
         }
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
     public class ECDrillBuild extends DrillBuild {
@@ -170,27 +175,26 @@ public class ECDrill extends Drill {
             if (dominantItem == null) {
                 return;
             }
-            if (Achievements.drillStrengthen.working(this.block)&&compressOre){
+            if (Achievements.drillStrengthen.working(this.block) && compressOre) {
 
                 int powNum = Mathf.pow(9, level - 2);
                 int have = items.get(dominantItem);
                 Item cItem = ECData.get(dominantItem, level - 2);
 
-                if (level > 2 && have >= powNum){
+                if (level > 2 && have >= powNum) {
                     int num = have / powNum;
-                    if (num > 0&& have - ( num * powNum) >= 0){
-                        items.remove(dominantItem,num * powNum);
-                        produced(dominantItem,num * -powNum);
-                        items.add(cItem,num);
-                        produced(cItem,num);
+                    if (num > 0 && have - (num * powNum) >= 0) {
+                        items.remove(dominantItem, num * powNum);
+                        produced(dominantItem, num * -powNum);
+                        items.add(cItem, num);
+                        produced(cItem, num);
                     }
                 }
-                if(timer(timerDump, dumpTime / timeScale)){
+                if (timer(timerDump, dumpTime / timeScale)) {
                     dump(cItem);
                 }
-            }
-            else {
-                if(timer(timerDump, dumpTime / timeScale)){
+            } else {
+                if (timer(timerDump, dumpTime / timeScale)) {
                     dump();
                 }
             }
@@ -222,7 +226,7 @@ public class ECDrill extends Drill {
 
 
                 items.add(dominantItem, amount);
-                produced(dominantItem,amount);
+                produced(dominantItem, amount);
 
 
                 progress %= delay;
@@ -244,8 +248,9 @@ public class ECDrill extends Drill {
         @Override
         public void drawSelect() {
             drawItemSelection(
-                    (Achievements.drillStrengthen.working(this.block)&&compressOre ? ECData.get(dominantItem, level-2) : dominantItem)
+                    (Achievements.drillStrengthen.working(this.block) && compressOre ? ECData.get(dominantItem, level - 2) : dominantItem)
             );
         }
     }
+
 }

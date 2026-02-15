@@ -1,9 +1,6 @@
 package ECType.ECBlockTypes.Turret;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import ECType.ECConsumePower;
 import arc.Core;
 import arc.func.Cons;
@@ -39,27 +36,23 @@ import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatCat;
 import mindustry.world.meta.StatValues;
 
-public class ECPowerTurret extends PowerTurret {
+public class ECPowerTurret extends PowerTurret implements EC {
 
+    public static Config config = new Config().addConfigSimple(null, "buildType", "shootTypes", "consumers", "optionalConsumers", "nonOptionalConsumers", "updateConsumers");
     public PowerTurret root;
-
-    public ObjectMap<Float,BulletType> ammoTypes = new ObjectMap<>();
-
-    public ObjectMap<Integer,Float> powerUse = new ObjectMap<>();
-
-    public ObjectMap<Integer,ConsumePower> consumePowers = new ObjectMap<>();
-
-    public static Config config = new Config().addConfigSimple(null,"buildType","shootTypes","consumers","optionalConsumers","nonOptionalConsumers","updateConsumers");
+    public ObjectMap<Float, BulletType> ammoTypes = new ObjectMap<>();
+    public ObjectMap<Integer, Float> powerUse = new ObjectMap<>();
+    public ObjectMap<Integer, ConsumePower> consumePowers = new ObjectMap<>();
 
 
     public ECPowerTurret(PowerTurret root) throws IllegalAccessException {
         super(root.name);
         this.root = root;
-        ECTool.compress(root,this, UnlockableContent.class , config, 0);
+        ECTool.compress(root, this, UnlockableContent.class, config, 0);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, 0);
-        ECTool.loadHealth(this,root,1);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,1));
+        ECTool.loadHealth(this, root, 1);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, 1));
         localizedName = Core.bundle.get("Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
@@ -75,11 +68,11 @@ public class ECPowerTurret extends PowerTurret {
         config(Integer.class, (PowerTurretBuild b, Integer index) -> {
             if (b instanceof ECPowerTurretBuild tile) tile.index = index;
         });
-        configClear( (PowerTurretBuild b) -> {
+        configClear((PowerTurretBuild b) -> {
             if (b instanceof ECPowerTurretBuild tile) tile.index = 0;
         });
 
-        ECData.register(root,this,1);
+        ECData.register(root, this, 1);
     }
 
     @Override
@@ -87,8 +80,8 @@ public class ECPowerTurret extends PowerTurret {
         super.setStats();
         stats.remove(Stat.ammo);
         stats.remove(Stat.powerUse);
-        for (int i = 0 ; i < 10 ; i ++){
-            stats.add(new Stat("ammo"+i, StatCat.function), StatValues.ammo(ObjectMap.of(this, ammoTypes.get(powerUse.get(i)))));
+        for (int i = 0; i < 10; i++) {
+            stats.add(new Stat("ammo" + i, StatCat.function), StatValues.ammo(ObjectMap.of(this, ammoTypes.get(powerUse.get(i)))));
         }
     }
 
@@ -108,31 +101,31 @@ public class ECPowerTurret extends PowerTurret {
     public void initAmmo() throws IllegalAccessException {
         BulletType rootAmmo = root.shootType.copy();
         float power = 0.01f;
-        for (Consume consume : root.consumers){
-            if (consume instanceof ConsumePower c){
-                if (c.usage!=0) power = c.usage;
+        for (Consume consume : root.consumers) {
+            if (consume instanceof ConsumePower c) {
+                if (c.usage != 0) power = c.usage;
             }
         }
-        ammoTypes.put(power,rootAmmo);
-        powerUse.put(0,power);
-       // consumePowers.put(0,new ConsumePower(power, 1f, false));
-        for (int i = 1 ; i < 10;i++){
-            float usePower = power*Mathf.pow(5f,i);
-            ammoTypes.put(usePower,ECTool.compressBulletType(rootAmmo,i));
-            powerUse.put(i,usePower);
-           // consumePowers.put(i,new ConsumePower(usePower, 1f, false));
+        ammoTypes.put(power, rootAmmo);
+        powerUse.put(0, power);
+        // consumePowers.put(0,new ConsumePower(power, 1f, false));
+        for (int i = 1; i < 10; i++) {
+            float usePower = power * Mathf.pow(5f, i);
+            ammoTypes.put(usePower, ECTool.compressBulletType(rootAmmo, i));
+            powerUse.put(i, usePower);
+            // consumePowers.put(i,new ConsumePower(usePower, 1f, false));
         }
     }
 
-    public void initConsumePower(){
+    public void initConsumePower() {
         consPower = new ECConsumePower(powerUse.get(0), 1f, false);//电力消耗器
         consumeBuilder.add(consPower);//添加
     }
 
-    boolean findLiquid(Seq<Liquid> liquids, Liquid liquid){
+    boolean findLiquid(Seq<Liquid> liquids, Liquid liquid) {
 
-        for (Liquid l:liquids){
-            if (l==liquid) return true;
+        for (Liquid l : liquids) {
+            if (l == liquid) return true;
         }
 
         return false;
@@ -140,7 +133,7 @@ public class ECPowerTurret extends PowerTurret {
 
     public void initCoolant() throws IllegalAccessException {
 
-        if (coolant instanceof ConsumeLiquid c){
+        if (coolant instanceof ConsumeLiquid c) {
             Liquid rLiquid = c.liquid;
             float amount = c.amount;
 
@@ -149,16 +142,14 @@ public class ECPowerTurret extends PowerTurret {
             Seq<Liquid> liquids = ECData.ECLiquids.get(rLiquid);
 
 
+            coolant = new ConsumeCoolant(amount) {{
 
-            coolant = new ConsumeCoolant(amount){{
-
-                this.filter = liquid -> findLiquid(liquids,liquid) && liquid.coolant && (this.allowLiquid && !liquid.gas || this.allowGas && liquid.gas) && liquid.temperature <= maxTemp && liquid.flammability < maxFlammability;
+                this.filter = liquid -> findLiquid(liquids, liquid) && liquid.coolant && (this.allowLiquid && !liquid.gas || this.allowGas && liquid.gas) && liquid.temperature <= maxTemp && liquid.flammability < maxFlammability;
 
             }};
 
 
         }
-
 
 
     }
@@ -168,7 +159,18 @@ public class ECPowerTurret extends PowerTurret {
         super.configClear(cons);
     }
 
-    public class ECPowerTurretBuild extends PowerTurretBuild{
+    @Override
+    public int getLevel() {
+        return 1;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECPowerTurretBuild extends PowerTurretBuild {
 
         public int index = 0;
 
@@ -188,12 +190,12 @@ public class ECPowerTurret extends PowerTurret {
         //*/
 
 
-        public BulletType getAmmo(int index){
+        public BulletType getAmmo(int index) {
             return ammoTypes.get(powerUse.get(index));
         }
 
         @Override
-        public BulletType useAmmo(){
+        public BulletType useAmmo() {
             //nothing used directly
             return getAmmo(index);
         }
@@ -204,21 +206,21 @@ public class ECPowerTurret extends PowerTurret {
             PowerGraph graph = power.graph;
 
             // 检查电网是否存在
-            if(graph == null) return false;
+            if (graph == null) return false;
 
             // 检查电能产出或 电池存储
-            return graph.getPowerProduced()+ graph.getBatteryStored() >= powerUse.get(index);
+            return graph.getPowerProduced() + graph.getBatteryStored() >= powerUse.get(index);
         }
 
         @Override
-        public BulletType peekAmmo(){
+        public BulletType peekAmmo() {
             return getAmmo(index);
         }
 
         @Override
         public float range() {
-            if(peekAmmo() != null){
-                return (range + peekAmmo().rangeChange) * Mathf.pow(ECSetting.SCALE_MULTIPLIER,index) ;
+            if (peekAmmo() != null) {
+                return (range + peekAmmo().rangeChange) * Mathf.pow(ECSetting.SCALE_MULTIPLIER, index);
             }
             return range;
         }
@@ -262,16 +264,16 @@ public class ECPowerTurret extends PowerTurret {
         @Override
         public void updateTile() {
             super.updateTile();
-            if (barIndex != index){
+            if (barIndex != index) {
                 updateBars();
                 barIndex = index;
             }
         }
 
-        public void updateBars(){
+        public void updateBars() {
 
             removeBar("power");
-            if(consPower != null){
+            if (consPower != null) {
                 boolean buffered = consPower.buffered;
                 float capacity = consPower.capacity;
 
@@ -279,17 +281,16 @@ public class ECPowerTurret extends PowerTurret {
                 PowerGraph graph = power.graph;
 
                 addBar("power", entity -> new Bar(
-                        () -> buffered ? Core.bundle.format("bar.poweramount", Float.isNaN(entity.power.status * capacity) ? "<ERROR>" : UI.formatAmount((int)(entity.power.status * capacity))) :
-                                Core.bundle.get("bar.power"),
-                        () -> Pal.powerBar,
-                        () -> graph == null ? 0 : Mathf.clamp(
-                                (graph.getPowerProduced()+ graph.getBatteryStored() ) / powerUse.get(index)
-                        )
+                                () -> buffered ? Core.bundle.format("bar.poweramount", Float.isNaN(entity.power.status * capacity) ? "<ERROR>" : UI.formatAmount((int) (entity.power.status * capacity))) :
+                                        Core.bundle.get("bar.power"),
+                                () -> Pal.powerBar,
+                                () -> graph == null ? 0 : Mathf.clamp(
+                                        (graph.getPowerProduced() + graph.getBatteryStored()) / powerUse.get(index)
+                                )
 
                         )
                 );
             }
-
 
 
         }
@@ -327,8 +328,6 @@ public class ECPowerTurret extends PowerTurret {
                 BulletType ammo = ammoTypes.get(powerUse.get(i));
 
 
-
-
                 int finalI = i;
                 table.button(b -> {
                     //b.add(r.name).left();
@@ -347,12 +346,9 @@ public class ECPowerTurret extends PowerTurret {
                             boolean isInt = power - (int) power < 0.01F || power - (int) power > 0.99F;
                             if (isInt) {
                                 dialogTXT.add(Integer.toString((int) power * 60));
-                            } else dialogTXT.add(Float.toString(power*60));
+                            } else dialogTXT.add(Float.toString(power * 60));
                             dialogTXT.add(Icon.power.getRegion());
                         }
-
-
-
 
 
                         for (Object o : dialogTXT) {
@@ -370,7 +366,7 @@ public class ECPowerTurret extends PowerTurret {
                     build.updateBars();
                     hide();
 
-                }).get().setDisabled(!(Vars.state == null || (Vars.state.rules.infiniteResources || ECData.get(Items.silicon,finalI).unlocked())));
+                }).get().setDisabled(!(Vars.state == null || (Vars.state.rules.infiniteResources || ECData.get(Items.silicon, finalI).unlocked())));
 
 
                 count++;

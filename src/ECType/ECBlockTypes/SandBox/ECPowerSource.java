@@ -1,21 +1,18 @@
 package ECType.ECBlockTypes.SandBox;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
-import mindustry.entities.bullet.MassDriverBolt;
 import mindustry.world.blocks.sandbox.PowerSource;
 import mindustry.world.meta.BuildVisibility;
 
-public class ECPowerSource extends PowerSource {
-
-    public PowerSource root;
-
+public class ECPowerSource extends PowerSource implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig().linearConfig();
+    public PowerSource root;
 
     public ECPowerSource(PowerSource root) throws IllegalAccessException {
         super("compress-" + root.name);
@@ -41,4 +38,15 @@ public class ECPowerSource extends PowerSource {
         //*/
         ECData.register(root, this, 1);
     }
+
+    @Override
+    public int getLevel() {
+        return 1;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 }

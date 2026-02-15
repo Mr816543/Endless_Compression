@@ -1,5 +1,6 @@
 package ECType.ECBlockTypes.Item;
 
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import ECContents.ECBlocks;
@@ -13,11 +14,9 @@ import mindustry.Vars;
 import mindustry.content.Items;
 import mindustry.content.TechTree;
 import mindustry.ctype.UnlockableContent;
-import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.*;
 import mindustry.world.Block;
-import mindustry.world.Tile;
 import mindustry.world.draw.DrawRegion;
 import mindustry.world.meta.BlockGroup;
 
@@ -25,12 +24,12 @@ import static ECContents.ECItems.items;
 import static ECContents.ECLiquids.liquids;
 import static mindustry.type.ItemStack.with;
 
-public class ECMultipleCompressCrafter extends ECMultiCrafter {
+public class ECMultipleCompressCrafter extends ECMultiCrafter implements EC {
     public int level;
 
     public ECMultipleCompressCrafter(int level) {
         super("c" + level + "-MultipleCompressor");
-        requirements(Category.crafting, with(ECData.get(Items.silicon,level-1), 100));
+        requirements(Category.crafting, with(ECData.get(Items.silicon, level - 1), 100));
 
         size = 3;
         this.level = level;
@@ -51,7 +50,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
     public void initRecipes() {
         recipes.clear();
 
-        int need = Mathf.pow(9,level);
+        int need = Mathf.pow(9, level);
 
         for (Item item : items) {
 
@@ -59,9 +58,9 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
 
             recipes.add(new Recipe() {{
 
-                inputItems = new ItemStack[]{new ItemStack(ECData.get(item,0), need)};
-                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1)};
-                inputPower = 0.2f * Mathf.pow(5f,level);
+                inputItems = new ItemStack[]{new ItemStack(ECData.get(item, 0), need)};
+                outputItems = new ItemStack[]{new ItemStack(ECData.get(item, level), 1)};
+                inputPower = 0.2f * Mathf.pow(5f, level);
                 crafterTime = 12f;
                 drawer = new DrawRegion() {
                     @Override
@@ -89,7 +88,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
                         float z = Draw.z();
                         if (layer > 0) Draw.z(layer);
 
-                        Draw.color(ECData.get(item,level*4).color);
+                        Draw.color(ECData.get(item, level * 4).color);
 
                         Draw.rect(Core.atlas.find("ec-MultipleCompressor-top" + level), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
 
@@ -100,9 +99,9 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
                 };
             }});
             recipes.add(new Recipe() {{
-                inputItems = new ItemStack[]{new ItemStack(ECData.get(item,level), 1)};
-                outputItems = new ItemStack[]{new ItemStack(ECData.get(item,level-1), 9)};
-                inputPower = 0.2f * Mathf.pow(5f,level);
+                inputItems = new ItemStack[]{new ItemStack(ECData.get(item, level), 1)};
+                outputItems = new ItemStack[]{new ItemStack(ECData.get(item, level - 1), 9)};
+                inputPower = 0.2f * Mathf.pow(5f, level);
                 crafterTime = 12f;
                 drawer = new DrawRegion() {
                     @Override
@@ -130,7 +129,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
                         float z = Draw.z();
                         if (layer > 0) Draw.z(layer);
 
-                        Draw.color(ECData.get(item,level*4).color);
+                        Draw.color(ECData.get(item, level * 4).color);
 
                         Draw.rect(Core.atlas.find("ec-MultipleCompressor-top" + level), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
 
@@ -148,9 +147,9 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
             if (!ECData.hasECContent(liquid)) continue;
 
             recipes.add(new Recipe() {{
-                inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,0), need)};
-                outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1)};
-                inputPower = 0.2f * Mathf.pow(5f,level);
+                inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid, 0), need)};
+                outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid, level), 1)};
+                inputPower = 0.2f * Mathf.pow(5f, level);
                 crafterTime = 1f;
                 drawer = new DrawRegion() {
                     @Override
@@ -174,7 +173,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
                         float z = Draw.z();
                         if (layer > 0) Draw.z(layer);
 
-                        Draw.color(ECData.get(liquid,num*4).color);
+                        Draw.color(ECData.get(liquid, num * 4).color);
 
                         Draw.rect(Core.atlas.find("ec-MultipleCompressor-top" + num), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
 
@@ -185,9 +184,9 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
                 };
             }});
             recipes.add(new Recipe() {{
-                inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level), 1)};
-                outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid,level-1), 9)};
-                inputPower = 0.2f * Mathf.pow(5f,level);
+                inputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid, level), 1)};
+                outputLiquids = new LiquidStack[]{new LiquidStack(ECData.get(liquid, level - 1), 9)};
+                inputPower = 0.2f * Mathf.pow(5f, level);
                 crafterTime = 1f;
                 drawer = new DrawRegion() {
                     @Override
@@ -211,7 +210,7 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
                         float z = Draw.z();
                         if (layer > 0) Draw.z(layer);
 
-                        Draw.color(ECData.get(liquid,num*4).color);
+                        Draw.color(ECData.get(liquid, num * 4).color);
 
                         Draw.rect(Core.atlas.find("ec-MultipleCompressor-top" + num), build.x + x, build.y + y, build.totalProgress() * rotateSpeed + rotation + (buildingRotate ? build.rotdeg() : 0));
 
@@ -228,30 +227,30 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
         initCapacity();
     }
 
-    public void initTechTree(){
+    public void initTechTree() {
 
-        UnlockableContent root = level==1?Items.silicon:ECBlocks.ecMultipleCompressCrafters.get(level-2);
+        UnlockableContent root = level == 1 ? Items.silicon : ECBlocks.ecMultipleCompressCrafters.get(level - 2);
 
         //遍历根物品的全部科技节点
-        for (TechTree.TechNode rootNode : root.techNodes){
+        for (TechTree.TechNode rootNode : root.techNodes) {
 
             //待解锁的内容
             UnlockableContent content = this;
             //创建新节点
-            TechTree.TechNode node = TechTree.node(content,()->{});
+            TechTree.TechNode node = TechTree.node(content, () -> {
+            });
             node.parent = rootNode;
             rootNode.children.add(node);
 
         }
 
 
-
     }
 
     @Override
-    public boolean canReplace(Block other){
-        if(other.alwaysReplace) return true;
-        if(other.privileged) return false;
+    public boolean canReplace(Block other) {
+        if (other.alwaysReplace) return true;
+        if (other.privileged) return false;
         return other.replaceable &&
                 (other != this || (rotate && quickRotate)) &&
                 ((this.group != BlockGroup.none && other.group == this.group) || other instanceof ECMultipleCompressCrafter) &&
@@ -260,11 +259,22 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter {
 
     @Override
     public void loadIcon() {
-        if (fullIcon!=null&&uiIcon!=null)return;
+        if (fullIcon != null && uiIcon != null) return;
         Pixmap A = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("ECMultipleCompressCrafter").child("MultipleCompressor.png")).getTextureData().getPixmap();
-        Pixmap B = ECTool.numberPixmap[size-1][level];
+        Pixmap B = ECTool.numberPixmap[size - 1][level];
 
-        fullIcon = uiIcon = ECTool.mergeRegions(A,B);
+        fullIcon = uiIcon = ECTool.mergeRegions(A, B);
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return null;
+    }
+
 
 }

@@ -15,7 +15,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Comparator;
 
 import static arc.Core.settings;
 
@@ -24,22 +23,31 @@ import static arc.Core.settings;
  */
 public class EntityProfiler {
 
-    /** 采样间隔（帧） */
-    private int sampleInterval = 60;
-    /** 采样次数（帧） */
-    private int sampleTimes = 0;
-    /** 帧计数器 */
-    private int frameCounter = 0;
-    /** 当前帧是否采样 */
-    private boolean isSamplingTick = false;
-
-    /** 已包装的实体列表 */
+    /**
+     * 已包装的实体列表
+     */
     private final Seq<Building> wrappedBuildings = new Seq<>();
-    /** 实体 -> 原始update()方法句柄 映射 */
+    /**
+     * 实体 -> 原始update()方法句柄 映射
+     */
     private final ObjectMap<Building, MethodHandle> entityMap = new ObjectMap<>();
-
-    private final ObjectMap<Block,Float> updateTime = new ObjectMap<>();
-
+    private final ObjectMap<Block, Float> updateTime = new ObjectMap<>();
+    /**
+     * 采样间隔（帧）
+     */
+    private int sampleInterval = 60;
+    /**
+     * 采样次数（帧）
+     */
+    private int sampleTimes = 0;
+    /**
+     * 帧计数器
+     */
+    private int frameCounter = 0;
+    /**
+     * 当前帧是否采样
+     */
+    private boolean isSamplingTick = false;
     private int maxTimes = 10;
 
     public void init() {
@@ -48,7 +56,7 @@ public class EntityProfiler {
     }
 
     private void onUpdate() {
-        if (Vars.state.isPaused()||!Core.settings.getBool("entityProfiler"))return;
+        if (Vars.state.isPaused() || !Core.settings.getBool("entityProfiler")) return;
         frameCounter++;
         if (frameCounter >= sampleInterval) {
             frameCounter -= sampleInterval;
@@ -60,7 +68,7 @@ public class EntityProfiler {
             Groups.build.each(this::wrapEntityUpdateIfNeeded);
             // 执行所有实体的代理更新逻辑
             Groups.build.each(this::executeProfiledUpdate);
-            if (sampleTimes >= settings.getInt("sampleTimes",5)){
+            if (sampleTimes >= settings.getInt("sampleTimes", 5)) {
                 show();
                 sampleTimes = 0;
             }
@@ -70,8 +78,8 @@ public class EntityProfiler {
     }
 
     private void show() {
-        Vars.ui.showSmall(Core.bundle.get("setting.entityProfiler.name"),showUpdateTime());
-        Core.settings.put("entityProfiler",false);
+        Vars.ui.showSmall(Core.bundle.get("setting.entityProfiler.name"), showUpdateTime());
+        Core.settings.put("entityProfiler", false);
         updateTime.clear();
     }
 
@@ -141,12 +149,12 @@ public class EntityProfiler {
         } finally {
             long durationNs = System.nanoTime() - startTime;
             float durationMs = durationNs / 1_000_000f;
-            if (!updateTime.containsKey(entity.block)){
-                updateTime.put(entity.block,durationMs);
-            }else {
+            if (!updateTime.containsKey(entity.block)) {
+                updateTime.put(entity.block, durationMs);
+            } else {
                 float t = updateTime.get(entity.block);
                 updateTime.remove(entity.block);
-                updateTime.put(entity.block,t+durationMs);
+                updateTime.put(entity.block, t + durationMs);
             }
             //Log.info("[Profiler] " + entity.block.localizedName + ": " + String.format("%.3fms", durationMs));
         }
@@ -183,9 +191,9 @@ public class EntityProfiler {
         for (int i = 0; i < size; i++) {
             int sortedIndex = indices[i];
             Block block = blockArray[sortedIndex];
-            float time = timeArray[sortedIndex]/sampleTimes;
+            float time = timeArray[sortedIndex] / sampleTimes;
 
-            s.append(block.localizedName).append(":").append(((int) (time*1000f))/1000f).append("ms\n");
+            s.append(block.localizedName).append(":").append(((int) (time * 1000f)) / 1000f).append("ms\n");
         }
 
         return s.toString();

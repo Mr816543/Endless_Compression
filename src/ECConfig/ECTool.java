@@ -21,12 +21,16 @@ import mindustry.ctype.UnlockableContent;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.bullet.LiquidBulletType;
 import mindustry.gen.Building;
-import mindustry.type.*;
+import mindustry.type.Item;
+import mindustry.type.ItemStack;
+import mindustry.type.Liquid;
+import mindustry.type.LiquidStack;
 import mindustry.world.Block;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.consumers.*;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class ECTool {
 
@@ -38,7 +42,7 @@ public class ECTool {
                     "despawnUnitCount", "splashDamageRadius", "incendAmount", "lightning",
                     "lightningLength", "lightningLengthRand", "puddles", "puddleRange",
                     "puddleAmount", "lightRadius", "speed", "width", "height", "length",
-                    "puddleSize", "orbSize","knockback","oscScl","beamEffectSize"
+                    "puddleSize", "orbSize", "knockback", "oscScl", "beamEffectSize"
             );
 
     public static void compress(Object root, Object child, Class<?> fromClazz, Class<?> toClazz, Config c, int level) throws IllegalAccessException {
@@ -53,8 +57,6 @@ public class ECTool {
             //获取原物品属性的属性值
             var value = field.get(root);
             if (value == null) continue;
-
-
 
 
             boolean needContinue = false;
@@ -167,7 +169,6 @@ public class ECTool {
 
         //别太短
         //child.scaleLife = false;
-
 
 
         return child;
@@ -345,6 +346,7 @@ public class ECTool {
             loadCompressContentSpriteRegion(root, child, sprite);
         }
     }
+
     //贴图复制
     public static void loadCompressContentSpriteRegion(UnlockableContent root, UnlockableContent child, String sprite) {
         if (Core.atlas.has(root.name + sprite)) {
@@ -385,7 +387,7 @@ public class ECTool {
 
 
     //复制并增强消耗器
-    public static Seq<Consume> consumeBuilderCopy(Block root, int level,boolean copyAll) {
+    public static Seq<Consume> consumeBuilderCopy(Block root, int level, boolean copyAll) {
         Seq<Consume> consumes = new Seq<>();
         try {
             for (Consume consume : root.consumers) {
@@ -411,18 +413,18 @@ public class ECTool {
                     }
                     consumes.add(c);
 
-                }  else if (consume instanceof ConsumePower) {
+                } else if (consume instanceof ConsumePower) {
 
                     ConsumePower c = new ConsumePower(0, 0, false);
                     ECTool.compress(consume, c, Object.class, Config.NULL, 0);
                     if (c.usage > 0) {
                         c.usage *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                     }
-                    if (c.capacity > 0){
+                    if (c.capacity > 0) {
                         c.capacity *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                     }
                     consumes.add(c);
-                } else if (copyAll){
+                } else if (copyAll) {
                     consumes.add(consume);
                 }
             }
@@ -432,8 +434,8 @@ public class ECTool {
         return consumes;
     }
 
-    public static Seq<Consume> consumeBuilderCopy(Block root, int level){
-        return consumeBuilderCopy( root,  level,false);
+    public static Seq<Consume> consumeBuilderCopy(Block root, int level) {
+        return consumeBuilderCopy(root, level, false);
     }
 
     //构造时直接复制并增强消耗
@@ -516,12 +518,12 @@ public class ECTool {
 
 
         int accepted = other.acceptStack(item, build.items.get(item), build);
-        if (accepted >0){
-            other.handleStack(item,accepted,build);
-            build.items.remove(item,accepted);
-        }else {
-            for (int i = 0;i < 60; i++) {
-                if (build.items.get(item)<=0) return false;
+        if (accepted > 0) {
+            other.handleStack(item, accepted, build);
+            build.items.remove(item, accepted);
+        } else {
+            for (int i = 0; i < 60; i++) {
+                if (build.items.get(item) <= 0) return false;
                 if (!other.acceptItem(build, item)) return false;
                 other.handleItem(build, item);
                 build.items.remove(item, 1);
@@ -531,8 +533,9 @@ public class ECTool {
     }
 
     public static boolean dump(Building build) {
-        return dump(build,null);
+        return dump(build, null);
     }
+
     //通用强化抛出流体方法
     public static void dumpLiquid(Liquid liquid, float scaling, int outputDir, Building build) {
         int dump = build.cdump;
@@ -541,7 +544,7 @@ public class ECTool {
                 liquid.unlock();
             }
 
-            for(int i = 0; i < build.proximity.size; ++i) {
+            for (int i = 0; i < build.proximity.size; ++i) {
                 build.incrementDump(build.proximity.size);
                 Building other = build.proximity.get((i + dump) % build.proximity.size);
                 if (outputDir == -1 || (outputDir + build.rotation) % 4 == build.relativeTo(other)) {
@@ -559,8 +562,8 @@ public class ECTool {
                         if (ofract < fract) {
 
 
-                            float max = Math.min(other.block.liquidCapacity-other.liquids.get(liquid) ,build.liquids.get(liquid));
-                            max = Math.min((fract - ofract) * build.block.liquidCapacity / scaling,max);
+                            float max = Math.min(other.block.liquidCapacity - other.liquids.get(liquid), build.liquids.get(liquid));
+                            max = Math.min((fract - ofract) * build.block.liquidCapacity / scaling, max);
                             build.transferLiquid(other, max, liquid);
                         }
                     }
@@ -570,12 +573,12 @@ public class ECTool {
         }
     }
 
-    public static void dumpLiquid(Liquid liquid, float scaling, Building build){
-        dumpLiquid(liquid,scaling,-1,build);
+    public static void dumpLiquid(Liquid liquid, float scaling, Building build) {
+        dumpLiquid(liquid, scaling, -1, build);
     }
 
-    public static void dumpLiquid(Liquid liquid, Building build){
-        dumpLiquid(liquid,2F,build);
+    public static void dumpLiquid(Liquid liquid, Building build) {
+        dumpLiquid(liquid, 2F, build);
     }
 
     //通用科技节点添加方法
@@ -604,9 +607,9 @@ public class ECTool {
                     });
                 }
 
-                if (rootNode.requirements.length>0&&node.requirements.length>0){
-                    if (rootNode.requirements[0].item == node.requirements[0].item && ECData.hasECContent(rootNode.requirements[0].item)){
-                        node.requirements = ECTool.compressItemStack(rootNode.requirements,i);
+                if (rootNode.requirements.length > 0 && node.requirements.length > 0) {
+                    if (rootNode.requirements[0].item == node.requirements[0].item && ECData.hasECContent(rootNode.requirements[0].item)) {
+                        node.requirements = ECTool.compressItemStack(rootNode.requirements, i);
                     }
                 }
 
@@ -625,9 +628,10 @@ public class ECTool {
 
     //通用物品组增强方法
     public static ItemStack[] compressItemStack(ItemStack[] root, int level) {
-        return compressItemStack(root,level,true);
+        return compressItemStack(root, level, true);
     }
-    public static ItemStack[] compressItemStack(ItemStack[] root, int level,boolean reduce) {
+
+    public static ItemStack[] compressItemStack(ItemStack[] root, int level, boolean reduce) {
 
         ItemStack[] child = root.clone();
 
@@ -636,7 +640,7 @@ public class ECTool {
             if (!ECData.hasECContent(itemStack.item)) continue;
             int amount = itemStack.amount;
             if (reduce)
-                amount = (int) (amount * Mathf.pow(1f-1f/ECSetting.LINEAR_MULTIPLIER,level));
+                amount = (int) (amount * Mathf.pow(1f - 1f / ECSetting.LINEAR_MULTIPLIER, level));
             if (amount <= 0) amount = 1;
             child[i] = new ItemStack(ECData.get(itemStack.item, level), amount);
         }
@@ -645,30 +649,30 @@ public class ECTool {
 
     }
 
-    public static void print(Object o){
+    public static void print(Object o) {
         Log.info(o);
     }
 
     //生命值防溢出
-    public static void loadHealth(Block b,Block root,int level){
-        if (root.health>0){
-            b.health = root.health * Mathf.pow(5,level);
-        }else if (root.scaledHealth>0){
-            b.scaledHealth = root.scaledHealth * Mathf.pow(5,level);
-            b.health = (int)(b.size * b.size * b.scaledHealth);
-        }else {
+    public static void loadHealth(Block b, Block root, int level) {
+        if (root.health > 0) {
+            b.health = root.health * Mathf.pow(5, level);
+        } else if (root.scaledHealth > 0) {
+            b.scaledHealth = root.scaledHealth * Mathf.pow(5, level);
+            b.health = (int) (b.size * b.size * b.scaledHealth);
+        } else {
             float scaledHealth = 40;
 
             float scaling = 1f;
-            for(var stack : root.requirements){
+            for (var stack : root.requirements) {
                 scaling += stack.item.healthScaling;
             }
 
             scaledHealth *= scaling;
-            b.scaledHealth = scaledHealth * Mathf.pow(5,level);
+            b.scaledHealth = scaledHealth * Mathf.pow(5, level);
             b.health = Mathf.round(b.size * b.size * b.scaledHealth, 5);
         }
-        if (ECData.get(root,level-1).health>=Integer.MAX_VALUE/5f) b.health = Integer.MAX_VALUE;
+        if (ECData.get(root, level - 1).health >= Integer.MAX_VALUE / 5f) b.health = Integer.MAX_VALUE;
     }
 
     //版本号对比后者是否大于前者
@@ -694,11 +698,11 @@ public class ECTool {
     public static int getECBlockLevel(Block b) {
         int l = 0;
         if (b.minfo.mod != Vars.mods.getMod("ec")) return l;
-        for (Field field : ECTool.getField(b.getClass(), Block.class)){
+        for (Field field : ECTool.getField(b.getClass(), Block.class)) {
             String name = field.getName();
             if (!Modifier.isPublic(field.getModifiers())) continue;
             if (Modifier.isFinal(field.getModifiers())) continue;
-            if (name.equals("level")){
+            if (name.equals("level")) {
                 try {
                     l = (int) field.get(b);
                 } catch (IllegalAccessException e) {
@@ -710,14 +714,14 @@ public class ECTool {
     }
 
     //获取私有属性
-    public static <T extends UnlockableContent> Object get(T root,String V) throws IllegalAccessException {
-        for (Field field : ECTool.getField(root)){
+    public static <T extends UnlockableContent> Object get(T root, String V) throws IllegalAccessException {
+        for (Field field : ECTool.getField(root)) {
             String name = field.getName();
             //if (!Modifier.isPublic(field.getModifiers())) continue;
             //if (Modifier.isFinal(field.getModifiers())) continue;
             //关闭访问权限检查（核心步骤！）
             field.setAccessible(true);
-            if (name.equals(V)){
+            if (name.equals(V)) {
                 return field.get(root);
             }
         }

@@ -1,23 +1,17 @@
 package ECType.ECBlockTypes.Payload;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
-import arc.util.Log;
-import mindustry.world.blocks.defense.RegenProjector;
 import mindustry.world.blocks.payloads.PayloadLoader;
-import mindustry.world.consumers.Consume;
 import mindustry.world.consumers.ConsumePower;
 
-public class ECPayloadLoader extends PayloadLoader {
+public class ECPayloadLoader extends PayloadLoader implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
-            .linearConfig("itemsLoaded","itemCapacity","liquidsLoaded","liquidCapacity","maxPowerConsumption")
-            .addConfigSimple(1f/ ECSetting.SCALE_MULTIPLIER,"loadTime");
+            .linearConfig("itemsLoaded", "itemCapacity", "liquidsLoaded", "liquidCapacity", "maxPowerConsumption")
+            .addConfigSimple(1f / ECSetting.SCALE_MULTIPLIER, "loadTime");
     public PayloadLoader root;
     public int level;
 
@@ -46,11 +40,11 @@ public class ECPayloadLoader extends PayloadLoader {
         consumeBuilder.removeAll(b -> b instanceof ConsumePower);
         consPower = null;
         try {
-            Object o = ECTool.get(root,"basePowerUse");
-            if (o==null){
+            Object o = ECTool.get(root, "basePowerUse");
+            if (o == null) {
                 consumePower(200f);
-            }else {
-                consumePower((float) o * Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level));
+            } else {
+                consumePower((float) o * Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level));
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -62,6 +56,17 @@ public class ECPayloadLoader extends PayloadLoader {
     public void setStats() {
         super.setStats();
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECPayloadLoaderBuild extends PayloadLoaderBuild {
 

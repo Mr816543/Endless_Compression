@@ -1,6 +1,7 @@
 package ECType.ECBlockTypes.SandBox;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
@@ -8,12 +9,11 @@ import mindustry.type.Liquid;
 import mindustry.world.blocks.sandbox.LiquidSource;
 import mindustry.world.meta.BuildVisibility;
 
-public class ECLiquidSource extends LiquidSource {
-
-    public LiquidSource root;
+public class ECLiquidSource extends LiquidSource implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig().linearConfig();
+    public LiquidSource root;
 
     public ECLiquidSource(LiquidSource root) throws IllegalAccessException {
         super("compress-" + root.name);
@@ -40,11 +40,22 @@ public class ECLiquidSource extends LiquidSource {
         ECData.register(root, this, 1);
     }
 
+    @Override
+    public int getLevel() {
+        return 1;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
     public class ECLiquidSourceBuild extends LiquidSourceBuild {
 
         @Override
         public void dumpLiquid(Liquid liquid) {
-            ECTool.dumpLiquid(liquid,this);
+            ECTool.dumpLiquid(liquid, this);
         }
 
         @Override

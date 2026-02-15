@@ -1,38 +1,30 @@
 package ECType.ECBlockTypes.Crafter;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import ECContents.Achievements;
 import arc.Core;
 import arc.func.Cons;
 import arc.func.Intc2;
-import arc.graphics.Color;
-import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import arc.math.geom.Geometry;
 import arc.util.Nullable;
 import arc.util.Strings;
-import mindustry.gen.Building;
 import mindustry.graphics.Pal;
 import mindustry.type.Item;
 import mindustry.ui.Bar;
 import mindustry.ui.Styles;
 import mindustry.world.Block;
 import mindustry.world.Tile;
-import mindustry.world.blocks.environment.Floor;
-import mindustry.world.blocks.production.Drill;
 import mindustry.world.blocks.production.WallCrafter;
-import mindustry.world.consumers.ConsumeLiquidBase;
 import mindustry.world.meta.BlockGroup;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValues;
 
-import static mindustry.Vars.*;
+import static mindustry.Vars.tilesize;
+import static mindustry.Vars.world;
 
-public class ECWallCrafter extends WallCrafter {
+public class ECWallCrafter extends WallCrafter implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("drillEffectChance").linearConfig("itemCapacity", "rotateSpeed");
@@ -64,7 +56,7 @@ public class ECWallCrafter extends WallCrafter {
     @Override
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
-        compressOre = Core.settings.getBool(name,false);
+        compressOre = Core.settings.getBool(name, false);
         super.init();
     }
 
@@ -76,53 +68,53 @@ public class ECWallCrafter extends WallCrafter {
         stats.remove(Stat.drillSpeed);
 
 
-        if (level> 2 && Achievements.wallCrafterStrengthen.working(this)) stats.add(new Stat("compressore"),table -> {
-            table.button(compressOre?Core.bundle.get("stat.true"):Core.bundle.get("stat.false"), Styles.flatTogglet,()->{
+        if (level > 2 && Achievements.wallCrafterStrengthen.working(this)) stats.add(new Stat("compressore"), table -> {
+            table.button(compressOre ? Core.bundle.get("stat.true") : Core.bundle.get("stat.false"), Styles.flatTogglet, () -> {
                 compressOre = !compressOre;
-                Core.settings.put(name,compressOre);
-            }).size(75,30);
-            table.setSize(75,30);
+                Core.settings.put(name, compressOre);
+            }).size(75, 30);
+            table.setSize(75, 30);
         });
 
 
         stats.add(Stat.output,
-                (Achievements.drillStrengthen.working(this)&&compressOre?
-                        ECData.get(output,level-2) :output));
+                (Achievements.drillStrengthen.working(this) && compressOre ?
+                        ECData.get(output, level - 2) : output));
         stats.add(Stat.tiles, StatValues.blocks(attribute, floating, 1f, true, false));
         stats.add(Stat.drillSpeed, 60f / drillTime * size * outputMultiple *
-                (Achievements.drillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
+                        (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
                 , StatUnit.itemsSecond);
     }
 
 
     @Override
-    public void setBars(){
+    public void setBars() {
         super.setBars();
         removeBar("drillSpeed");
 
         addBar("drillspeed", (WallCrafterBuild e) ->
                 new Bar(() -> Core.bundle.format("bar.drillspeed", Strings.fixed(e.lastEfficiency * 60 / drillTime * outputMultiple *
-                                (Achievements.drillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
+                                (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
                         , 2)), () -> Pal.ammo, () -> e.warmup));
     }
 
     @Override
-    public void drawPlace(int x, int y, int rotation, boolean valid){
+    public void drawPlace(int x, int y, int rotation, boolean valid) {
         float eff = getEfficiency(x, y, rotation, null, null);
 
         drawPlaceText(Core.bundle.formatFloat("bar.drillspeed", 60f / drillTime * eff * outputMultiple *
-                        (Achievements.drillStrengthen.working(this)&&compressOre?Mathf.pow(1f/9f,level-2):1)
+                        (Achievements.drillStrengthen.working(this) && compressOre ? Mathf.pow(1f / 9f, level - 2) : 1)
                 , 2), x, y, valid);
     }
 
-    float getEfficiency(int tx, int ty, int rotation, @Nullable Cons<Tile> ctile, @Nullable Intc2 cpos){
+    float getEfficiency(int tx, int ty, int rotation, @Nullable Cons<Tile> ctile, @Nullable Intc2 cpos) {
         float eff = 0f;
-        int cornerX = tx - (size-1)/2, cornerY = ty - (size-1)/2, s = size;
+        int cornerX = tx - (size - 1) / 2, cornerY = ty - (size - 1) / 2, s = size;
 
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             int rx = 0, ry = 0;
 
-            switch(rotation){
+            switch (rotation) {
                 case 0 -> {
                     rx = cornerX + s;
                     ry = cornerY + i;
@@ -141,15 +133,15 @@ public class ECWallCrafter extends WallCrafter {
                 }
             }
 
-            if(cpos != null){
+            if (cpos != null) {
                 cpos.get(rx, ry);
             }
 
             Tile other = world.tile(rx, ry);
-            if(other != null && other.solid()){
+            if (other != null && other.solid()) {
                 float at = other.block().attributes.get(attribute);
                 eff += at;
-                if(at > 0 && ctile != null){
+                if (at > 0 && ctile != null) {
                     ctile.get(other);
                 }
             }
@@ -158,46 +150,55 @@ public class ECWallCrafter extends WallCrafter {
     }
 
     @Override
-    public boolean canReplace(Block other){
-        if(other.alwaysReplace) return true;
-        if(other.privileged) return false;
+    public boolean canReplace(Block other) {
+        if (other.alwaysReplace) return true;
+        if (other.privileged) return false;
         return other.replaceable &&
                 (other != this || (rotate && quickRotate)) &&
                 (((this.group != BlockGroup.none && other.group == this.group) || other == this)
-                        || (other == root) || (other instanceof ECWallCrafter d && d.root == this.root&&d.level<level))
+                        || (other == root) || (other instanceof ECWallCrafter d && d.root == this.root && d.level < level))
                 &&
                 (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 
     public class ECWallCrafterBuild extends WallCrafterBuild {
 
         @Override
-        public void updateTile(){
+        public void updateTile() {
             if (output == null) {
                 return;
             }
-            if (Achievements.wallCrafterStrengthen.working(this.block)&&compressOre){
+            if (Achievements.wallCrafterStrengthen.working(this.block) && compressOre) {
 
                 int powNum = Mathf.pow(9, level - 2);
                 int have = items.get(output);
                 Item cItem = ECData.get(output, level - 2);
 
-                if (level > 2 && have >= powNum){
+                if (level > 2 && have >= powNum) {
                     int num = have / powNum;
-                    if (num > 0&& have - ( num * powNum) >= 0){
-                        items.remove(output,num * powNum);
-                        produced(output,num * -powNum);
-                        items.add(cItem,num);
-                        produced(cItem,num);
+                    if (num > 0 && have - (num * powNum) >= 0) {
+                        items.remove(output, num * powNum);
+                        produced(output, num * -powNum);
+                        items.add(cItem, num);
+                        produced(cItem, num);
                     }
                 }
-                if(timer(timerDump, dumpTime / timeScale)){
+                if (timer(timerDump, dumpTime / timeScale)) {
                     dump(cItem);
                 }
-            }
-            else {
-                if(timer(timerDump, dumpTime / timeScale)){
+            } else {
+                if (timer(timerDump, dumpTime / timeScale)) {
                     dump();
                 }
             }
@@ -210,7 +211,7 @@ public class ECWallCrafter extends WallCrafter {
 
             float eff = getEfficiency(tile.x, tile.y, rotation, dest -> {
                 //TODO make not chance based?
-                if(wasVisible && cons && Mathf.chanceDelta(updateEffectChance * warmup)){
+                if (wasVisible && cons && Mathf.chanceDelta(updateEffectChance * warmup)) {
                     updateEffect.at(
                             dest.worldx() + Mathf.range(3f) - dx * tilesize,
                             dest.worldy() + Mathf.range(3f) - dy * tilesize,
@@ -219,16 +220,16 @@ public class ECWallCrafter extends WallCrafter {
                 }
             }, null) * Mathf.lerp(1f, liquidBoostIntensity, hasLiquidBooster ? optionalEfficiency : 0f) * (itemValid ? itemBoostIntensity : 1f);
 
-            if(itemValid && eff * efficiency > 0 && timer(timerUse, boostItemUseTime)){
+            if (itemValid && eff * efficiency > 0 && timer(timerUse, boostItemUseTime)) {
                 consume();
             }
 
             lastEfficiency = eff * timeScale * efficiency;
 
-            if(cons && (time += edelta() * eff) >= drillTime){
-                int num =  Math.min(itemCapacity - items.get(output) ,(int) (1*outputMultiple));
-                items.add(output,num);
-                produced(output,num);
+            if (cons && (time += edelta() * eff) >= drillTime) {
+                int num = Math.min(itemCapacity - items.get(output), (int) (1 * outputMultiple));
+                items.add(output, num);
+                produced(output, num);
                 time %= drillTime;
             }
 

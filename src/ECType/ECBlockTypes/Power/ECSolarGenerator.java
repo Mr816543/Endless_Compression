@@ -1,21 +1,21 @@
 package ECType.ECBlockTypes.Power;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.world.blocks.power.SolarGenerator;
-import mindustry.world.blocks.production.Separator;
 
-public class ECSolarGenerator extends SolarGenerator {
+public class ECSolarGenerator extends SolarGenerator implements EC {
 
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig().addConfigSimple(10f,"powerProduction");
+            .scaleConfig().linearConfig().addConfigSimple(10f, "powerProduction");
     public SolarGenerator root;
     public int level;
 
-    public ECSolarGenerator(SolarGenerator root,int level) throws IllegalAccessException {
+    public ECSolarGenerator(SolarGenerator root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
@@ -39,6 +39,17 @@ public class ECSolarGenerator extends SolarGenerator {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECSolarGeneratorBuild extends SolarGeneratorBuild {
 

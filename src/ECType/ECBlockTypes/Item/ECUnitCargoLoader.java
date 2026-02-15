@@ -1,16 +1,17 @@
 package ECType.ECBlockTypes.Item;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import ECContents.ECUnitTypes;
 import arc.Core;
 import mindustry.world.blocks.units.UnitCargoLoader;
 
-public class ECUnitCargoLoader extends UnitCargoLoader {
+public class ECUnitCargoLoader extends UnitCargoLoader implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("polyStroke","polyRadius","polyRotateSpeed")
+            .scaleConfig("polyStroke", "polyRadius", "polyRotateSpeed")
             .linearConfig("itemCapacity");
     public UnitCargoLoader root;
     public int level;
@@ -38,14 +39,25 @@ public class ECUnitCargoLoader extends UnitCargoLoader {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
-        if (root.unitType == ECData.get(root.unitType,level)){
+        if (root.unitType == ECData.get(root.unitType, level)) {
             try {
                 ECUnitTypes.compressUnitType(root.unitType);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        unitType = ECData.get(root.unitType,level);
+        unitType = ECData.get(root.unitType, level);
+    }
+
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

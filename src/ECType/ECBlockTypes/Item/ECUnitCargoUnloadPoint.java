@@ -1,13 +1,14 @@
 package ECType.ECBlockTypes.Item;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.type.Item;
 import mindustry.world.blocks.units.UnitCargoUnloadPoint;
 
-public class ECUnitCargoUnloadPoint extends UnitCargoUnloadPoint {
+public class ECUnitCargoUnloadPoint extends UnitCargoUnloadPoint implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
@@ -38,6 +39,17 @@ public class ECUnitCargoUnloadPoint extends UnitCargoUnloadPoint {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
+    }
+
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

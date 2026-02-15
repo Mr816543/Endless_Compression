@@ -1,22 +1,20 @@
 package ECType.ECBlockTypes.Item;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
 import arc.math.Mathf;
 import mindustry.gen.Building;
-import mindustry.gen.Teamc;
 import mindustry.type.Item;
 import mindustry.world.Edges;
-import mindustry.world.blocks.distribution.Duct;
 import mindustry.world.blocks.distribution.DuctRouter;
 import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 
-public class ECDuctRouter extends DuctRouter {
+public class ECDuctRouter extends DuctRouter implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
@@ -33,7 +31,7 @@ public class ECDuctRouter extends DuctRouter {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
+        ECTool.loadHealth(this, root, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -45,72 +43,83 @@ public class ECDuctRouter extends DuctRouter {
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
 
     @Override
-    public void setStats(){
+    public void setStats() {
         super.setStats();
         stats.remove(Stat.itemsMoved);
-        stats.add(Stat.itemsMoved, 60f / speed * Mathf.pow(5,level), StatUnit.itemsSecond);
+        stats.add(Stat.itemsMoved, 60f / speed * Mathf.pow(5, level), StatUnit.itemsSecond);
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECDuctRouterBuild extends DuctRouterBuild {
 
         @Override
-        public void updateTile(){
+        public void updateTile() {
             progress += edelta() / speed * 2f;
 
-            if(current != null){
-                if(progress >= (1f - 1f/speed)){
+            if (current != null) {
+                if (progress >= (1f - 1f / speed)) {
                     Building target = target();
-                    if(target != null){
+                    if (target != null) {
 
                         if (target instanceof ItemVoid.ItemVoidBuild) {
-                            target.flowItems().add(current,items.get(current));
+                            target.flowItems().add(current, items.get(current));
                             items.set(current, 0);
                             current = null;
-                            progress %= (1f - 1f/speed);
-                        }else {
-                            int moves = target.acceptStack(current,items.get(current),this);
+                            progress %= (1f - 1f / speed);
+                        } else {
+                            int moves = target.acceptStack(current, items.get(current), this);
 
-                            if (target instanceof ECDuct.ECDuctBuild duct){
-                                if (((ECDuct)(duct.block)).level > level){
+                            if (target instanceof ECDuct.ECDuctBuild duct) {
+                                if (((ECDuct) (duct.block)).level > level) {
                                     moves = 0;
                                 }
                             }
 
-                            if (!target.acceptItem(this,current)) moves = 0;
+                            if (!target.acceptItem(this, current)) moves = 0;
 
-                            if (moves > 0){
-                                target.handleStack(current,moves,this);
-                                items.remove(current,moves);
+                            if (moves > 0) {
+                                target.handleStack(current, moves, this);
+                                items.remove(current, moves);
                                 current = null;
-                                progress %= (1f - 1f/speed);
-                            }else if(target.acceptItem(this,current)) {
-                                target.handleItem(this,current);
-                                items.remove(current,1);
+                                progress %= (1f - 1f / speed);
+                            } else if (target.acceptItem(this, current)) {
+                                target.handleItem(this, current);
+                                items.remove(current, 1);
                                 current = null;
-                                progress %= (1f - 1f/speed);
+                                progress %= (1f - 1f / speed);
                             }
                         }
                     }
                 }
-            }else{
+            } else {
                 progress = 0;
             }
 
-            if(current == null && items.total() > 0){
+            if (current == null && items.total() > 0) {
                 current = items.first();
             }
         }
 
         @Override
-        public boolean acceptItem(Building source, Item item){
+        public boolean acceptItem(Building source, Item item) {
             if (source == this && (current == null || current == item)) return true;
-            return (current == null||current==item) && items.total() < itemCapacity &&
+            return (current == null || current == item) && items.total() < itemCapacity &&
                     (Edges.getFacingEdge(source.tile, tile).relativeTo(tile) == rotation);
         }
 

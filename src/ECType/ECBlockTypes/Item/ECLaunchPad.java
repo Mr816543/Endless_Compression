@@ -1,25 +1,17 @@
 package ECType.ECBlockTypes.Item;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
 import arc.struct.Seq;
-import mindustry.content.Fx;
-import mindustry.entities.Effect;
-import mindustry.gen.LaunchPayload;
-import mindustry.type.ItemStack;
-import mindustry.type.LiquidStack;
 import mindustry.world.blocks.campaign.LaunchPad;
-import mindustry.world.blocks.defense.RegenProjector;
-import mindustry.world.consumers.*;
+import mindustry.world.consumers.Consume;
+import mindustry.world.consumers.ConsumePower;
 
-public class ECLaunchPad extends LaunchPad {
+public class ECLaunchPad extends LaunchPad implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("itemCapacity").addConfigSimple(1f/ECSetting.SCALE_MULTIPLIER,"launchTime")
+            .scaleConfig("itemCapacity").addConfigSimple(1f / ECSetting.SCALE_MULTIPLIER, "launchTime")
             .linearConfig();
     public LaunchPad root;
     public int level;
@@ -45,7 +37,7 @@ public class ECLaunchPad extends LaunchPad {
 
     @Override
     public void init() {
-        if (Core.settings.getBool("simpleLaunch")){
+        if (Core.settings.getBool("simpleLaunch")) {
             Seq<Consume> consumes = new Seq<>();
             try {
                 for (Consume consume : root.consumers) {
@@ -56,7 +48,7 @@ public class ECLaunchPad extends LaunchPad {
                         if (c.usage > 0) {
                             c.usage *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                         }
-                        if (c.capacity > 0){
+                        if (c.capacity > 0) {
                             c.capacity *= Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
                         }
                         consumes.add(c);
@@ -66,10 +58,20 @@ public class ECLaunchPad extends LaunchPad {
                 throw new RuntimeException(e);
             }
             consumeBuilder = consumes;
-        }else {
+        } else {
             consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         }
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

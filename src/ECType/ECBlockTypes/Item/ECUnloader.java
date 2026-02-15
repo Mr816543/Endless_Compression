@@ -1,9 +1,6 @@
 package ECType.ECBlockTypes.Item;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
@@ -31,23 +28,19 @@ import java.util.Comparator;
 
 import static mindustry.Vars.content;
 
-public class ECUnloader extends Block {
-    public TextureRegion centerRegion;
-
-    public float speed = 1f;
-
-    /** Cached result of content.items() */
+public class ECUnloader extends Block implements EC {
+    public static Config config = new Config().addConfigSimple(null, "buildType", "configurations")
+            .scaleConfig().linearConfig();
+    /**
+     * Cached result of content.items()
+     */
     static Item[] allItems;
-
-
+    public TextureRegion centerRegion;
+    public float speed = 1f;
     public Unloader root;
-
     public int level;
 
-    public static Config config = new Config().addConfigSimple(null, "buildType","configurations")
-            .scaleConfig().linearConfig();
-
-    public ECUnloader(Unloader root,int level) throws IllegalAccessException {
+    public ECUnloader(Unloader root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         update = true;
         solid = true;
@@ -61,90 +54,102 @@ public class ECUnloader extends Block {
         unloadable = false;
 
 
-
         this.root = root;
         this.level = level;
-        ECTool.compress(root, this,Block.class, UnlockableContent.class, config, level);
+        ECTool.compress(root, this, Block.class, UnlockableContent.class, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        ECTool.loadHealth(this, root, level);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
-        speed=root.speed* Mathf.pow(1f/ ECSetting.LINEAR_MULTIPLIER,level);
+        speed = root.speed * Mathf.pow(1f / ECSetting.LINEAR_MULTIPLIER, level);
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
         config(Item.class, (ECUnloaderBuild tile, Item item) -> tile.sortItem = item);
         configClear((ECUnloaderBuild tile) -> tile.sortItem = null);
-        ECData.register(root,this,level);
+        ECData.register(root, this, level);
     }
 
     @Override
-    public void init(){
+    public void init() {
         allItems = content.items().toArray(Item.class);
-        centerRegion =root.centerRegion;
+        centerRegion = root.centerRegion;
         super.init();
     }
 
     @Override
-    public void setStats(){
+    public void setStats() {
         super.setStats();
         stats.add(Stat.speed, 60f / speed, StatUnit.itemsSecond);
     }
 
     @Override
-    public void drawPlanConfig(BuildPlan plan, Eachable<BuildPlan> list){
+    public void drawPlanConfig(BuildPlan plan, Eachable<BuildPlan> list) {
         drawPlanConfigCenter(plan, plan.config, "unloader-center");
     }
 
     @Override
-    public void setBars(){
+    public void setBars() {
         super.setBars();
         removeBar("items");
     }
+
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public static class ContainerStat implements Pool.Poolable {
         Building building;
         float loadFactor;
         boolean canLoad;
         boolean canUnload;
-        /** Cached !(building instanceof StorageBuild) */
+        /**
+         * Cached !(building instanceof StorageBuild)
+         */
         boolean notStorage;
         int lastUsed;
 
         @Override
-        public void reset(){
+        public void reset() {
             building = null;
         }
     }
 
-    public class ECUnloaderBuild extends Building{
-        public float unloadTimer = 0f;
-        public int rotations = 0;
-        public Item sortItem = null;
-        public ContainerStat dumpingFrom, dumpingTo;
+    public class ECUnloaderBuild extends Building {
         public final Seq<ContainerStat> possibleBlocks = new Seq<>(ContainerStat.class);
-
         protected final Comparator<ContainerStat> comparator = (x, y) -> {
             //sort so it gives priority for blocks that can only either receive or give (not both), and then by load, and then by last use
             //highest = unload from, lowest = unload to
             int unloadPriority = Boolean.compare(x.canUnload && !x.canLoad, y.canUnload && !y.canLoad); //priority to receive if it cannot give
-            if(unloadPriority != 0) return unloadPriority;
+            if (unloadPriority != 0) return unloadPriority;
             int loadPriority = Boolean.compare(x.canUnload || !x.canLoad, y.canUnload || !y.canLoad); //priority to give if it cannot receive
-            if(loadPriority != 0) return loadPriority;
+            if (loadPriority != 0) return loadPriority;
             int loadFactor = Float.compare(x.loadFactor, y.loadFactor);
-            if(loadFactor != 0) return loadFactor;
+            if (loadFactor != 0) return loadFactor;
             return Integer.compare(y.lastUsed, x.lastUsed); //inverted
         };
+        public float unloadTimer = 0f;
+        public int rotations = 0;
+        public Item sortItem = null;
+        public ContainerStat dumpingFrom, dumpingTo;
 
-        private boolean isPossibleItem(Item item){
+        private boolean isPossibleItem(Item item) {
             boolean hasProvider = false,
                     hasReceiver = false,
                     isDistinct = false;
 
             var pbi = possibleBlocks.items;
-            for(int i = 0, l = possibleBlocks.size; i < l; i++){
+            for (int i = 0, l = possibleBlocks.size; i < l; i++) {
                 var pb = pbi[i];
                 var other = pb.building;
 
@@ -161,22 +166,22 @@ public class ECUnloader extends Block {
         }
 
         @Override
-        public void onProximityUpdate(){
+        public void onProximityUpdate() {
             //filter all blocks in the proximity that will never be able to trade items
 
             super.onProximityUpdate();
             Pools.freeAll(possibleBlocks, true);
             possibleBlocks.clear();
 
-            for(int i = 0; i < proximity.size; i++){
+            for (int i = 0; i < proximity.size; i++) {
                 var other = proximity.get(i);
-                if(!other.interactable(team)) continue; //avoid blocks of the wrong team
+                if (!other.interactable(team)) continue; //avoid blocks of the wrong team
 
                 //partial check
                 boolean canLoad = !(other.block instanceof StorageBlock);
                 boolean canUnload = other.canUnload() && other.items != null;
 
-                if(canLoad || canUnload){ //avoid blocks that can neither give nor receive items
+                if (canLoad || canUnload) { //avoid blocks that can neither give nor receive items
                     var pb = Pools.obtain(ContainerStat.class, ContainerStat::new);
                     pb.building = other;
                     pb.notStorage = canLoad;
@@ -187,37 +192,37 @@ public class ECUnloader extends Block {
         }
 
         @Override
-        public void updateTile(){
-            if(((unloadTimer += delta()) < speed) || (possibleBlocks.size < 2)) return;
+        public void updateTile() {
+            if (((unloadTimer += delta()) < speed) || (possibleBlocks.size < 2)) return;
             Item item = null;
             boolean any = false;
 
-            if(sortItem != null){
-                if(isPossibleItem(sortItem)) item = sortItem;
-            }else{
+            if (sortItem != null) {
+                if (isPossibleItem(sortItem)) item = sortItem;
+            } else {
                 //selects the next item for nulloaders
                 //inspired of nextIndex() but for all "proximity" (possibleBlocks) at once, and also way more powerful
-                for(int i = 0, l = allItems.length; i < l; i++){
+                for (int i = 0, l = allItems.length; i < l; i++) {
                     int id = (rotations + i + 1) % l;
                     var possibleItem = allItems[id];
 
-                    if(isPossibleItem(possibleItem)){
+                    if (isPossibleItem(possibleItem)) {
                         item = possibleItem;
                         break;
                     }
                 }
             }
 
-            if(item != null){
+            if (item != null) {
                 rotations = item.id; //next rotation for nulloaders //TODO maybe if(sortItem == null)
                 var pbi = possibleBlocks.items;
                 int pbs = possibleBlocks.size;
 
-                for(int i = 0; i < pbs; i++){
+                for (int i = 0; i < pbs; i++) {
                     var pb = pbi[i];
                     var other = pb.building;
                     int maxAccepted = other.getMaximumAccepted(item);
-                    pb.loadFactor = maxAccepted == 0 || other.items == null ? 0 : other.items.get(item) / (float)maxAccepted;
+                    pb.loadFactor = maxAccepted == 0 || other.items == null ? 0 : other.items.get(item) / (float) maxAccepted;
                     pb.lastUsed = (pb.lastUsed + 1) % Integer.MAX_VALUE; //increment the priority if not used
                 }
 
@@ -227,43 +232,44 @@ public class ECUnloader extends Block {
                 dumpingFrom = null;
 
                 //choose the building to accept the item
-                for(int i = 0; i < pbs; i++){
-                    if(pbi[i].canLoad){
+                for (int i = 0; i < pbs; i++) {
+                    if (pbi[i].canLoad) {
                         dumpingTo = pbi[i];
                         break;
                     }
                 }
 
                 //choose the building to take the item from
-                for(int i = pbs - 1; i >= 0; i--){
-                    if(pbi[i].canUnload){
+                for (int i = pbs - 1; i >= 0; i--) {
+                    if (pbi[i].canUnload) {
                         dumpingFrom = pbi[i];
                         break;
                     }
                 }
 
                 //trade the items
-                if(dumpingFrom != null && dumpingTo != null && (dumpingFrom.loadFactor != dumpingTo.loadFactor || !dumpingFrom.canLoad)){
+                if (dumpingFrom != null && dumpingTo != null && (dumpingFrom.loadFactor != dumpingTo.loadFactor || !dumpingFrom.canLoad)) {
 
                     int num = (int) (unloadTimer / speed);
 
-                    if (num==1){
+                    if (num == 1) {
                         dumpingTo.building.handleItem(this, item);
                         dumpingFrom.building.removeStack(item, 1);
-                    }else {
-                        int max = dumpingTo.building.acceptStack(item,num,this);
-                        if (dumpingTo.building.items==null||max == 0){
-                            for (int i = 0 ; i < num && i < 81;i++){
-                                if (!dumpingTo.building.acceptItem(this,item) || dumpingFrom.building.items.get(item)<=0) break;
-                                dumpingTo.building.handleItem(this , item);
-                                dumpingFrom.building.removeStack(item,1);
+                    } else {
+                        int max = dumpingTo.building.acceptStack(item, num, this);
+                        if (dumpingTo.building.items == null || max == 0) {
+                            for (int i = 0; i < num && i < 81; i++) {
+                                if (!dumpingTo.building.acceptItem(this, item) || dumpingFrom.building.items.get(item) <= 0)
+                                    break;
+                                dumpingTo.building.handleItem(this, item);
+                                dumpingFrom.building.removeStack(item, 1);
                             }
-                        }else {
+                        } else {
 
-                            max = Math.min(max,dumpingFrom.building.items.get(item));
-                            if (max<0) max = 0;
-                            dumpingTo.building.handleStack(item,max,this);
-                            dumpingFrom.building.removeStack(item,max);
+                            max = Math.min(max, dumpingFrom.building.items.get(item));
+                            if (max < 0) max = 0;
+                            dumpingTo.building.handleStack(item, max, this);
+                            dumpingFrom.building.removeStack(item, max);
                         }
                     }
 
@@ -273,54 +279,54 @@ public class ECUnloader extends Block {
                 }
             }
 
-            if(any){
+            if (any) {
                 unloadTimer %= speed;
-            }else{
+            } else {
                 unloadTimer = Math.min(unloadTimer, speed);
             }
         }
 
         @Override
-        public void draw(){
+        public void draw() {
             super.draw();
 
             Draw.color(sortItem == null ? Color.clear : sortItem.color);
             Draw.rect(root.centerRegion, x, y);
             Draw.color();
-            if (sortItem!=null){
-                Draw.rect(sortItem.uiIcon,x,y,4,4);
+            if (sortItem != null) {
+                Draw.rect(sortItem.uiIcon, x, y, 4, 4);
             }
         }
 
         @Override
-        public void drawSelect(){
+        public void drawSelect() {
             super.drawSelect();
             drawItemSelection(sortItem);
         }
 
         @Override
-        public void buildConfiguration(Table table){
+        public void buildConfiguration(Table table) {
             ItemSelection.buildTable(block, table, content.items(), () -> sortItem, this::configure, selectionRows, selectionColumns);
         }
 
         @Override
-        public Item config(){
+        public Item config() {
             return sortItem;
         }
 
         @Override
-        public byte version(){
+        public byte version() {
             return 1;
         }
 
         @Override
-        public void write(Writes write){
+        public void write(Writes write) {
             super.write(write);
             write.s(sortItem == null ? -1 : sortItem.id);
         }
 
         @Override
-        public void read(Reads read, byte revision){
+        public void read(Reads read, byte revision) {
             super.read(read, revision);
             int id = revision == 1 ? read.s() : read.b();
             sortItem = id == -1 ? null : content.item(id);

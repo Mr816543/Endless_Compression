@@ -1,5 +1,6 @@
 package ECType.ECBlockTypes.Crafter;
 
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
@@ -11,8 +12,6 @@ import mindustry.type.ItemStack;
 import mindustry.type.LiquidStack;
 import mindustry.world.Block;
 import mindustry.world.blocks.heat.HeatProducer;
-import mindustry.world.blocks.production.GenericCrafter;
-import mindustry.world.blocks.production.HeatCrafter;
 import mindustry.world.consumers.*;
 import mindustry.world.draw.DrawBlock;
 import mindustry.world.draw.DrawLiquidOutputs;
@@ -21,7 +20,7 @@ import mindustry.world.meta.BlockGroup;
 
 import static mindustry.Vars.tilesize;
 
-public class ECHeatProducer extends ECMultiCrafter {
+public class ECHeatProducer extends ECMultiCrafter implements EC {
 
     public HeatProducer root;
 
@@ -132,7 +131,6 @@ public class ECHeatProducer extends ECMultiCrafter {
             outputHeat = root.heatOutput;
 
 
-
             for (Consume cons : root.consumers) {
                 if (cons instanceof ConsumeItems consumer) {
                     inputItems = consumer.items;
@@ -154,7 +152,6 @@ public class ECHeatProducer extends ECMultiCrafter {
             }
 
 
-
         }};
         recipes.add(recipe);
         for (int i = 1; i <= 9; i++) {
@@ -163,9 +160,9 @@ public class ECHeatProducer extends ECMultiCrafter {
     }
 
     @Override
-    public boolean canReplace(Block other){
-        if(other.alwaysReplace) return true;
-        if(other.privileged) return false;
+    public boolean canReplace(Block other) {
+        if (other.alwaysReplace) return true;
+        if (other.privileged) return false;
         return other.replaceable &&
                 (other != this || (rotate && quickRotate)) &&
                 ((this.group != BlockGroup.none && other.group == this.group) || other == this.root) &&
@@ -173,13 +170,13 @@ public class ECHeatProducer extends ECMultiCrafter {
     }
 
     @Override
-    public void drawOverlay(float x, float y, int rotation){
-        if(recipes.get(0).outputLiquids != null){
+    public void drawOverlay(float x, float y, int rotation) {
+        if (recipes.get(0).outputLiquids != null) {
             Recipe r = recipes.get(0);
-            for(int i = 0; i <r.outputLiquids.length; i++){
+            for (int i = 0; i < r.outputLiquids.length; i++) {
                 int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
 
-                if(dir != -1){
+                if (dir != -1) {
                     Draw.rect(
                             r.outputLiquids[i].liquid.fullIcon,
                             x + Geometry.d4x(dir + rotation) * (size * tilesize / 2f + 4),
@@ -190,14 +187,15 @@ public class ECHeatProducer extends ECMultiCrafter {
             }
         }
     }
+
     @Override
-    public void drawOverlay(float x, float y, int rotation,int index){
-        if(recipes.get(index).outputLiquids != null){
+    public void drawOverlay(float x, float y, int rotation, int index) {
+        if (recipes.get(index).outputLiquids != null) {
             Recipe r = recipes.get(index);
-            for(int i = 0; i < r.outputLiquids.length; i++){
+            for (int i = 0; i < r.outputLiquids.length; i++) {
                 int dir = r.liquidOutputDirections.length > i ? r.liquidOutputDirections[i] : -1;
 
-                if(dir != -1){
+                if (dir != -1) {
                     Draw.rect(
                             r.outputLiquids[i].liquid.fullIcon,
                             x + Geometry.d4x(dir + rotation) * (size * tilesize / 2f + 4),
@@ -208,5 +206,16 @@ public class ECHeatProducer extends ECMultiCrafter {
             }
         }
     }
+
+    @Override
+    public int getLevel() {
+        return 1;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
 }

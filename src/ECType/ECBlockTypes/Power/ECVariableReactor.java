@@ -1,15 +1,16 @@
 package ECType.ECBlockTypes.Power;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.world.blocks.power.VariableReactor;
 
-public class ECVariableReactor extends VariableReactor {
+public class ECVariableReactor extends VariableReactor implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig().linearConfig("maxHeat","powerProduction").addConfigSimple(9f,"powerProduction");
+            .scaleConfig().linearConfig("maxHeat", "powerProduction").addConfigSimple(9f, "powerProduction");
     public VariableReactor root;
     public int level;
 
@@ -35,6 +36,17 @@ public class ECVariableReactor extends VariableReactor {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECVariableReactorBuild extends VariableReactorBuild {
 

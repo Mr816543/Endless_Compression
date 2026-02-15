@@ -1,18 +1,17 @@
 package ECType.ECBlockTypes.Power;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import mindustry.content.Liquids;
 import mindustry.type.LiquidStack;
 import mindustry.world.blocks.power.HeaterGenerator;
-import mindustry.world.blocks.power.VariableReactor;
 
-public class ECHeaterGenerator extends HeaterGenerator {
+public class ECHeaterGenerator extends HeaterGenerator implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("explosionRadius").linearConfig("explosionDamage").addConfigSimple(9f,"powerProduction","heatOutput","warmupRate");
+            .scaleConfig("explosionRadius").linearConfig("explosionDamage").addConfigSimple(9f, "powerProduction", "heatOutput", "warmupRate");
     public HeaterGenerator root;
     public int level;
 
@@ -26,7 +25,7 @@ public class ECHeaterGenerator extends HeaterGenerator {
         ECTool.loadHealth(this, root, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
-        outputLiquid = new LiquidStack(ECData.get(root.outputLiquid.liquid,level), root.outputLiquid.amount);
+        outputLiquid = new LiquidStack(ECData.get(root.outputLiquid.liquid, level), root.outputLiquid.amount);
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
@@ -39,6 +38,17 @@ public class ECHeaterGenerator extends HeaterGenerator {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECHeaterGeneratorBuild extends HeaterGeneratorBuild {
 

@@ -1,15 +1,16 @@
 package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.world.blocks.defense.RegenProjector;
 
-public class ECRegenProjector extends RegenProjector {
+public class ECRegenProjector extends RegenProjector implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("range","healPercent","effectChance")
+            .scaleConfig("range", "healPercent", "effectChance")
             .linearConfig();
     public RegenProjector root;
     public int level;
@@ -37,6 +38,16 @@ public class ECRegenProjector extends RegenProjector {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

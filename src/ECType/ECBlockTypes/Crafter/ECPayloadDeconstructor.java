@@ -1,14 +1,14 @@
 package ECType.ECBlockTypes.Crafter;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
 import mindustry.type.Item;
-import mindustry.world.blocks.defense.RegenProjector;
 import mindustry.world.blocks.payloads.PayloadDeconstructor;
 
-public class ECPayloadDeconstructor extends PayloadDeconstructor {
+public class ECPayloadDeconstructor extends PayloadDeconstructor implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
@@ -41,6 +41,15 @@ public class ECPayloadDeconstructor extends PayloadDeconstructor {
         super.init();
     }
 
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
 
     public class ECPayloadDeconstructorBuild extends PayloadDeconstructorBuild {
 
@@ -51,7 +60,8 @@ public class ECPayloadDeconstructor extends PayloadDeconstructor {
 
         @Override
         public boolean dump(Item todump) {
-            return ECTool.dump(this,todump);
+            return ECTool.dump(this, todump);
         }
     }
+
 }

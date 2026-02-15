@@ -1,24 +1,19 @@
 package ECType;
 
-import ECConfig.ECData;
 import ECConfig.ECTool;
 import ECContents.Achievements;
-import ECType.ECBlockTypes.Crafter.ECDrill;
 import arc.Core;
 import arc.Events;
 import arc.func.Cons;
+import arc.graphics.Color;
+import arc.graphics.g2d.TextureRegion;
 import arc.math.Interp;
-import arc.scene.actions.*;
-import arc.scene.ui.*;
-import arc.scene.ui.layout.*;
-import arc.graphics.*;
-import arc.graphics.g2d.*;
-import arc.struct.Seq;
+import arc.scene.actions.Actions;
+import arc.scene.ui.Image;
+import arc.scene.ui.Label;
+import arc.scene.ui.layout.Table;
 import mindustry.content.Items;
-import mindustry.ctype.ContentType;
 import mindustry.ctype.UnlockableContent;
-import mindustry.game.EventType;
-import mindustry.game.Objectives;
 import mindustry.gen.Sounds;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
@@ -26,10 +21,12 @@ import mindustry.ui.Styles;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.Stats;
 
-import static mindustry.content.TechTree.*;
+import static mindustry.content.TechTree.TechNode;
+import static mindustry.content.TechTree.node;
 
 public class Achievement extends Item {
     public static final Stat statAward = new Stat("achievement.award");
+    public static int showing = 0;
     // 可配置变量
     public float windowHeight = 80f;         // 弹窗固定高度
     public float pad = 10f;                  // 内边距
@@ -41,38 +38,30 @@ public class Achievement extends Item {
     public float titleScale = 1.3f;          // 标题字体缩放
     public float textScale = 0.9f;           // 正文字体缩放
     public float offsetY = 20f;              // Y轴偏移量
-
     public String title;
-
     public String message;
-
     public TextureRegion icon;
-
     public UnlockableContent iconFrom;
-
     public UnlockableContent root;
-
     public int index = 10;//贴图索引
-
-    public static int showing = 0;
-
     public boolean hasAward = false;
 
     public boolean ban = true;
 
     public Achievement(String name) {
         super(name);
-        title = localizedName = Core.bundle.get("string.achievement") + ":" + Core.bundle.get("achievement."+name+".title",name);
-        message = description = Core.bundle.get("achievement."+name+".message",localizedName);
-        details = Core.bundle.get("achievement."+name+".details",localizedName);
+        title = localizedName = Core.bundle.get("string.achievement") + ":" + Core.bundle.get("achievement." + name + ".title", name);
+        message = description = Core.bundle.get("achievement." + name + ".message", localizedName);
+        details = Core.bundle.get("achievement." + name + ".details", localizedName);
         setIcon();
         Achievements.achievements.add(this);
     }
 
     public void initTechNode() {
-        if (root == null||root==this) return;
-        for (TechNode r : root.techNodes){
-            TechNode node = node(this, () -> {});
+        if (root == null || root == this) return;
+        for (TechNode r : root.techNodes) {
+            TechNode node = node(this, () -> {
+            });
             node.parent = r;
             r.children.add(node);
         }
@@ -81,16 +70,16 @@ public class Achievement extends Item {
     @Override
     public void init() {
         hidden = true;
-        ban = Core.settings.getBool(name,true);
+        ban = Core.settings.getBool(name, true);
         initTechNode();
     }
 
-    public <T> void setEvent(Class<T> type, Cons<T> listener){
-        if (locked()) Events.on(type,listener);
+    public <T> void setEvent(Class<T> type, Cons<T> listener) {
+        if (locked()) Events.on(type, listener);
     }
 
     public void setIcon() {
-        if (iconFrom == null){
+        if (iconFrom == null) {
             iconFrom = Items.copper;
             index = 0;
         }
@@ -102,8 +91,8 @@ public class Achievement extends Item {
         }
     }
 
-    public boolean working(UnlockableContent content){
-        return Core.settings.getBool("achievementsWork") && unlockedNow() && !Core.settings.getBool(name,false);
+    public boolean working(UnlockableContent content) {
+        return Core.settings.getBool("achievementsWork") && unlockedNow() && !Core.settings.getBool(name, false);
     }
 
     @Override
@@ -113,18 +102,18 @@ public class Achievement extends Item {
         stats.remove(Stat.flammability);
         stats.remove(Stat.radioactivity);
         stats.remove(Stat.charge);
-        if (hasAward&&unlockedNow()) stats.add(statAward, table -> {
-            table.button(ban?Core.bundle.get("stat.false"):Core.bundle.get("stat.true"), Styles.flatTogglet,()->{
+        if (hasAward && unlockedNow()) stats.add(statAward, table -> {
+            table.button(ban ? Core.bundle.get("stat.false") : Core.bundle.get("stat.true"), Styles.flatTogglet, () -> {
                 ban = !ban;
-                Core.settings.put(name,ban);
-            }).size(75,30);
-            table.setSize(75,30);
+                Core.settings.put(name, ban);
+            }).size(75, 30);
+            table.setSize(75, 30);
         });
     }
 
     @Override
     public ItemStack[] researchRequirements() {
-        return new ItemStack[]{new ItemStack(this,1)};
+        return new ItemStack[]{new ItemStack(this, 1)};
     }
 
     @Override
@@ -190,7 +179,7 @@ public class Achievement extends Item {
         // 执行动画序列
         toast.actions(
 
-                Actions.run(()-> Sounds.uiNotify.play()),
+                Actions.run(() -> Sounds.uiNotify.play()),
 
                 // 滑入动画
                 Actions.moveTo(endX, yPos, slideDuration, Interp.smooth),

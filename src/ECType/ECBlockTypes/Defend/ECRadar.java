@@ -1,16 +1,15 @@
 package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
-import ECType.ECBlockTypes.Crafter.ECBurstDrill;
 import arc.Core;
-import mindustry.content.Blocks;
 import mindustry.world.Block;
 import mindustry.world.blocks.defense.Radar;
 import mindustry.world.meta.BlockGroup;
 
-public class ECRadar extends Radar {
+public class ECRadar extends Radar implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("fogRadius").linearConfig();
@@ -41,15 +40,26 @@ public class ECRadar extends Radar {
     }
 
     @Override
-    public boolean canReplace(Block other){
-        if(other.alwaysReplace) return true;
-        if(other.privileged) return false;
+    public boolean canReplace(Block other) {
+        if (other.alwaysReplace) return true;
+        if (other.privileged) return false;
         return other.replaceable &&
                 (other != this || (rotate && quickRotate)) &&
                 (((this.group != BlockGroup.none && other.group == this.group) || other == this)
-                        || (other == root) || (other instanceof ECRadar d && d.root == this.root&&d.level<level))
+                        || (other == root) || (other instanceof ECRadar d && d.root == this.root && d.level < level))
                 &&
                 (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
+    }
+
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
     public class ECRadarBuild extends RadarBuild {

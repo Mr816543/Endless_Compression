@@ -1,14 +1,10 @@
 package ECType.ECBlockTypes.Defend;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import ECContents.Achievements;
 import ECContents.ECItems;
 import arc.Core;
 import arc.math.Mathf;
-import arc.util.Log;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.type.Item;
@@ -20,19 +16,19 @@ import mindustry.world.meta.StatUnit;
 
 import static mindustry.Vars.*;
 
-public class ECCoreBlock extends CoreBlock {
+public class ECCoreBlock extends CoreBlock implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType", "unitType")
             .scaleConfig("unitCapModifier").linearConfig("itemCapacity", "armor");
     public CoreBlock root;
     public int level;
-    public float IFR ;
+    public float IFR;
 
     public ECCoreBlock(CoreBlock root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        this.IFR = Mathf.pow(1/ ECSetting.LINEAR_MULTIPLIER,level);
+        this.IFR = Mathf.pow(1 / ECSetting.LINEAR_MULTIPLIER, level);
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
@@ -51,16 +47,16 @@ public class ECCoreBlock extends CoreBlock {
     @Override
     public void setStats() {
         super.setStats();
-        float ifr = (1 - IFR)*100;
-        stats.add(new Stat("IFR"),ifr, StatUnit.percent);
-        int echealth = (int) (health*Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level));
-        stats.add(new Stat("echealth"), echealth == Integer.MAX_VALUE ? Core.bundle.get("infinite"):echealth+"",StatUnit.none);
+        float ifr = (1 - IFR) * 100;
+        stats.add(new Stat("IFR"), ifr, StatUnit.percent);
+        int echealth = (int) (health * Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level));
+        stats.add(new Stat("echealth"), echealth == Integer.MAX_VALUE ? Core.bundle.get("infinite") : echealth + "", StatUnit.none);
     }
 
     @Override
     public void init() {
         super.init();
-        if (ECData.get(root,level-1).itemCapacity>Integer.MAX_VALUE/5f){
+        if (ECData.get(root, level - 1).itemCapacity > Integer.MAX_VALUE / 5f) {
             itemCapacity = Integer.MAX_VALUE;
         }
     }
@@ -88,13 +84,24 @@ public class ECCoreBlock extends CoreBlock {
                         (size == tile.block().size && tile.block() instanceof ECCoreBlock t && level > t.level)
                         || (tile.block() == root)
         ) && (!requiresCoreZone || tempTiles.allMatch(o -> o.floor().allowCorePlacement || tile.block() == root ||
-                (tile.block()instanceof ECCoreBlock c && c.root == root && c.level < level)));
+                (tile.block() instanceof ECCoreBlock c && c.root == root && c.level < level)));
     }
 
     @Override
     public boolean canReplace(Block other) {
         return super.canReplace(other);
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 
     public class ECCoreBlockBuild extends CoreBuild {
 
@@ -104,7 +111,7 @@ public class ECCoreBlock extends CoreBlock {
         @Override
         public void updateTile() {
             super.updateTile();
-            if (Achievements.compressCore.working(block)){
+            if (Achievements.compressCore.working(block)) {
                 autoDecompress();
             }
         }

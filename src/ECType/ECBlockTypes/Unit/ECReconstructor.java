@@ -1,6 +1,7 @@
 package ECType.ECBlockTypes.Unit;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
@@ -10,35 +11,33 @@ import mindustry.ctype.UnlockableContent;
 import mindustry.type.UnitType;
 import mindustry.world.blocks.units.Reconstructor;
 
-public class ECReconstructor extends Reconstructor {
+public class ECReconstructor extends Reconstructor implements EC {
 
-    public Reconstructor root ;
-
+    public static Config config = new Config().addConfigSimple(null, "buildType", "configurations", "upgrades");
+    public Reconstructor root;
     public int level;
 
-    public static Config config = new Config().addConfigSimple(null,"buildType","configurations","upgrades");
-
-    public ECReconstructor(Reconstructor root,int level) throws IllegalAccessException {
-        super("c"+level+"-" + root.name);
+    public ECReconstructor(Reconstructor root, int level) throws IllegalAccessException {
+        super("c" + level + "-" + root.name);
 
         this.root = root;
         this.level = level;
 
-        ECTool.compress(root,this, UnlockableContent.class , config, level);
+        ECTool.compress(root, this, UnlockableContent.class, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        ECTool.loadHealth(this, root, level);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
         upgrades = new Seq<>();
-        for (UnitType[] p : root.upgrades){
+        for (UnitType[] p : root.upgrades) {
             if (!ECData.hasECContent(p[0])) continue;
             if (!ECData.hasECContent(p[1])) continue;
-            UnitType[] c = new UnitType[]{ECData.get(p[0],level),ECData.get(p[1],level)};
+            UnitType[] c = new UnitType[]{ECData.get(p[0], level), ECData.get(p[1], level)};
             upgrades.add(c);
         }
 
@@ -47,29 +46,39 @@ public class ECReconstructor extends Reconstructor {
         config(UnitCommand.class, (ReconstructorBuild build, UnitCommand command) -> build.command = command);
         configClear((ReconstructorBuild build) -> build.command = null);
 
-        ECData.register(root,this,level);
+        ECData.register(root, this, level);
 
     }
 
     @Override
     public void init() {
-        if (consPower == null){
+        if (consPower == null) {
             consumePower(0);
-        }else{
+        } else {
             consume(consPower);
         }
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
-    public class ECReconstructorBuild extends ReconstructorBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECReconstructorBuild extends ReconstructorBuild {
 
 
         @Override
         public void updateTile() {
             super.updateTile();
         }
-
 
 
     }

@@ -1,13 +1,13 @@
 package ECType.ECBlockTypes.Defend;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
 import arc.Core;
-import mindustry.world.blocks.defense.RegenProjector;
 import mindustry.world.blocks.units.RepairTower;
 
-public class ECRepairTower extends RepairTower {
+public class ECRepairTower extends RepairTower implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("range")
@@ -38,6 +38,16 @@ public class ECRepairTower extends RepairTower {
     public void init() {
         consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 

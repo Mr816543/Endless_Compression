@@ -1,9 +1,6 @@
 package ECType.ECBlockTypes.Liquid;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
 import arc.util.Time;
@@ -13,11 +10,11 @@ import mindustry.type.Liquid;
 import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.blocks.liquid.LiquidBridge;
 
-public class ECLiquidBridge extends LiquidBridge {
+public class ECLiquidBridge extends LiquidBridge implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig("range")
-            .linearConfig("liquidCapacity").addConfigSimple(1f/ ECSetting.LINEAR_MULTIPLIER,"transportTime");
+            .linearConfig("liquidCapacity").addConfigSimple(1f / ECSetting.LINEAR_MULTIPLIER, "transportTime");
     public ItemBridge root;
     public int level;
 
@@ -30,7 +27,7 @@ public class ECLiquidBridge extends LiquidBridge {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
+        ECTool.loadHealth(this, root, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -43,16 +40,27 @@ public class ECLiquidBridge extends LiquidBridge {
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
-    public class ECLiquidBridgeBuild extends LiquidBridgeBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECLiquidBridgeBuild extends LiquidBridgeBuild {
 
 
         @Override
-        public void updateTransport(Building other){
-            if(warmup >= 0.25f){
+        public void updateTransport(Building other) {
+            if (warmup >= 0.25f) {
                 moved |= moveLiquid(other, liquids.current()) > 0.05f;
             }
         }
@@ -102,9 +110,9 @@ public class ECLiquidBridge extends LiquidBridge {
         }
 
         @Override
-        public void doDump(){
+        public void doDump() {
             dumpLiquid(liquids.current(), 1f);
-            ECTool.dumpLiquid(liquids.current(),1f,this);
+            ECTool.dumpLiquid(liquids.current(), 1f, this);
         }
     }
 

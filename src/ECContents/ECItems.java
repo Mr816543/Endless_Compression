@@ -1,6 +1,5 @@
 package ECContents;
 
-import ECConfig.ECData;
 import ECConfig.ECTool;
 import ECType.ECItem;
 import arc.Core;
@@ -19,7 +18,7 @@ public class ECItems {
             if (root.isModded()) continue;
             if (root.isHidden()) continue;
             compressItem(root);
-            if (Core.settings.getBool("oldContent"))compressOldItem(root);
+            if (Core.settings.getBool("oldContent")) compressOldItem(root);
         }
     }
 
@@ -28,10 +27,11 @@ public class ECItems {
             new ECItem(root, i);
         }
     }
+
     public static void compressOldItem(Item root) {
         for (int i = 1; i <= MAX_LEVEL; i++) {
-            Item old = new Item(root.name+i);
-            ECTool.setIcon(root,old,i);
+            Item old = new Item(root.name + i);
+            ECTool.setIcon(root, old, i);
         }
     }
 

@@ -1,19 +1,11 @@
 package ECType.ECBlockTypes.Item;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
-import arc.util.Log;
 import mindustry.gen.Building;
-import mindustry.gen.Teamc;
 import mindustry.type.Item;
-import mindustry.world.Edges;
 import mindustry.world.blocks.distribution.DirectionalUnloader;
-import mindustry.world.blocks.distribution.OverflowDuct;
-import mindustry.world.blocks.sandbox.ItemVoid;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.meta.Stat;
@@ -22,7 +14,7 @@ import mindustry.world.meta.StatUnit;
 import static mindustry.Vars.content;
 import static mindustry.Vars.state;
 
-public class ECDirectionalUnloader extends DirectionalUnloader {
+public class ECDirectionalUnloader extends DirectionalUnloader implements EC {
 
     public static Config config = new Config().addConfigSimple(null, "buildType")
             .scaleConfig()
@@ -40,7 +32,7 @@ public class ECDirectionalUnloader extends DirectionalUnloader {
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
+        ECTool.loadHealth(this, root, level);
         requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
@@ -52,40 +44,51 @@ public class ECDirectionalUnloader extends DirectionalUnloader {
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
 
     @Override
-    public void setStats(){
+    public void setStats() {
         super.setStats();
         stats.remove(Stat.speed);
         stats.add(Stat.speed, 60f / speed * outputMultiple, StatUnit.itemsSecond);
     }
 
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
     public class ECDirectionalUnloaderBuild extends DirectionalUnloaderBuild {
 
         @Override
-        public void updateTile(){
-            if((unloadTimer += edelta()) >= speed){
+        public void updateTile() {
+            if ((unloadTimer += edelta()) >= speed) {
                 Building front = front(), back = back();
 
-                if(front != null && back != null && back.items != null && front.team == team && back.team == team && back.canUnload() && (allowCoreUnload || !(back instanceof CoreBlock.CoreBuild || (back instanceof StorageBlock.StorageBuild sb && sb.linkedCore != null)))){
-                    if(unloadItem == null){
+                if (front != null && back != null && back.items != null && front.team == team && back.team == team && back.canUnload() && (allowCoreUnload || !(back instanceof CoreBlock.CoreBuild || (back instanceof StorageBlock.StorageBuild sb && sb.linkedCore != null)))) {
+                    if (unloadItem == null) {
                         var itemseq = content.items();
                         int itemc = itemseq.size;
-                        for(int i = 0; i < itemc; i++){
+                        for (int i = 0; i < itemc; i++) {
                             Item item = itemseq.get((i + offset) % itemc);
-                            if(back.items.has(item) && front.acceptItem(this, item)){
+                            if (back.items.has(item) && front.acceptItem(this, item)) {
 
-                                int moves = front.acceptStack(item,back.items.get(item),this);
-                                if (moves>0){
-                                    front.handleStack(item,moves,this);
+                                int moves = front.acceptStack(item, back.items.get(item), this);
+                                if (moves > 0) {
+                                    front.handleStack(item, moves, this);
                                     back.items.remove(item, moves);
-                                    if ((back instanceof CoreBlock.CoreBuild || (back instanceof StorageBlock.StorageBuild sb && sb.linkedCore != null))){
+                                    if ((back instanceof CoreBlock.CoreBuild || (back instanceof StorageBlock.StorageBuild sb && sb.linkedCore != null))) {
 
-                                        if(state.isCampaign() && team == state.rules.defaultTeam){
+                                        if (state.isCampaign() && team == state.rules.defaultTeam) {
                                             //update item taken amount
                                             state.rules.sector.info.handleCoreItem(item, -moves);
                                         }
@@ -93,7 +96,7 @@ public class ECDirectionalUnloader extends DirectionalUnloader {
 
                                     }
 
-                                }else {
+                                } else {
                                     front.handleItem(this, item);
                                     back.items.remove(item, 1);
                                     back.itemTaken(item);
@@ -102,15 +105,14 @@ public class ECDirectionalUnloader extends DirectionalUnloader {
                                 break;
                             }
                         }
-                    }
-                    else if(back.items.has(unloadItem) && front.acceptItem(this, unloadItem)){
-                        int moves = front.acceptStack(unloadItem,back.items.get(unloadItem),this);
-                        if (moves>0){
-                            front.handleStack(unloadItem,moves,this);
+                    } else if (back.items.has(unloadItem) && front.acceptItem(this, unloadItem)) {
+                        int moves = front.acceptStack(unloadItem, back.items.get(unloadItem), this);
+                        if (moves > 0) {
+                            front.handleStack(unloadItem, moves, this);
                             back.items.remove(unloadItem, moves);
-                            if ((back instanceof CoreBlock.CoreBuild || (back instanceof StorageBlock.StorageBuild sb && sb.linkedCore != null))){
+                            if ((back instanceof CoreBlock.CoreBuild || (back instanceof StorageBlock.StorageBuild sb && sb.linkedCore != null))) {
 
-                                if(state.isCampaign() && team == state.rules.defaultTeam){
+                                if (state.isCampaign() && team == state.rules.defaultTeam) {
                                     //update item taken amount
                                     state.rules.sector.info.handleCoreItem(unloadItem, -moves);
                                 }
@@ -118,7 +120,7 @@ public class ECDirectionalUnloader extends DirectionalUnloader {
 
                             }
 
-                        }else {
+                        } else {
                             front.handleItem(this, unloadItem);
                             back.items.remove(unloadItem, 1);
                             back.itemTaken(unloadItem);

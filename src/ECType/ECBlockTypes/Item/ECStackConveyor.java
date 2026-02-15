@@ -1,9 +1,6 @@
 package ECType.ECBlockTypes.Item;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
 import mindustry.gen.Building;
@@ -11,47 +8,54 @@ import mindustry.type.Item;
 import mindustry.world.blocks.distribution.StackConveyor;
 import mindustry.world.blocks.sandbox.ItemVoid;
 
-public class ECStackConveyor extends StackConveyor {
-    public StackConveyor root;
-
-    public int level;
-
-    public float outputMultiple;
-
+public class ECStackConveyor extends StackConveyor implements EC {
     public static Config config = new Config().addConfigSimple(null, "buildType").linearConfig();
+    public StackConveyor root;
+    public int level;
+    public float outputMultiple;
 
 
     public ECStackConveyor(StackConveyor root, int level) throws IllegalAccessException {
         super("c" + level + "-" + root.name);
         this.root = root;
         this.level = level;
-        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level);
+        this.outputMultiple = Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level);
         ECTool.compress(root, this, config, level);
         ECTool.loadCompressContentRegion(root, this);
         ECTool.setIcon(root, this, level);
-        ECTool.loadHealth(this,root,level);
-        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements,level));
+        ECTool.loadHealth(this, root, level);
+        requirements(root.category, root.buildVisibility, ECTool.compressItemStack(root.requirements, level));
 
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
 
-        float m = (level+1f)/2f;
+        float m = (level + 1f) / 2f;
         speed *= m;
-        itemCapacity *= (int) (Mathf.pow(ECSetting.LINEAR_MULTIPLIER,level)/m);
+        itemCapacity *= (int) (Mathf.pow(ECSetting.LINEAR_MULTIPLIER, level) / m);
 
 
-
-        ECData.register(root,this,level);
+        ECData.register(root, this, level);
     }
 
     @Override
     public void init() {
-        consumeBuilder = ECTool.consumeBuilderCopy(root,level);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level);
         super.init();
     }
 
-    public class ECStackConveyorBuild extends StackConveyorBuild{
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
+
+    public class ECStackConveyorBuild extends StackConveyorBuild {
 
         @Override
         public void updateTile() {
@@ -59,40 +63,40 @@ public class ECStackConveyor extends StackConveyor {
             float eff = enabled ? (efficiency + baseEfficiency) : 1f;
 
             //reel in crater
-            if(cooldown > 0f) cooldown = Mathf.clamp(cooldown - speed * eff * delta(), 0f, recharge);
+            if (cooldown > 0f) cooldown = Mathf.clamp(cooldown - speed * eff * delta(), 0f, recharge);
 
             //indicates empty state
-            if(link == -1) return;
+            if (link == -1) return;
 
             //crater needs to be centered
-            if(cooldown > 0f) return;
+            if (cooldown > 0f) return;
 
             //get current item
-            if(lastItem == null || !items.has(lastItem)){
+            if (lastItem == null || !items.has(lastItem)) {
                 lastItem = items.first();
             }
 
             //do not continue if disabled, will still allow one to be reeled in to prevent visual stacking
-            if(!enabled) return;
+            if (!enabled) return;
 
-            if(state == stateUnload){ //unload
-                if (lastItem != null){
-                    if(!outputRouter){
+            if (state == stateUnload) { //unload
+                if (lastItem != null) {
+                    if (!outputRouter) {
                         moveForward(lastItem);
-                    }else {
+                    } else {
                         dump(lastItem);
                     }
 
-                    if(!items.has(lastItem)){
+                    if (!items.has(lastItem)) {
                         poofOut();
                         lastItem = null;
                     }
                 }
-            }else{ //transfer
-                if(state != stateLoad || (items.total() >= getMaximumAccepted(lastItem))){
-                    if(front() instanceof StackConveyorBuild e && e.team == team){
+            } else { //transfer
+                if (state != stateLoad || (items.total() >= getMaximumAccepted(lastItem))) {
+                    if (front() instanceof StackConveyorBuild e && e.team == team) {
                         //sleep if its occupied
-                        if(e.link == -1){
+                        if (e.link == -1) {
                             e.items.add(items);
                             e.lastItem = lastItem;
                             e.link = tile.pos();
@@ -115,14 +119,14 @@ public class ECStackConveyor extends StackConveyor {
 
 
                 if (other instanceof ItemVoid.ItemVoidBuild) {
-                    other.flowItems().add(item,items.get(item));
+                    other.flowItems().add(item, items.get(item));
                     items.set(item, 0);
                     return true;
                 }
 
 
-                int max = Math.min(other.acceptStack(item,items.get(item),this),items.get(item));
-                other.handleStack(item,max,this);
+                int max = Math.min(other.acceptStack(item, items.get(item), this), items.get(item));
+                other.handleStack(item, max, this);
                 items.remove(item, max);
                 return true;
             } else {
@@ -132,7 +136,7 @@ public class ECStackConveyor extends StackConveyor {
 
         @Override
         public boolean dump(Item todump) {
-            return ECTool.dump(this,todump);
+            return ECTool.dump(this, todump);
         }
     }
 }

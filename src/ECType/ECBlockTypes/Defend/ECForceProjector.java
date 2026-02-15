@@ -1,9 +1,6 @@
 package ECType.ECBlockTypes.Defend;
 
-import ECConfig.Config;
-import ECConfig.ECData;
-import ECConfig.ECSetting;
-import ECConfig.ECTool;
+import ECConfig.*;
 import arc.Core;
 import arc.math.Mathf;
 import mindustry.type.ItemStack;
@@ -13,9 +10,9 @@ import mindustry.world.consumers.ConsumeCoolant;
 import mindustry.world.consumers.ConsumeItems;
 import mindustry.world.consumers.ConsumePower;
 
-public class ECForceProjector extends ForceProjector {
+public class ECForceProjector extends ForceProjector implements EC {
     public static Config config = new Config().addConfigSimple(null, "buildType")
-            .scaleConfig("phaseRadiusBoost","radius").linearConfig("shieldHealth","phaseShieldBoost","cooldownBrokenBase");
+            .scaleConfig("phaseRadiusBoost", "radius").linearConfig("shieldHealth", "phaseShieldBoost", "cooldownBrokenBase");
     public ForceProjector root;
     public int level;
 
@@ -56,7 +53,7 @@ public class ECForceProjector extends ForceProjector {
                         c.items[i] = new ItemStack(ECData.get(r.items[i].item, level), r.items[i].amount);
                     }
                     this.itemConsumer = this.consume(c);
-                }else if (consume instanceof ConsumePower) {
+                } else if (consume instanceof ConsumePower) {
                     ConsumePower c = new ConsumePower(0, 0, false);
                     ECTool.compress(consume, c, Object.class, Config.NULL, 0);
                     if (c.usage > 0) {
@@ -72,4 +69,15 @@ public class ECForceProjector extends ForceProjector {
 
         super.init();
     }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
+    }
+
 }

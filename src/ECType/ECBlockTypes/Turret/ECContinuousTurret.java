@@ -1,20 +1,15 @@
 package ECType.ECBlockTypes.Turret;
 
 import ECConfig.Config;
+import ECConfig.EC;
 import ECConfig.ECData;
-import ECConfig.ECSetting;
 import ECConfig.ECTool;
 import arc.Core;
-import arc.math.Mathf;
-import arc.struct.ObjectMap;
-import mindustry.entities.bullet.PointLaserBulletType;
-import mindustry.type.Liquid;
-import mindustry.world.blocks.defense.turrets.ContinuousLiquidTurret;
 import mindustry.world.blocks.defense.turrets.ContinuousTurret;
 
-public class ECContinuousTurret extends ContinuousTurret {
+public class ECContinuousTurret extends ContinuousTurret implements EC {
 
-    public static Config config = new Config().addConfigSimple(null, "buildType","shootType")
+    public static Config config = new Config().addConfigSimple(null, "buildType", "shootType")
             .scaleConfig("range")
             .linearConfig();
     public ContinuousTurret root;
@@ -42,12 +37,22 @@ public class ECContinuousTurret extends ContinuousTurret {
     @Override
     public void init() {
         try {
-            shootType = ECTool.compressBulletType(root.shootType,level);
+            shootType = ECTool.compressBulletType(root.shootType, level);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        consumeBuilder = ECTool.consumeBuilderCopy(root, level,true);
+        consumeBuilder = ECTool.consumeBuilderCopy(root, level, true);
         super.init();
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public Object getRoot() {
+        return root;
     }
 
 
