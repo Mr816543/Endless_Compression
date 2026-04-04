@@ -15,7 +15,7 @@ main: "EC"
 version: v2.2.0-beta.1
 
 #运行此mod所需的最低游戏构建
-minGameVersion: 155
+minGameVersion: 156
 
 #这是Java Mod
 java: true
@@ -33,6 +33,9 @@ description: "支持语言 | Language
 ②群:692890113
 
 更新日志
+v2.2.1
+1.更新支持游戏版本156+
+
 v2.2.0-beta.1
 1.代码可读性,规范性优化
 2.新增设置 压缩敌方基地

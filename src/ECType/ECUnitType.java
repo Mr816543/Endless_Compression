@@ -72,8 +72,9 @@ public class ECUnitType extends UnitType implements EC {
         }
 
         if (legSplashDamage > 0 && legSplashRange > 0) {
-            stats.add(Stat.legSplashDamage, legSplashDamage, StatUnit.perLeg);
-            stats.add(Stat.legSplashRange, Strings.autoFixed(legSplashRange / tilesize, 1), StatUnit.blocks);
+            this.stats.add(Stat.legSplashDamage, (table) -> {
+                table.add(Core.bundle.format("bullet.splashdamage", Strings.autoFixed(this.legSplashDamage, 2), Strings.autoFixed(this.legSplashRange / 8.0F, 2)).replace("[stat]", "[white]") + " " + StatUnit.perLeg.localized());
+            });
         }
 
         stats.add(Stat.targetsAir, targetAir);

@@ -7,8 +7,6 @@ import mindustry.content.TechTree;
 import mindustry.ctype.UnlockableContent;
 import mindustry.game.Objectives;
 
-import static mindustry.content.SectorPresets.craters;
-
 public class ECTechTrees {
     public static void load() {
 
@@ -16,9 +14,12 @@ public class ECTechTrees {
             ECTool.loadECTechNode(root);
         }
 
+        //因游戏156更新而移除
+        /*/
         for (TechTree.TechNode node : Blocks.siliconSmelter.techNodes) {
             node.objectives.add(new Objectives.SectorComplete(craters));
         }
+        //*/
 
 
     }
