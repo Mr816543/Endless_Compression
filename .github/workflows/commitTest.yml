@@ -1,7 +1,5 @@
 name: Build Mod
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on:
   push:
@@ -20,7 +18,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        java-version: 25  # 你用啥版本就写啥：8/11/17/21 都行
+        java-version: 17  # 你用啥版本就写啥：8/11/17/21 都行
         distribution: temurin  # 必须加这一行！
     - name: Build mod jar
       run: |
