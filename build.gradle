@@ -30,12 +30,12 @@ repositories{
 }
 
 java{
-    targetCompatibility = JavaVersion.VERSION_25
-    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 ext{
-    mindustryVersion = 'v156.2' //the build number that this mod is made for
+    mindustryVersion = 'v157.4' //the build number that this mod is made for
     jabelVersion = "93fde537c7"
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")

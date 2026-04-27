@@ -18,6 +18,7 @@ import arc.struct.Seq;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
+import mindustry.content.Blocks;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.gen.Groups;
@@ -487,6 +488,7 @@ public class ECMultiCrafter extends Block {
             this.build = build;
             this.block = (ECMultiCrafter) build.block;
             setup();
+            addCloseButton();
         }
 
 

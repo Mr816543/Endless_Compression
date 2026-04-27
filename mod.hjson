@@ -12,10 +12,10 @@ author: "816543"
 main: "EC"
 
 #mod版本
-version: v2.2.1
+version: v2.2.2
 
 #运行此mod所需的最低游戏构建
-minGameVersion: 156
+minGameVersion: 157
 
 #这是Java Mod
 java: true
@@ -33,6 +33,10 @@ description: "支持语言 | Language
 ②群:692890113
 
 更新日志
+v2.2.2
+1.支持游戏版本v157+
+2.为所有压缩器/压缩工厂的配置页面添加了放回按钮
+
 v2.2.1
 1.更新支持游戏版本156+
 2.新增了更多的bug

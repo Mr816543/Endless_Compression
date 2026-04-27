@@ -9,7 +9,6 @@ import mindustry.type.CellLiquid;
 import mindustry.type.Liquid;
 
 import static ECConfig.ECSetting.MAX_LEVEL;
-import static ECConfig.ECTool.mergeRegions;
 
 public class ECLiquids {
     public static Seq<Liquid> liquids;
@@ -41,12 +40,5 @@ public class ECLiquids {
         }
     }
 
-    public static void setCompressionIcon(Liquid liquid, Liquid comppressLiquid, int num) {
-        if (liquid.uiIcon != null) {
-            comppressLiquid.uiIcon = comppressLiquid.fullIcon = mergeRegions(liquid.uiIcon, num);
-        } else {
-            Core.app.post(() -> setCompressionIcon(liquid, comppressLiquid, num));
-        }
-    }
 
 }
