@@ -9,9 +9,12 @@ import arc.Events;
 import arc.util.Time;
 import mindustry.Vars;
 import mindustry.content.Items;
+import mindustry.core.ContentLoader;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
 import mindustry.mod.Mods;
+
+import static mindustry.Vars.content;
 
 public class EC extends Mod {
 
@@ -80,6 +83,8 @@ public class EC extends Mod {
 
         Events.on(EventType.ModContentLoadEvent.class,m->{
 
+            content.setCurrentMod(Vars.mods.getMod("ec"));
+
             GradualDisplayName.load();
             StartTime();
             Mods.LoadedMod mod = Vars.mods.locateMod("ec");
@@ -115,6 +120,8 @@ public class EC extends Mod {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
+
+            content.setCurrentMod(null);
         });
 
         /*/

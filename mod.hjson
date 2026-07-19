@@ -15,7 +15,7 @@ main: "EC"
 softDependencies: []
 
 #mod版本
-version: v2.3.0
+version: v2.3.1
 
 #运行此mod所需的最低游戏构建
 minGameVersion: 159
@@ -36,6 +36,10 @@ description: "支持语言 | Language
 ②群:692890113
 
 更新日志
+v2.3.1
+1.修复了自v2.2.0升级时的物品丢失bug
+
+
 v2.3.0
 1.支持游戏版本v159.6+
 2.新增调整设置 最大/最小压缩内容显示等级
