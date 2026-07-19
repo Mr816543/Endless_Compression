@@ -79,7 +79,7 @@ public class ECBlocks {
 
         for (Block root : blocks) {
             if (root.buildVisibility == BuildVisibility.debugOnly) continue;
-            if (root.isModded()) continue;
+            if (root.isModded()&&!Core.settings.getBool("CompatibleOtherMods")) continue;
             if (root.isHidden() && root.buildVisibility != BuildVisibility.sandboxOnly && root.buildVisibility != BuildVisibility.legacyLaunchPadOnly)
                 continue;
 

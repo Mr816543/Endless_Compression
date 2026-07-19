@@ -4,6 +4,7 @@ package ECConfig;
 import ECType.ECLiquid;
 import ECType.ECUnitType;
 import arc.Core;
+import arc.Events;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
@@ -20,6 +21,7 @@ import mindustry.ctype.Content;
 import mindustry.ctype.UnlockableContent;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.bullet.LiquidBulletType;
+import mindustry.game.EventType;
 import mindustry.gen.Building;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
@@ -216,13 +218,39 @@ public class ECTool {
     }
 
     //设置图标
-    public static void setIcon(UnlockableContent root, UnlockableContent child, int num) {
-        if (root.uiIcon != null) {
-            child.uiIcon = child.fullIcon = mergeRegions(root.uiIcon, num);
-        } else {
-            Core.app.post(() -> setIcon(root, child, num));
+
+    public static void setIcon(UnlockableContent root, UnlockableContent child, int num){
+        setIcon(root,child,num,0);
+    }
+
+    public static void setIcon(UnlockableContent root, UnlockableContent child, int num,int times) {
+
+        if (root.isVanilla()){
+            if (root.uiIcon != null) {
+                child.uiIcon = child.fullIcon = mergeRegions(root.uiIcon, num);
+                //if(num == 1) Log.info(root.localizedName+"'s compression icon loaded successfully,times:"+times);
+            } else if (times <=100){
+                Core.app.post(() -> setIcon(root, child, num,times+1));
+                //if(num == 1) Log.info(root.localizedName+"'s compression icon failed to load,times:"+times);
+            }
+        }else {
+
+            if (root instanceof Item i && i.frames>0){
+
+                Events.on(EventType.ClientLoadEvent.class, e -> {
+                    child.fullIcon = child.uiIcon = root.uiIcon;
+                });
+            }else {
+                Events.on(EventType.ClientLoadEvent.class, e -> {
+                    child.fullIcon = child.uiIcon = root.uiIcon;
+                });
+            }
+
+
         }
     }
+
+
 
 
     //加载数字角标贴图
@@ -230,7 +258,7 @@ public class ECTool {
         for (int i = 0; i <= 10; i++) {
             numberPixmap[0][i] = new Texture(Vars.mods.getMod("ec").root.child("sprites").child("number").child("num-" + i + ".png")).getTextureData().getPixmap();
         }
-        for (int j = 2; j <= 9; j++) {
+        for (int j = 2; j <= numberPixmap.length; j++) {
             int size = 32 * j;
             for (int i = 0; i <= 10; i++) {
                 Pixmap num = new Pixmap(size, size);
@@ -261,13 +289,10 @@ public class ECTool {
         result.draw(pixmapB, 1, 1, 1, 1);
 
 
-        // 生成纹理并清理资源
-        Texture combinedTex = new Texture(result);
-        //combinedTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); // 可选滤波
-        TextureRegion combinedRegion = new TextureRegion(combinedTex);
+        // 生成纹理
+        TextureRegion combinedRegion = new TextureRegion(new Texture(result));
 
         // 释放Pixmap资源
-        pixmapA.dispose();
         result.dispose();
 
         return combinedRegion;
@@ -277,52 +302,54 @@ public class ECTool {
     public static TextureRegion mergeRegions(Pixmap pixmapA, Pixmap pixmapB) {
         int sizeA = Math.max(pixmapA.getHeight(), pixmapA.getWidth());
         int sizeB = Math.max(pixmapB.getHeight(), pixmapB.getWidth());
-        return mergeRegions(pixmapA, pixmapB, Math.max(sizeA, sizeB));
+        TextureRegion region = mergeRegions(pixmapA, pixmapB, Math.max(sizeA, sizeB));
+        return region;
     }
 
     public static TextureRegion mergeRegions(TextureRegion A, int num) {
         int sizeA = Math.max(A.width, A.height);
         int size = Math.max(sizeA / 32, 1);
-        return mergeRegions(extractRegionPixmap(A), numberPixmap[size - 1][num]);
+        size = Math.min(9,size);
+        Pixmap pixmapA = extractRegionPixmap(A);
+        TextureRegion region = mergeRegions(pixmapA, numberPixmap[size - 1][num]);
+        pixmapA.dispose();
+        return region;
     }
 
 
     //截取贴图对应的Pixmap
     public static Pixmap extractRegionPixmap(TextureRegion region) {
+
         Texture tex = region.texture;
         TextureData data = tex.getTextureData();
         if (!data.isPrepared()) data.prepare();
-        Pixmap full = data.consumePixmap();
 
-        // 获取区域参数
+        Pixmap full = data.consumePixmap();
         int x = region.getX(), y = region.getY();
         int width = region.width, height = region.height;
-        boolean isRotated = (region instanceof TextureAtlas.AtlasRegion) && ((TextureAtlas.AtlasRegion) region).rotate;
+        boolean rotate = region instanceof TextureAtlas.AtlasRegion && ((TextureAtlas.AtlasRegion) region).rotate;
 
-        // 计算实际纹理中的区域尺寸
-        int srcW = isRotated ? height : width;
-        int srcH = isRotated ? width : height;
+        int srcW = rotate ? height : width;
+        int srcH = rotate ? width : height;
 
-        // 提取原始区域
         Pixmap extracted = new Pixmap(srcW, srcH);
-        extracted.draw(full, 0, 0, x, y, srcW, srcH);
-        data.disposePixmap(); // 释放原纹理数据
 
-        // 处理旋转
-        //*/
-        if (isRotated) {
+         extracted.draw(full, 0, 0, x, y, srcW, srcH);
+
+        data.disposePixmap();
+
+        if (rotate) {
             Pixmap rotated = new Pixmap(width, height);
-            for (int px = 0; px < srcW; px++) {
-                for (int py = 0; py < srcH; py++) {
-                    rotated.set(py, width - px - 1, extracted.get(px, py));
+            // 90度顺时针旋转，标准Atlas旋转逻辑
+            for (int xx = 0; xx < srcW; xx++) {
+                for (int yy = 0; yy < srcH; yy++) {
+                    int color = extracted.get(xx, yy);
+                    rotated.set(yy, width - 1 - xx, color);
                 }
             }
             extracted.dispose();
             extracted = rotated;
         }
-        //*/
-
-        //Log.info("height : "+extracted.height+" , width : "+extracted.width);
         return extracted;
     }
 

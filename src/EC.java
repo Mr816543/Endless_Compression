@@ -1,6 +1,7 @@
 import ECConfig.ECTool;
 import ECConfig.EntityProfiler;
 import ECConfig.GradualDisplayName;
+import ECConfig.VisibilityReplace;
 import ECContents.*;
 import ECType.CustomDialog;
 import arc.Core;
@@ -14,7 +15,7 @@ import mindustry.mod.Mods;
 
 public class EC extends Mod {
 
-    private final EntityProfiler profiler = new EntityProfiler();
+    private final EntityProfiler PROFILER = new EntityProfiler();
     public long StartTime;
 
     @Override
@@ -38,10 +39,11 @@ public class EC extends Mod {
             Time.run(1f, this::showDialog);
         });
 
-        profiler.init();
-
         ECUnitTypes.init();
 
+        PROFILER.init();
+
+        VisibilityReplace.init();
 
     }
 
@@ -75,41 +77,46 @@ public class EC extends Mod {
 
     @Override
     public void loadContent() {
-        GradualDisplayName.load();
-        StartTime();
-        Mods.LoadedMod mod = Vars.mods.locateMod("ec");
-        String version = mod.meta.version;
-        ECTool.print("[EC]Loading...\nversion:" + version);
 
-        ECTool.loadNumberPixmap();
-        loadTime("NumberPixmap");
+        Events.on(EventType.ModContentLoadEvent.class,m->{
 
-        try {
-            ECItems.load();
-            loadTime("ECItems");
+            GradualDisplayName.load();
+            StartTime();
+            Mods.LoadedMod mod = Vars.mods.locateMod("ec");
+            String version = mod.meta.version;
+            ECTool.print("[EC]Loading...\nversion:" + version);
 
-            ECLiquids.load();
-            loadTime("ECLiquids");
+            ECTool.loadNumberPixmap();
+            loadTime("NumberPixmap");
 
-            ECEffects.load();
-            loadTime("ECEffects");
+            try {
+                ECItems.load();
+                loadTime("ECItems");
 
-            ECUnitTypes.load();
-            loadTime("ECUnitTypes");
+                ECLiquids.load();
+                loadTime("ECLiquids");
 
-            ECBlocks.load();
-            loadTime("ECBlocks");
+                ECEffects.load();
+                loadTime("ECEffects");
 
-            ECTechTrees.load();
-            loadTime("ECTechTrees");
+                ECUnitTypes.load();
+                loadTime("ECUnitTypes");
 
-            Achievements.load();
-            loadTime("ECAchievements");
+                ECBlocks.load();
+                loadTime("ECBlocks");
+
+                ECTechTrees.load();
+                loadTime("ECTechTrees");
+
+                Achievements.load();
+                loadTime("ECAchievements");
 
 
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         /*/
         new ECMultiCrafter("test"){{
             requirements(Category.crafting, with(Items.titanium, 100, Items.silicon, 25, Items.lead, 100, Items.graphite, 50));

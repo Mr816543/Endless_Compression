@@ -16,7 +16,7 @@ public class ECLiquids {
     public static void load() throws IllegalAccessException {
         liquids = Vars.content.liquids().copy();
         for (Liquid liquid : liquids) {
-            if (liquid.isModded()) continue;
+            if (liquid.isModded()&&!Core.settings.getBool("CompatibleOtherMods")) continue;
             if (liquid.isHidden()) continue;
             if (liquid instanceof CellLiquid cellLiquid) {
                 compressCellLiquid(cellLiquid);

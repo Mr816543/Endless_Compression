@@ -44,7 +44,7 @@ public class ECUnitTypes {
     public static void load() throws IllegalAccessException {
         unitTypes = Vars.content.units().copy();
         for (UnitType root : unitTypes) {
-            if (root.isModded()) continue;
+            if (root.isModded()&&!Core.settings.getBool("CompatibleOtherMods")) continue;
             if (root.isHidden()) continue;
             compressUnitType(root);
         }

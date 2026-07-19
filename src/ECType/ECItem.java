@@ -12,8 +12,9 @@ import mindustry.world.meta.StatUnit;
 
 public class ECItem extends Item implements EC {
 
-    public static Config config = new Config().linearConfig("cost", "radioactivity", "charge", "hardness", "explosiveness"
-    ).scaleConfig("healthScaling").addConfigSimple(9f, "flammability");
+    public static Config config = new Config()
+            .linearConfig("cost", "radioactivity", "charge", "hardness", "explosiveness")
+            .scaleConfig("healthScaling").addConfigSimple(9f, "flammability");
     public Item root;
     public int level;
 
@@ -26,6 +27,7 @@ public class ECItem extends Item implements EC {
         localizedName = level + Core.bundle.get("num-Compression.localizedName") + root.localizedName;
         description = root.description;
         details = root.details;
+        frames = 0;
         color = ECTool.Color(root.color, level, true);
         ECData.register(root, this, level);
     }

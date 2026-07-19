@@ -357,6 +357,7 @@ public class ECCompressCrafter extends ECMultiCrafter implements EC {
         Pixmap B = ECTool.numberPixmap[size - 1][level];
 
         fullIcon = uiIcon = ECTool.mergeRegions(A, B);
+        A.dispose();
     }
 
     @Override

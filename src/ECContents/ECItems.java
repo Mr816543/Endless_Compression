@@ -4,6 +4,7 @@ import ECConfig.ECTool;
 import ECType.ECItem;
 import arc.Core;
 import arc.struct.Seq;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.type.Item;
 
@@ -15,7 +16,7 @@ public class ECItems {
     public static void load() throws IllegalAccessException {
         items = Vars.content.items().copy();
         for (Item root : items) {
-            if (root.isModded()) continue;
+            if (root.isModded()&&!Core.settings.getBool("CompatibleOtherMods")) continue;
             if (root.isHidden()) continue;
             compressItem(root);
             if (Core.settings.getBool("oldContent")) compressOldItem(root);

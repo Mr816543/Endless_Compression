@@ -48,7 +48,7 @@ public class ECTractorBeamTurret extends TractorBeamTurret implements EC {
 
 
     public ECTractorBeamTurret(TractorBeamTurret root) throws IllegalAccessException {
-        super(root.name);
+        super("compression-" + root.name);
         this.root = root;
         ECTool.compress(root, this, UnlockableContent.class, config, 0);
         ECTool.loadCompressContentRegion(root, this);

@@ -46,7 +46,7 @@ public class ECPowerTurret extends PowerTurret implements EC {
 
 
     public ECPowerTurret(PowerTurret root) throws IllegalAccessException {
-        super(root.name);
+        super("compression-" + root.name);
         this.root = root;
         ECTool.compress(root, this, UnlockableContent.class, config, 0);
         ECTool.loadCompressContentRegion(root, this);

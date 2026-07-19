@@ -18,30 +18,52 @@ public class ECSettings {
 
                     settingsTable.sliderPref("ECDifficulty", 2, 0, 3, 1, i -> Core.bundle.get("setting.ECDifficulty.level-" + i));
                     settings.getInt("ECDifficulty");
+
+                    settingsTable.sliderPref("MinShowLevel",1,1,9,1,i -> i+Core.bundle.get("num-Compression.localizedName"));
+                    settings.getInt("MinShowLevel");
+
+                    settingsTable.sliderPref("MaxShowLevel",9,1,9,1,i -> i+Core.bundle.get("num-Compression.localizedName"));
+                    settings.getInt("MaxShowLevel");
+
                     settingsTable.checkPref("compressedEnemyBuilding", false);
                     Core.settings.getBool("compressedEnemyBuilding");
+
                     settingsTable.checkPref("ECSync", true);
                     Core.settings.getBool("ECSync");
+
                     settingsTable.checkPref("asFrame", false);
                     Core.settings.getBool("asFrame");
+
                     settingsTable.checkPref("banContent", false);
                     Core.settings.getBool("banContent");
+
                     settingsTable.checkPref("oldContent", false);
                     Core.settings.getBool("oldContent");
+
                     settingsTable.checkPref("testContent", false);
                     Core.settings.getBool("testContent");
+
+                    settingsTable.checkPref("CompatibleOtherMods", false);
+                    Core.settings.getBool("CompatibleOtherMods");
+
                     settingsTable.checkPref("clearAchievements", false);
                     Core.settings.getBool("clearAchievements");
+
                     settingsTable.checkPref("achievementsWork", true);
                     Core.settings.getBool("achievementsWork");
+
                     settingsTable.checkPref("showDialog", true);
                     Core.settings.getBool("showDialog");
+
                     settingsTable.checkPref("simpleLaunch", false);
                     Core.settings.getBool("simpleLaunch");
+
                     //settingsTable.checkPref("autoUpdate", false);
                     //Core.settings.getBool("autoUpdate");
+
                     settingsTable.sliderPref("sampleTimes", 5, 1, 30, 1, i -> i + "s");
                     settings.getInt("sampleTimes");
+
                     settingsTable.checkPref("entityProfiler", false);
                     Core.settings.getBool("entityProfiler");
                 });
