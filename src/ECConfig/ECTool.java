@@ -228,8 +228,8 @@ public class ECTool {
         if (root.isVanilla()){
             if (root.uiIcon != null) {
                 child.uiIcon = child.fullIcon = mergeRegions(root.uiIcon, num);
-                //if(num == 1) Log.info(root.localizedName+"'s compression icon loaded successfully,times:"+times);
-            } else if (times <=100){
+                if(num == 1) Log.info(root.localizedName+"'s compression icon loaded successfully,times:"+times);
+            } else {
                 Core.app.post(() -> setIcon(root, child, num,times+1));
                 //if(num == 1) Log.info(root.localizedName+"'s compression icon failed to load,times:"+times);
             }
