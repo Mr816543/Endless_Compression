@@ -36,6 +36,8 @@ public class ECMultipleCompressCrafter extends ECMultiCrafter implements EC {
         multiDrawer = true;
         localizedName = level + Core.bundle.get("ECMultipleCompressCrafter.name");
         loadIcon();
+
+        aiRecipe = Core.settings.getBool("AIRecipe");
     }
 
 

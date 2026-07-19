@@ -40,6 +40,8 @@ public class ECCompressCrafter extends ECMultiCrafter implements EC {
         details = Core.bundle.get("ECCompressCrafter.details");
         loadIcon();
 
+        aiRecipe = Core.settings.getBool("AIRecipe");
+
     }
 
 

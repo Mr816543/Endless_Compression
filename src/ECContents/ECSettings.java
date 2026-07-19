@@ -28,6 +28,9 @@ public class ECSettings {
                     settingsTable.checkPref("compressedEnemyBuilding", false);
                     Core.settings.getBool("compressedEnemyBuilding");
 
+                    settingsTable.checkPref("AIRecipe", false);
+                    Core.settings.getBool("AIRecipe");
+
                     settingsTable.checkPref("ECSync", true);
                     Core.settings.getBool("ECSync");
 
