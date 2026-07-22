@@ -25,7 +25,8 @@ public class ECSettings {
                     settingsTable.sliderPref("MaxShowLevel",9,1,9,1,i -> i+Core.bundle.get("num-Compression.localizedName"));
                     settings.getInt("MaxShowLevel");
 
-                    settingsTable.checkPref("compressedEnemyBuilding", false);
+                    //settingsTable.checkPref("compressedEnemyBuilding", false);
+                    settings.put("compressedEnemyBuilding",false);
                     Core.settings.getBool("compressedEnemyBuilding");
 
                     settingsTable.checkPref("AIRecipe", false);

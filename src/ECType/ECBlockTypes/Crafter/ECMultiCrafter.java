@@ -1,9 +1,7 @@
 package ECType.ECBlockTypes.Crafter;
 
-import ECConfig.EC;
 import ECConfig.ECData;
 import ECConfig.ECTool;
-import ECContents.ECBlocks;
 import arc.Core;
 import arc.func.Func;
 import arc.graphics.Color;
@@ -15,10 +13,10 @@ import arc.scene.ui.layout.Table;
 import arc.struct.IntSet;
 import arc.struct.OrderedMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.Vars;
-import mindustry.content.Blocks;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.gen.Groups;
@@ -40,6 +38,7 @@ import mindustry.world.draw.DrawDefault;
 import mindustry.world.meta.*;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class ECMultiCrafter extends Block {
@@ -569,6 +568,7 @@ public class ECMultiCrafter extends Block {
         public IntSet cameFrom = new IntSet();//不知道
         public long lastHeatUpdate = -1;//最后一次热更新
         public int index = 0;//当前配方索引
+        public boolean recipeConfirm = true;//配方是否确定
         public float progress = 0f;//生产进度
         public boolean needUpdateBar = true;
         public OrderedMap<String, Func<Building, Bar>> barMap = new OrderedMap<>();
@@ -600,8 +600,83 @@ public class ECMultiCrafter extends Block {
         @Override
         public void updateTile() {
 
-
+            if (needUpdateBar){
+                updateBar();
+            }
             Recipe r = recipes.get(index);
+            updateHeat();
+            canConsume = canConsume(r);
+
+            if (timer(timerDump, dumpTime / timeScale)) {
+                dumpRecipe(r);
+            }
+
+            if (canConsume){
+                recipeConfirm = true;
+                progress += delta() / r.crafterTime * efficiencyScale();
+                warmup = Mathf.approachDelta(warmup, warmupTarget(), r.warmupRate);
+                for (int i = 0; progress >= 1f && i < 9; i++) {
+                    consumeRecipe(r);
+                    handleRecipe(r);
+                    unitCraft(r);
+                    progress -= 1f;
+                }
+                return;
+            }
+
+            recipeConfirm = false;
+            sleepTimer -= delta();
+            progress = 0;
+            warmup = Mathf.approachDelta(warmup, 0, r.warmupRate);
+
+            if (sleepTimer>0) return;
+
+            if (aiRecipe){
+
+                float[] material = new float[recipes.size];
+                for (int i = 0; i < recipes.size; i++) {
+
+                    Recipe recipe = recipes.get(i);
+
+                    float minPercent = (float) 1 / (recipe.inputItems.length + recipe.inputLiquids.length + recipe.inputUnits.length + 3);
+
+                    float percent = 0;
+
+                    for (ItemStack itemStack : recipe.inputItems) {
+                        if (items.get(itemStack.item) > 0) percent += minPercent * Math.min(1f, items.get(itemStack.item) / (float) itemStack.amount);
+                    }
+
+                    for (LiquidStack liquidStack : recipe.inputLiquids) {
+                        if (liquids.get(liquidStack.liquid) >= 0.01f) percent += minPercent * Math.min(1f, liquids.get(liquidStack.liquid)/liquidStack.amount);
+                    }
+
+                    for (UnitStack unitStack : recipe.inputUnits) {
+                        if (getUnits(unitStack.unitType) > 0) percent += minPercent * Math.min(1f, getUnits(unitStack.unitType) / (float) unitStack.amount);
+                    }
+
+                    if (recipe.inputPower > 0 && power.status == 1) {
+                        percent += minPercent;
+                    }
+
+                    if (recipe.inputHeat > 0 && heat >= recipe.inputHeat) {
+                        percent += minPercent;
+                    }
+
+                    material[i] = percent;
+
+                }
+
+                int max = 0;
+                for (int i = 1; i < material.length; i++) if (material[max] < material[i]) max = i;
+
+                index = max;
+                needUpdateBar = true;
+
+                sleepTimer = 60;
+
+            }
+
+            /*/
             if (team==Vars.state.rules.waveTeam){
                 final boolean[] i = {false};
                 items.each((item,amount)->{
@@ -652,15 +727,15 @@ public class ECMultiCrafter extends Block {
                     float percent = 0;
 
                     for (ItemStack itemStack : recipe.inputItems) {
-                        if (items.get(itemStack.item) >= itemStack.amount) percent += minPercent;
+                        if (items.get(itemStack.item) > 0) percent += minPercent * Math.min(1f, items.get(itemStack.item) / (float) itemStack.amount);
                     }
 
                     for (LiquidStack liquidStack : recipe.inputLiquids) {
-                        if (liquids.get(liquidStack.liquid) >= liquidStack.amount) percent += minPercent;
+                        if (liquids.get(liquidStack.liquid) >= 0.01f) percent += minPercent * Math.min(1f, liquids.get(liquidStack.liquid)/liquidStack.amount);
                     }
 
                     for (UnitStack unitStack : recipe.inputUnits) {
-                        if (getUnits(unitStack.unitType) >= unitStack.amount) percent += minPercent;
+                        if (getUnits(unitStack.unitType) > 0) percent += minPercent * Math.min(1f, getUnits(unitStack.unitType) / (float) unitStack.amount);
                     }
 
                     if (recipe.inputPower > 0 && power.status == 1) {
@@ -681,21 +756,30 @@ public class ECMultiCrafter extends Block {
                 }
 
                 index = max;
+                needUpdateBar = true;
+
                 //ECTool.print("index : " + index);
                 sleepTimer = 60;
 
+                if (!canConsume(recipes.get(index))){
+                    recipeConfirm = false;
+                    ECTool.dump(this);
+                    liquids.each((liquid, v) -> ECTool.dumpLiquid(liquid,this));
+                }
 
-            } else {
+            }
+            else {
 
-                sleepTimer -= delta();
+                r = recipes.get(index);
+                Log.info(sleepTimer);
 
                 if (needUpdateBar) {
                     updateBar();
                 }
                 updateHeat();
                 canConsume = canConsume(r);
-
                 if (canConsume) {
+                    sleepTimer = 180;
                     progress += delta() / r.crafterTime * efficiencyScale();
                     warmup = Mathf.approachDelta(warmup, warmupTarget(), r.warmupRate);
                     //Log.info("working");
@@ -707,6 +791,7 @@ public class ECMultiCrafter extends Block {
                         progress -= 1f;
                     }
                 } else {
+                    sleepTimer -= delta();
                     progress = 0;
                     warmup = Mathf.approachDelta(warmup, 0, r.warmupRate);
                 }
@@ -716,10 +801,85 @@ public class ECMultiCrafter extends Block {
                 }
 
             }
-
+            //*/
 
         }
 
+        @Override
+        public boolean acceptItem(Building source, Item item) {
+
+            if (recipeConfirm){
+                Recipe r = recipes.get(index);
+                for (ItemStack input : r.inputItems) {
+                    if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
+                }
+                return false;
+            }
+
+            if (aiRecipe){
+                AtomicBoolean accept = new AtomicBoolean(false);
+                recipes.each(r -> {
+                    for (ItemStack input : r.inputItems) {
+                        if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) accept.set(true);
+                    }
+                });
+                return accept.get();
+            }
+
+            /*/
+            if ((aiRecipe&&!recipeConfirm)||team==Vars.state.rules.waveTeam) {
+                for (Recipe r : recipes) {
+                    for (ItemStack input : r.inputItems) {
+                        if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
+                    }
+                }
+            } else {
+                Recipe r = recipes.get(index);
+                for (ItemStack input : r.inputItems) {
+                    if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
+                }
+            }
+            //*/
+            return false;
+        }
+
+        @Override
+        public boolean acceptLiquid(Building source, Liquid liquid) {
+
+            if (recipeConfirm){
+                Recipe r = recipes.get(index);
+                for (LiquidStack input : r.inputLiquids) {
+                    if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
+                }
+                return false;
+            }
+
+            if (aiRecipe){
+                AtomicBoolean accept = new AtomicBoolean(false);
+                recipes.each(r -> {
+                    for (LiquidStack input : r.inputLiquids) {
+                        if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) accept.set(true);
+                    }
+                });
+                return accept.get();
+            }
+
+            /*/
+            if ((aiRecipe&&!recipeConfirm)||team==Vars.state.rules.waveTeam) {
+                for (Recipe r : recipes) {
+                    for (LiquidStack input : r.inputLiquids) {
+                        if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
+                    }
+                }
+            } else {
+                Recipe r = recipes.get(index);
+                for (LiquidStack input : r.inputLiquids) {
+                    if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
+                }
+            }
+            //*/
+            return false;
+        }
 
         public float warmupTarget() {
             if (recipes.get(index).inputHeat == 0) return 1f;
@@ -911,7 +1071,6 @@ public class ECMultiCrafter extends Block {
         }
 
         public void dumpRecipe(Recipe r) {
-            Building b = this;
             for (ItemStack output : r.outputItems) {
                 ECTool.dump(this, output.item);
             }
@@ -1110,43 +1269,6 @@ public class ECMultiCrafter extends Block {
             return amount;
         }
 
-        @Override
-        public boolean acceptItem(Building source, Item item) {
-
-            if (aiRecipe||team==Vars.state.rules.waveTeam) {
-                for (Recipe r : recipes) {
-                    for (ItemStack input : r.inputItems) {
-                        if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
-                    }
-                }
-            } else {
-                Recipe r = recipes.get(index);
-                for (ItemStack input : r.inputItems) {
-                    if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
-                }
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean acceptLiquid(Building source, Liquid liquid) {
-
-            if (aiRecipe||team==Vars.state.rules.waveTeam) {
-                for (Recipe r : recipes) {
-                    for (LiquidStack input : r.inputLiquids) {
-                        if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
-                    }
-                }
-            } else {
-                Recipe r = recipes.get(index);
-                for (LiquidStack input : r.inputLiquids) {
-                    if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
-                }
-            }
-
-            return false;
-        }
 
         @Override//配置菜单
         public void buildConfiguration(Table table) {
