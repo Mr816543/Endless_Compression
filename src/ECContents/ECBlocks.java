@@ -87,18 +87,25 @@ public class ECBlocks {
 
             switch (cn) {
                 //工厂
-                case "GenericCrafter" -> new ECGenericCrafter((GenericCrafter) root);
+                case "GenericCrafter" -> {
+                    if (!Core.settings.getBool("banContent")) new ECGenericCrafter((GenericCrafter) root);
+                }
                 //环境工厂
-                case "AttributeCrafter" -> new ECAttributeCrafter((AttributeCrafter) root);
+                case "AttributeCrafter" -> {
+                    if (!Core.settings.getBool("banContent"))new ECAttributeCrafter((AttributeCrafter) root);
+                }
+                //热生产厂
+                case "HeatProducer" -> {
+                    if (!Core.settings.getBool("banContent")) new ECHeatProducer((HeatProducer) root);
+                }
+                //热消耗厂
+                case "HeatCrafter" -> {
+                    if (!Core.settings.getBool("banContent")) new ECHeatCrafter((HeatCrafter) root);
+                }
                 //分离机
                 case "Separator" -> {
                     for (int i = 1; i <= MAX_LEVEL; i++) new ECSeparator((Separator) root, i);
                 }
-                //热生产厂
-                case "HeatProducer" -> new ECHeatProducer((HeatProducer) root);
-                //热消耗厂
-                case "HeatCrafter" -> new ECHeatCrafter((HeatCrafter) root);
-
                 //消耗类发电厂
                 case "ConsumeGenerator" -> {
                     Seq<String> CGNames = new Seq<>(new String[]{
@@ -158,8 +165,7 @@ public class ECBlocks {
                 }
                 //冲击钻头
                 case "BurstDrill" -> {
-                    if (!Core.settings.getBool("banContent"))
-                        for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
+                    for (int i = 1; i <= MAX_LEVEL; i++) new ECBurstDrill((BurstDrill) root, i);
                 }
                 //等离子钻机
                 case "BeamDrill" -> {

@@ -569,6 +569,7 @@ public class ECMultiCrafter extends Block {
         public long lastHeatUpdate = -1;//最后一次热更新
         public int index = 0;//当前配方索引
         public boolean recipeConfirm = true;//配方是否确定
+        public boolean recipeLock = false;
         public float progress = 0f;//生产进度
         public boolean needUpdateBar = true;
         public OrderedMap<String, Func<Building, Bar>> barMap = new OrderedMap<>();
@@ -613,6 +614,7 @@ public class ECMultiCrafter extends Block {
 
             if (canConsume){
                 recipeConfirm = true;
+                sleepTimer = 180;
                 progress += delta() / r.crafterTime * efficiencyScale();
                 warmup = Mathf.approachDelta(warmup, warmupTarget(), r.warmupRate);
                 for (int i = 0; progress >= 1f && i < 9; i++) {
@@ -625,13 +627,15 @@ public class ECMultiCrafter extends Block {
             }
 
             recipeConfirm = false;
-            sleepTimer -= delta();
             progress = 0;
             warmup = Mathf.approachDelta(warmup, 0, r.warmupRate);
 
-            if (sleepTimer>0) return;
+            if (sleepTimer>0) {
+                sleepTimer -= delta();
+                return;
+            }
 
-            if (aiRecipe){
+            if (aiRecipe&&!recipeLock){
 
                 float[] material = new float[recipes.size];
                 for (int i = 0; i < recipes.size; i++) {
@@ -805,21 +809,30 @@ public class ECMultiCrafter extends Block {
 
         }
 
+
+        @Override
+        public boolean onConfigureBuildTapped(Building other) {
+
+            if (other==this&&aiRecipe){
+                recipeLock = !recipeLock;
+                deselect();
+            }
+
+            return super.onConfigureBuildTapped(other);
+        }
+
         @Override
         public boolean acceptItem(Building source, Item item) {
 
-            if (recipeConfirm){
-                Recipe r = recipes.get(index);
-                for (ItemStack input : r.inputItems) {
-                    if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
-                }
-                return false;
+            Recipe r = recipes.get(index);
+            for (ItemStack input : r.inputItems) {
+                if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) return true;
             }
 
-            if (aiRecipe){
+            if (aiRecipe&&!recipeLock){
                 AtomicBoolean accept = new AtomicBoolean(false);
-                recipes.each(r -> {
-                    for (ItemStack input : r.inputItems) {
+                recipes.each(recipe -> {
+                    for (ItemStack input : recipe.inputItems) {
                         if (item == input.item && this.items.get(item) < this.getMaximumAccepted(item)) accept.set(true);
                     }
                 });
@@ -846,18 +859,15 @@ public class ECMultiCrafter extends Block {
         @Override
         public boolean acceptLiquid(Building source, Liquid liquid) {
 
-            if (recipeConfirm){
-                Recipe r = recipes.get(index);
-                for (LiquidStack input : r.inputLiquids) {
-                    if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
-                }
-                return false;
+            Recipe r = recipes.get(index);
+            for (LiquidStack input : r.inputLiquids) {
+                if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) return true;
             }
 
-            if (aiRecipe){
+            if (aiRecipe&&!recipeLock){
                 AtomicBoolean accept = new AtomicBoolean(false);
-                recipes.each(r -> {
-                    for (LiquidStack input : r.inputLiquids) {
+                recipes.each(recipe -> {
+                    for (LiquidStack input : recipe.inputLiquids) {
                         if (liquid == input.liquid && this.liquids.get(liquid) < this.block.liquidCapacity) accept.set(true);
                     }
                 });
@@ -1280,6 +1290,7 @@ public class ECMultiCrafter extends Block {
             super.write(write);
             write.i(index);//保存当前配方索引
             write.f(heat);
+            write.bool(recipeLock);
         }
 
         @Override
@@ -1287,6 +1298,7 @@ public class ECMultiCrafter extends Block {
             super.read(read, revision);
             index = read.i();//读取保存的索引
             heat = read.f();
+            recipeLock = read.bool();
         }
 
         @Override
@@ -1295,6 +1307,7 @@ public class ECMultiCrafter extends Block {
             if (Core.settings.getBool("ECSync")) {
                 write.i(index);//保存当前配方索引
                 write.f(heat);
+                write.bool(recipeLock);
             }
         }
 
@@ -1304,14 +1317,18 @@ public class ECMultiCrafter extends Block {
             if (Core.settings.getBool("ECSync")) {
                 index = read.i();
                 heat = read.f();
+                recipeLock = read.bool();
             }
         }
+
+
 
         @Override
         public BlockStatus status() {
             if (!this.enabled) {
                 return BlockStatus.logicDisable;
             }
+            if (recipeLock) return BlockStatus.inactive;
             if (canConsume) return BlockStatus.active;
             if (!shouldConsume()) return BlockStatus.noOutput;
             return BlockStatus.noInput;

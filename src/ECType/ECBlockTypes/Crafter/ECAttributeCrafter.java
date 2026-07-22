@@ -35,6 +35,8 @@ public class ECAttributeCrafter extends ECGenericCrafter implements EC {
 
         rotate = root.rotate;
 
+        aiRecipe = Core.settings.getBool("AIRecipe");
+
         ECTool.loadCompressContentRegion(root, this);
 
         ECTool.setIcon(root, this, 0);
